@@ -49,4 +49,4 @@ jobs:
         shell: pwsh
         run: ./tools/check-locales.ps1
       - name: Receipt verifier
-        run: node --test store/receipt-verifier/verify.test.mjs
+        run: node --test store/receipt-verifier/*.test.mjs

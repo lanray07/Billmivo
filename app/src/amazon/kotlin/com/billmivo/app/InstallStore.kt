@@ -1,6 +1,7 @@
 package com.billmivo.app
 
 import android.content.Context
+import com.amazon.device.drm.LicensingService
 import com.amazon.device.iap.PurchasingListener
 import com.amazon.device.iap.PurchasingService
 import com.amazon.device.iap.model.FulfillmentResult
@@ -36,9 +37,11 @@ private class AmazonPremium(private val context: Context) : PremiumAccess, Purch
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val endpoint = BuildConfig.AMAZON_VERIFIER
     private val mode = if (BuildConfig.AMAZON_SANDBOX) "sandbox" else "production"
-    override val available = endpoint.isNotBlank() && runCatching {
+    private val sandbox = BuildConfig.DEBUG && BuildConfig.AMAZON_SANDBOX
+    private val hasPublicKey = runCatching {
         context.assets.open("AppstoreAuthenticationKey.pem").use { it.read() != -1 }
     }.getOrDefault(false)
+    override val available = endpoint.isNotBlank() && (sandbox || hasPublicKey)
 
     private val cache = MutableStateFlow(PremiumState(entitled = cached()))
     override val state = cache.asStateFlow()
@@ -55,6 +58,10 @@ private class AmazonPremium(private val context: Context) : PremiumAccess, Purch
     override fun initialize() {
         if (!available || initialized) return
         runCatching {
+            if (sandbox) {
+                LicensingService.verifyLicense(context) { /* Initialize SDK mode detection. */ }
+                check(LicensingService.getAppstoreSDKMode() == "SANDBOX")
+            }
             PurchasingService.registerListener(context, this)
             PurchasingService.enablePendingPurchases()
         }.onSuccess { initialized = true }

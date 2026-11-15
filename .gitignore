@@ -1,5 +1,6 @@
 .gradle/
 .kotlin/
+.wrangler/
 .idea/
 **/build/
 local.properties

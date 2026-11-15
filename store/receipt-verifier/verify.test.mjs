@@ -18,10 +18,13 @@ test("permits only the expected verified entitlement", async () => {
     }
 });
 
-test("separates testing receipts from production", async () => {
-    const sample = { ...valid, testTransaction: true };
-    assert.equal((await verifyReceipt(input, production, succeeds(sample))).body.entitled, false);
-    assert.equal((await verifyReceipt(input, { ...production, mode: "sandbox" }, succeeds(sample))).body.entitled, true);
+test("accepts Amazon-verified Live App Testing receipts through production RVS only", async () => {
+    const sample = { ...valid, testTransaction: true, betaProduct: true };
+    const result = await verifyReceipt(input, production, async (url) => {
+        assert.ok(url.startsWith("https://appstore-sdk.amazon.com/version/"));
+        return Response.json(sample);
+    });
+    assert.deepEqual(result.body, { entitled: true, mode: "production" });
 });
 
 test("rejections, throttling, malformation and unavailable credentials have different outcomes", async () => {
@@ -44,8 +47,11 @@ test("rejects malformed identifiers before contacting Amazon and refuses redirec
     const result = await verifyReceipt(validUser, { ...production, mode: "sandbox" }, async (url, opts) => {
         assert.ok(url.startsWith("https://appstore-sdk.amazon.com/sandbox/"));
         assert.ok(url.includes("/user/user%2BA%3D%3D/"));
-        assert.equal(opts.redirect, "error");
+        assert.equal(opts.redirect, "manual");
         return new Response(JSON.stringify(valid), { status: 200 });
     });
     assert.equal(result.body.entitled, true);
+    assert.equal((await verifyReceipt(input, production, async () => new Response(null, {
+        status: 302, headers: { Location: "https://redirect.example" },
+    }))).status, 503);
 });

@@ -1,0 +1,29 @@
+name = "billmivo-receipts-sandbox"
+main = "worker.mjs"
+compatibility_date = "2026-11-15"
+workers_dev = true
+preview_urls = false
+
+[observability]
+enabled = false
+
+[vars]
+AMAZON_RVS_MODE = "sandbox"
+
+[[ratelimits]]
+name = "AMAZON_RVS_LIMIT"
+namespace_id = "561139801"
+simple = { limit = 20, period = 60 }
+
+[env.production]
+name = "billmivo-receipts-production"
+workers_dev = false
+preview_urls = false
+
+[env.production.vars]
+AMAZON_RVS_MODE = "production"
+
+[[env.production.ratelimits]]
+name = "AMAZON_RVS_LIMIT"
+namespace_id = "561139802"
+simple = { limit = 20, period = 60 }

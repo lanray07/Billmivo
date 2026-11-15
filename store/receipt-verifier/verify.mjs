@@ -22,8 +22,10 @@ export async function verifyReceipt(input, options, request = fetch) {
     const url = endpoint + "/version/1.0/verifyReceiptId/developer/" + encodeURIComponent(sharedSecret) +
         "/user/" + encodeURIComponent(userId) + "/receiptId/" + encodeURIComponent(receiptId);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000);
     try {
-        const response = await request(url, { redirect: "error", signal: AbortSignal.timeout(7000) });
+        const response = await request(url, { redirect: "manual", signal: controller.signal });
         if ([400, 410, 497].includes(response.status)) {
             return answer(200, { entitled: false, mode });
         }
@@ -33,11 +35,14 @@ export async function verifyReceipt(input, options, request = fetch) {
         if (!receipt || typeof receipt !== "object" || !Object.hasOwn(receipt, "cancelDate")) {
             return answer(503, { error: "verification_unavailable" });
         }
+        // Amazon's production endpoint issues and validates Live App Testing and review receipts.
+        // App Tester receipts are validated only by Amazon's separate sandbox endpoint.
         const entitled = receipt.receiptId === receiptId && receipt.productId === SKU &&
-            receipt.productType === "ENTITLED" && receipt.cancelDate === null &&
-            (mode === "sandbox" || receipt.testTransaction !== true && receipt.betaProduct !== true);
+            receipt.productType === "ENTITLED" && receipt.cancelDate === null;
         return answer(200, { entitled, mode });
     } catch {
         return answer(503, { error: "verification_unavailable" });
+    } finally {
+        clearTimeout(timeout);
     }
 }
