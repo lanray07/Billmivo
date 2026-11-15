@@ -28,6 +28,11 @@ fun money(value: BigDecimal, currency: String, locale: Locale): String =
     }.format(value)
 
 fun parseAmount(value: String, currency: String, locale: Locale): BigDecimal? {
+    val digits = Currency.getInstance(currency).defaultFractionDigits.coerceAtLeast(0)
+    return parseDecimal(value, locale, digits)
+}
+
+fun parseDecimal(value: String, locale: Locale, digits: Int = 4): BigDecimal? {
     val clean = value.trim()
     val format = (NumberFormat.getNumberInstance(locale) as DecimalFormat).apply {
         isParseBigDecimal = true
@@ -35,10 +40,12 @@ fun parseAmount(value: String, currency: String, locale: Locale): BigDecimal? {
     }
     val position = ParsePosition(0)
     val decimal = format.parse(clean, position) as? BigDecimal ?: return null
-    val digits = Currency.getInstance(currency).defaultFractionDigits.coerceAtLeast(0)
     return decimal.takeIf { position.index == clean.length && it.signum() > 0 &&
         it.stripTrailingZeros().scale() <= digits && it < BigDecimal("1000000000000") }
 }
+
+fun inputAmount(amount: BigDecimal, locale: Locale): String =
+    NumberFormat.getNumberInstance(locale).apply { isGroupingUsed = false; maximumFractionDigits = 12 }.format(amount)
 
 fun dateLabel(date: LocalDate, locale: Locale): String =
     DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)

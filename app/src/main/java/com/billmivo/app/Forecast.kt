@@ -45,7 +45,7 @@ data class Schedule(
 
 data class OccurrenceKey(val scheduleId: Long, val due: LocalDate)
 data class Adjustment(val key: OccurrenceKey, val confirmed: BigDecimal? = null, val skipped: Boolean = false)
-data class Payment(val key: OccurrenceKey, val date: LocalDate, val amount: BigDecimal)
+data class Payment(val key: OccurrenceKey, val date: LocalDate, val amount: BigDecimal, val payerId: String? = null)
 data class Occurrence(
     val schedule: Schedule,
     val date: LocalDate,
@@ -62,7 +62,10 @@ data class Occurrence(
 data class Records(
     val schedules: List<Schedule>,
     val payments: List<Payment>,
-    val adjustments: List<Adjustment>
+    val adjustments: List<Adjustment>,
+    val members: List<Member> = emptyList(),
+    val sharing: List<SharingRule> = emptyList(),
+    val reminders: List<ReminderRule> = emptyList()
 ) {
     fun occurrences(start: LocalDate, end: LocalDate): List<Occurrence> {
         val paid = payments.groupingBy { it.key }.fold(BigDecimal.ZERO) { sum, payment -> sum + payment.amount }

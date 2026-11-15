@@ -15,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import java.math.BigDecimal
-import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.Currency
 import java.util.UUID
@@ -166,7 +165,7 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
 }
 
 @Composable
-fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save: SaveBillAction) {
+fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save: SaveBillAction, records: Records) {
     val locale = displayLocale()
     val currency = item.schedule.currency
     val action = if (item.estimated) R.string.confirm_amount else R.string.record_payment
@@ -177,6 +176,8 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
     var busy by remember { mutableStateOf(false) }
     var skip by rememberSaveable { mutableStateOf(false) }
     var paidOn by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableLongStateOf(today.toEpochDay()) }
+    var payer by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableStateOf("") }
+    val members = records.members.filterNot { it.archived }
     AlertDialog(onDismissRequest = { if (!busy) close() },
         title = { Text(item.schedule.name) },
         text = {
@@ -186,6 +187,8 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                     money(item.amount, currency, locale)))
                 if (item.paid.signum() > 0) Text(stringResource(R.string.chart_value, stringResource(R.string.paid),
                     money(item.paid, currency, locale)))
+                BillAllocation(item, records.sharingFor(item.schedule.series, item.date), records.members,
+                    records.payments.filter { it.key == item.key })
                 if (item.open) {
                     if (item.paid.signum() > 0) Text(stringResource(R.string.chart_value, stringResource(R.string.remaining),
                         money(item.remaining, currency, locale)))
@@ -194,6 +197,10 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                         singleLine = true, enabled = !busy, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
                     if (!item.estimated) DateField(R.string.payment_date, LocalDate.ofEpochDay(paidOn), latest = today) {
                         paidOn = it.toEpochDay()
+                    }
+                    if (!item.estimated && members.isNotEmpty()) {
+                        MenuField(stringResource(R.string.paid_by), payer, listOf("") + members.map { it.id },
+                            { id -> members.find { it.id == id }?.name ?: stringResource(R.string.unassigned) }, { payer = it })
                     }
                     if (item.paid.signum() == 0) TextButton({ skip = true }, enabled = !busy) {
                         Text(stringResource(R.string.skip_bill))
@@ -213,7 +220,8 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                 if (amount != null && validation == null) {
                     busy = true
                     val paymentDate = LocalDate.ofEpochDay(paidOn)
-                    save({ if (item.estimated) confirm(item.key, amount) else pay(item.key, amount, paymentDate, today) },
+                    save({ if (item.estimated) confirm(item.key, amount) else
+                        pay(item.key, amount, paymentDate, today, payer.takeIf(String::isNotBlank)) },
                         if (item.estimated) ({ busy = false }) else close
                     ) { busy = false; validation = R.string.action_error }
                 }
@@ -230,6 +238,3 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
         }) { Text(stringResource(R.string.skip_bill)) } },
         dismissButton = { TextButton({ skip = false }) { Text(stringResource(R.string.cancel)) } })
 }
-
-private fun inputAmount(amount: BigDecimal, locale: java.util.Locale): String =
-    NumberFormat.getNumberInstance(locale).apply { isGroupingUsed = false; maximumFractionDigits = 12 }.format(amount)

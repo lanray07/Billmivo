@@ -1,8 +1,10 @@
 package com.billmivo.app
 
 import android.app.Application
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.compose.BackHandler
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -28,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -50,21 +53,36 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
+    private var reminderRequests by mutableIntStateOf(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val model = ViewModelProvider(this)[BillsModel::class.java]
-        setContent { BillmivoApp(model) }
+        if (savedInstanceState == null && intent.action == BillReminders.OPEN_REMINDERS) reminderRequests++
+        setContent { BillmivoApp(model, (application as BillmivoApplication).reminders, reminderRequests) }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.action == BillReminders.OPEN_REMINDERS) reminderRequests++
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (application as BillmivoApplication).reminders.refresh()
     }
 }
 
 class BillsModel(application: Application) : AndroidViewModel(application) {
     private val repo = (application as BillmivoApplication).repository
+    private val reminders = (application as BillmivoApplication).reminders
     val records = repo.records.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
     fun mutate(onError: () -> Unit, onSuccess: () -> Unit, action: suspend BillRepository.() -> Unit) {
         viewModelScope.launch {
             try {
                 repo.action()
+                reminders.refresh()
                 onSuccess()
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -83,14 +101,24 @@ private enum class Page(val title: Int, val icon: Int) {
     More(R.string.more, R.drawable.ic_more)
 }
 
+private enum class SettingsScreen { General, Reminders, Household }
+
 @Composable
-private fun BillmivoApp(model: BillsModel) {
+private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderRequests: Int) {
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences("display", 0) }
     var appearance by rememberSaveable { mutableStateOf(preferences.getString("appearance", "system") ?: "system") }
     var spoken by rememberSaveable { mutableStateOf(preferences.getBoolean("spoken", true)) }
     val systemDark = isSystemInDarkTheme()
     var page by rememberSaveable { mutableStateOf(Page.Dashboard) }
+    var settings by rememberSaveable { mutableStateOf(SettingsScreen.General) }
+    LaunchedEffect(reminderRequests) {
+        if (reminderRequests > 0) {
+            page = Page.More
+            settings = SettingsScreen.Reminders
+        }
+    }
+    BackHandler(page == Page.More && settings != SettingsScreen.General) { settings = SettingsScreen.General }
     var today by remember { mutableStateOf(LocalDate.now()) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -180,9 +208,19 @@ private fun BillmivoApp(model: BillsModel) {
                                 Page.Bills -> BillsPage(records, onEdit = { editing = it.id; showEditor = true }, onAdd = add)
                                 Page.Calendar -> CalendarPage(records, today, select)
                                 Page.Insights -> InsightsPage(records, spend, currency, currencies, today) { requestedCurrency = it }
-                                Page.More -> SettingsPage(appearance, spoken,
-                                    onTheme = { appearance = it; preferences.edit().putString("appearance", it).apply() },
-                                    onSpoken = { spoken = it; preferences.edit().putBoolean("spoken", it).apply() })
+                                Page.More -> when (settings) {
+                                    SettingsScreen.General -> SettingsPage(appearance, spoken,
+                                        onTheme = { appearance = it; preferences.edit().putString("appearance", it).apply() },
+                                        onSpoken = { spoken = it; preferences.edit().putBoolean("spoken", it).apply() },
+                                        onReminders = { settings = SettingsScreen.Reminders },
+                                        onHousehold = { settings = SettingsScreen.Household })
+                                    SettingsScreen.Reminders -> RemindersPage(records, today, reminders, save) {
+                                        settings = SettingsScreen.General
+                                    }
+                                    SettingsScreen.Household -> HouseholdPage(records, today, save) {
+                                        settings = SettingsScreen.General
+                                    }
+                                }
                             }
                         }
                         if (showEditor) {
@@ -194,7 +232,7 @@ private fun BillmivoApp(model: BillsModel) {
                             date?.let { records.occurrences(it, it).find { candidate -> candidate.schedule.id == selectedSchedule } }
                         }
                         occurrence?.let {
-                            OccurrenceDialog(it, today, { selectedSchedule = null; selectedDay = null }, save)
+                            OccurrenceDialog(it, today, { selectedSchedule = null; selectedDay = null }, save, records)
                         }
                         if (showVoice) {
                             VoiceDialog(records, currency, today, spoken, onClose = { showVoice = false }) {

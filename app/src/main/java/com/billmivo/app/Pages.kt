@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import java.text.NumberFormat
 
 @Composable
-private fun PageLayout(content: @Composable ColumnScope.() -> Unit) {
+fun PageLayout(content: @Composable ColumnScope.() -> Unit) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = 880.dp).fillMaxWidth().verticalScroll(rememberScrollState())
             .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp),
@@ -120,12 +120,17 @@ fun BillChangesPanel(changes: List<BillChange>, currency: String, locale: java.u
 }
 
 @Composable
-fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit, onSpoken: (Boolean) -> Unit) {
+fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit, onSpoken: (Boolean) -> Unit,
+                 onReminders: () -> Unit, onHousehold: () -> Unit) {
     val languages = linkedMapOf("" to R.string.system, "en" to R.string.language_en,
         "fr" to R.string.language_fr, "es" to R.string.language_es, "ar" to R.string.language_ar)
     val themes = linkedMapOf("system" to R.string.system, "light" to R.string.light, "dark" to R.string.dark)
     PageLayout {
         SectionTitle(stringResource(R.string.settings))
+        Panel(Modifier.fillMaxWidth()) {
+            OutlinedButton(onReminders, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.reminders)) }
+            OutlinedButton(onHousehold, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.household)) }
+        }
         Panel(Modifier.fillMaxWidth()) {
             MenuField(stringResource(R.string.language), AppCompatDelegate.getApplicationLocales().toLanguageTags(),
                 languages.keys.toList(), { stringResource(languages[it] ?: R.string.system) },
