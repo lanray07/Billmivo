@@ -23,7 +23,8 @@ data class Schedule(
     val cadence: Cadence,
     val interval: Long = 1,
     val from: LocalDate = first,
-    val until: LocalDate? = null
+    val until: LocalDate? = null,
+    val providerId: String? = null
 ) {
     fun dates(start: LocalDate, end: LocalDate): Sequence<LocalDate> {
         val lower = maxOf(start, first, from)
@@ -65,7 +66,10 @@ data class Records(
     val adjustments: List<Adjustment>,
     val members: List<Member> = emptyList(),
     val sharing: List<SharingRule> = emptyList(),
-    val reminders: List<ReminderRule> = emptyList()
+    val reminders: List<ReminderRule> = emptyList(),
+    val providers: List<Provider> = emptyList(),
+    val providerContacts: List<ProviderContact> = emptyList(),
+    val documents: List<BillDocument> = emptyList()
 ) {
     fun occurrences(start: LocalDate, end: LocalDate): List<Occurrence> {
         val paid = payments.groupingBy { it.key }.fold(BigDecimal.ZERO) { sum, payment -> sum + payment.amount }

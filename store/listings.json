@@ -1,0 +1,99 @@
+{
+  "en-GB": {
+    "source": "en",
+    "name": "Billmivo – Household Bills & Forecast",
+    "short": "See which bills are due, plan household costs, and get reminders for the bills you choose.",
+    "long": "Billmivo brings your household bills, upcoming payments and spending history together on your Fire tablet.\n\nPlan for rent, energy, broadband, insurance and other bills with a 7-, 30- or 90-day forecast. Confirmed and estimated amounts are labelled separately. Overdue bills appear apart from upcoming balances, and currencies are kept separate.\n\nSet bill reminders before a due date, on the day or after a missed payment. Choose quiet hours and keep bill names hidden from notification previews. Notification delivery depends on your device settings.\n\nAssign responsibility, split bills with members of your household and record who paid. See changes in bill amounts and compare actual payments over time. Your bill records work offline and are stored on your device.",
+    "features": [
+      "Forecast upcoming bills over 7, 30 or 90 days, or pick your own dates",
+      "Set reminders for recurring and one-time bills",
+      "Split household bills equally, by percentage, by amount or by weight",
+      "Track overdue balances, partial payments and recorded spending",
+      "Manage bill records offline on your Fire tablet"
+    ],
+    "keywords": [
+      "bill tracker",
+      "household bills",
+      "bill reminder",
+      "payment calendar",
+      "recurring bills",
+      "bill forecast",
+      "split bills",
+      "expense tracker"
+    ],
+    "headlines": [
+      "See What Your Household Owes",
+      "Plan for Bills Due This Week",
+      "Set Reminders for the Bills You Choose",
+      "Track Six Months of Payments",
+      "Spot Changes in Bill Amounts",
+      "Choose a Forecast Range Your Way",
+      "Split Household Bills Fairly",
+      "Keep Your Bill Calendar Offline"
+    ]
+  },
+  "fr-FR": {
+    "source": "fr",
+    "name": "Billmivo – Factures du foyer",
+    "short": "Anticipez vos échéances, programmez des rappels et répartissez les factures de votre foyer.",
+    "long": "Billmivo rassemble les factures, les échéances et l’historique des paiements de votre foyer sur votre tablette Fire.\n\nConsultez les prévisions à 7, 30 ou 90 jours ou choisissez vos dates. Les montants confirmés et estimés sont indiqués séparément. Les factures en retard restent distinctes des prochaines échéances, et chaque devise conserve son propre total.\n\nProgrammez des rappels avant, le jour même ou après une échéance manquée. Choisissez des heures calmes et masquez le nom des factures dans les aperçus. Les notifications dépendent des réglages de votre appareil.\n\nDésignez un responsable, répartissez les factures et enregistrez qui a payé. Retrouvez l’évolution des montants et comparez les paiements effectués. Les données sont conservées sur votre appareil et restent accessibles hors connexion.",
+    "features": [
+      "Prévisions de factures à 7, 30 ou 90 jours et période personnalisée",
+      "Rappels pour les factures ponctuelles et récurrentes",
+      "Répartition à parts égales, en pourcentage, par montant ou par coefficient",
+      "Suivi des retards, des paiements partiels et des dépenses enregistrées",
+      "Gestion des factures hors connexion sur votre tablette Fire"
+    ],
+    "keywords": [
+      "suivi de factures",
+      "budget du foyer",
+      "rappel de paiement",
+      "échéancier",
+      "factures récurrentes",
+      "partage des factures",
+      "dépenses du foyer"
+    ],
+    "headlines": [
+      "Anticipez les factures du foyer",
+      "Repérez les échéances de la semaine",
+      "Programmez les rappels utiles",
+      "Suivez six mois de paiements",
+      "Repérez les variations de montant",
+      "Choisissez votre période de prévision",
+      "Partagez les factures du foyer",
+      "Consultez vos échéances hors connexion"
+    ]
+  },
+  "es-ES": {
+    "source": "es",
+    "name": "Billmivo – Facturas del hogar",
+    "short": "Consulta tus vencimientos, configura recordatorios y reparte las facturas de tu hogar.",
+    "long": "Billmivo reúne las facturas, los pagos próximos y el historial de gastos de tu hogar en tu tableta Fire.\n\nPlanifica a 7, 30 o 90 días o elige las fechas. Los importes confirmados y estimados se identifican por separado. Las facturas vencidas se muestran en su propia sección y los totales se calculan para cada moneda.\n\nPrograma recordatorios antes del vencimiento, el mismo día o tras un impago. Configura horas de silencio y oculta los nombres de las facturas en las notificaciones. La entrega de avisos depende de los ajustes del dispositivo.\n\nAsigna responsables, reparte facturas y registra quién ha pagado. Consulta cómo cambian los importes y compara los pagos registrados. Tus datos se guardan en el dispositivo y puedes consultarlos sin conexión.",
+    "features": [
+      "Previsión a 7, 30 o 90 días y periodos personalizados",
+      "Recordatorios para facturas puntuales y recurrentes",
+      "Reparto en partes iguales, por porcentajes, importes o pesos",
+      "Seguimiento de vencimientos, pagos parciales y gastos registrados",
+      "Consulta de tus facturas sin conexión en tu tableta Fire"
+    ],
+    "keywords": [
+      "control de facturas",
+      "gastos del hogar",
+      "recordatorio de pago",
+      "calendario de pagos",
+      "facturas recurrentes",
+      "repartir facturas",
+      "presupuesto familiar"
+    ],
+    "headlines": [
+      "Anticipa las facturas de tu hogar",
+      "Consulta lo que vence esta semana",
+      "Elige cuándo recibir recordatorios",
+      "Consulta seis meses de pagos",
+      "Detecta cambios en los importes",
+      "Elige tu periodo de previsión",
+      "Reparte las facturas del hogar",
+      "Consulta tu calendario sin conexión"
+    ]
+  }
+}

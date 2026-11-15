@@ -58,7 +58,7 @@ fun RangeDialog(from: LocalDate, through: LocalDate, today: LocalDate, close: ()
         dismissButton = { TextButton(close) { Text(stringResource(R.string.cancel)) } })
 }
 
-private val categories = mapOf(
+val categories = mapOf(
     "housing" to R.string.housing, "utilities" to R.string.utilities, "internet" to R.string.internet,
     "insurance" to R.string.insurance, "tax" to R.string.tax, "services" to R.string.services,
     "subscriptions" to R.string.subscriptions, "other" to R.string.other
@@ -72,14 +72,18 @@ private val marketCurrencies = Currency.getAvailableCurrencies().filter { it.def
     .map { it.currencyCode }.sorted()
 
 @Composable
-fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, onClose: () -> Unit, save: SaveBillAction) {
+fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, onClose: () -> Unit,
+               save: SaveBillAction, providers: List<Provider>, draft: BillDraft? = null) {
     val locale = displayLocale()
-    var name by rememberSaveable(previous?.id) { mutableStateOf(previous?.name.orEmpty()) }
-    var amount by rememberSaveable(previous?.id) { mutableStateOf(previous?.amount?.let { inputAmount(it, locale) }.orEmpty()) }
-    var first by rememberSaveable(previous?.id) { mutableLongStateOf((previous?.first ?: today).toEpochDay()) }
-    var currency by rememberSaveable(previous?.id) { mutableStateOf(previous?.currency ?: defaultCurrency) }
+    var name by rememberSaveable(previous?.id) { mutableStateOf(previous?.name ?: draft?.name.orEmpty()) }
+    var amount by rememberSaveable(previous?.id) {
+        mutableStateOf((previous?.amount ?: draft?.amount)?.let { inputAmount(it, locale) }.orEmpty())
+    }
+    var first by rememberSaveable(previous?.id) { mutableLongStateOf((previous?.first ?: draft?.due ?: today).toEpochDay()) }
+    var currency by rememberSaveable(previous?.id) { mutableStateOf(previous?.currency ?: draft?.currency ?: defaultCurrency) }
     var category by rememberSaveable(previous?.id) { mutableStateOf(previous?.category ?: "other") }
-    var cadence by rememberSaveable(previous?.id) { mutableStateOf(previous?.cadence ?: Cadence.MONTHLY) }
+    var provider by rememberSaveable(previous?.id) { mutableStateOf(previous?.providerId.orEmpty()) }
+    var cadence by rememberSaveable(previous?.id) { mutableStateOf(previous?.cadence ?: if (draft != null) Cadence.ONCE else Cadence.MONTHLY) }
     var interval by rememberSaveable(previous?.id) { mutableStateOf(previous?.interval?.toString() ?: "30") }
     var estimate by rememberSaveable(previous?.id) { mutableStateOf(previous?.estimated ?: false) }
     var busy by remember { mutableStateOf(false) }
@@ -111,6 +115,10 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                     MenuField(stringResource(R.string.category), category, categories.keys.toList(),
                         { stringResource(categories.getValue(it)) }, { category = it })
+                    if (providers.isNotEmpty()) MenuField(stringResource(R.string.provider), provider,
+                        listOf("") + providers.map { it.id },
+                        { id -> providers.find { it.id == id }?.name ?: stringResource(R.string.unassigned) },
+                        { provider = it })
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Switch(estimate, { estimate = it })
                         Text(stringResource(R.string.expected))
@@ -142,7 +150,7 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
                 } else {
                     val schedule = Schedule(series = previous?.series ?: UUID.randomUUID().toString(), name = name.trim(),
                         category = category, currency = currency, amount = value, estimated = estimate,
-                        first = date, cadence = cadence, interval = repeat)
+                        first = date, cadence = cadence, interval = repeat, providerId = provider.takeIf(String::isNotBlank))
                     busy = true
                     save({ save(schedule, previous, today) }, onClose) { busy = false; validation = R.string.action_error }
                 }
@@ -183,6 +191,9 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 Text(stringResource(R.string.chart_value, stringResource(R.string.due_date), dateLabel(item.date, locale)))
+                records.providers.find { it.id == item.schedule.providerId }?.let {
+                    Text(stringResource(R.string.chart_value, stringResource(R.string.provider), it.name))
+                }
                 Text(stringResource(R.string.chart_value, stringResource(if (item.estimated) R.string.estimated else R.string.confirmed),
                     money(item.amount, currency, locale)))
                 if (item.paid.signum() > 0) Text(stringResource(R.string.chart_value, stringResource(R.string.paid),

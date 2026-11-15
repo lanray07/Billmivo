@@ -8,5 +8,11 @@ local.properties
 *.keystore
 *.apk
 *.aab
+.env
+.env.local
+__pycache__/
+app/src/amazon/assets/AppstoreAuthenticationKey.pem
 deliverables/android/build-logs/
+deliverables/store-assets/amazon-raw/
+deliverables/localisation/
 deliverables/DELIVERABLES_MANIFEST.csv

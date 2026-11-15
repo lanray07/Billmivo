@@ -25,15 +25,16 @@ import org.json.JSONArray
 data class ScheduleRow(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val series: String, val name: String, val category: String, val currency: String, val amount: String,
-    val estimated: Boolean, val first: Long, val cadence: String, val interval: Long, val starts: Long, val ends: Long?
+    val estimated: Boolean, val first: Long, val cadence: String, val interval: Long, val starts: Long, val ends: Long?,
+    val providerId: String? = null
 ) {
     fun schedule() = Schedule(id, series, name, category, currency, amount.toBigDecimal(), estimated,
         LocalDate.ofEpochDay(first), Cadence.valueOf(cadence), interval, LocalDate.ofEpochDay(starts),
-        ends?.let(LocalDate::ofEpochDay))
+        ends?.let(LocalDate::ofEpochDay), providerId)
 }
 
 private fun Schedule.row() = ScheduleRow(id, series, name, category, currency, amount.toPlainString(), estimated,
-    first.toEpochDay(), cadence.name, interval, from.toEpochDay(), until?.toEpochDay())
+    first.toEpochDay(), cadence.name, interval, from.toEpochDay(), until?.toEpochDay(), providerId)
 
 @Entity(
     tableName = "payments",
@@ -84,6 +85,27 @@ data class ReminderRow(
     fun rule() = ReminderRule(series, leadDays, due, overdue, increase)
 }
 
+@Entity(tableName = "providers")
+data class ProviderRow(@PrimaryKey val id: String, val name: String, val category: String, val phone: String,
+                       val email: String, val website: String, val reference: String, val notes: String) {
+    fun provider() = Provider(id, name, category, phone, email, website, reference, notes)
+}
+
+@Entity(tableName = "provider_contacts",
+    foreignKeys = [ForeignKey(entity = ProviderRow::class, parentColumns = ["id"], childColumns = ["providerId"],
+        onDelete = ForeignKey.CASCADE)], indices = [Index("providerId")])
+data class ContactRow(@PrimaryKey val id: String, val providerId: String, val date: Long, val note: String) {
+    fun contact() = ProviderContact(id, providerId, LocalDate.ofEpochDay(date), note)
+}
+
+@Entity(tableName = "documents",
+    foreignKeys = [ForeignKey(entity = ScheduleRow::class, parentColumns = ["id"], childColumns = ["billId"],
+        onDelete = ForeignKey.CASCADE)], indices = [Index("billId")])
+data class DocumentRow(@PrimaryKey val id: String, val billId: Long, val name: String, val mimeType: String,
+                       val size: Long, val added: Long) {
+    fun document() = BillDocument(id, billId, name, mimeType, size, LocalDate.ofEpochDay(added))
+}
+
 @Dao
 interface BillDao {
     @Query("SELECT * FROM schedules") suspend fun schedules(): List<ScheduleRow>
@@ -95,6 +117,16 @@ interface BillDao {
     @Upsert suspend fun put(member: MemberRow)
     @Upsert suspend fun put(rule: SharingRow)
     @Upsert suspend fun put(rule: ReminderRow)
+    @Query("SELECT * FROM providers ORDER BY name COLLATE NOCASE") suspend fun providers(): List<ProviderRow>
+    @Query("SELECT * FROM provider_contacts ORDER BY date DESC") suspend fun contacts(): List<ContactRow>
+    @Query("SELECT * FROM documents ORDER BY added DESC, name COLLATE NOCASE") suspend fun documents(): List<DocumentRow>
+    @Upsert suspend fun put(provider: ProviderRow)
+    @Insert suspend fun put(contact: ContactRow)
+    @Insert suspend fun put(document: DocumentRow)
+    @Query("UPDATE schedules SET providerId = NULL WHERE providerId = :id") suspend fun unlink(id: String)
+    @Query("DELETE FROM providers WHERE id = :id") suspend fun deleteProvider(id: String)
+    @Query("DELETE FROM provider_contacts WHERE id = :id") suspend fun deleteContact(id: String)
+    @Query("DELETE FROM documents WHERE id = :id") suspend fun deleteDocument(id: String)
     @Query("DELETE FROM sharing WHERE series = :series") suspend fun deleteSharing(series: String)
     @Query("DELETE FROM reminders WHERE series = :series") suspend fun deleteReminder(series: String)
     @Insert suspend fun add(schedule: ScheduleRow): Long
@@ -105,7 +137,8 @@ interface BillDao {
 }
 
 @Database(entities = [ScheduleRow::class, PaymentRow::class, AdjustmentRow::class,
-    MemberRow::class, SharingRow::class, ReminderRow::class], version = 2)
+    MemberRow::class, SharingRow::class, ReminderRow::class, ProviderRow::class, ContactRow::class,
+    DocumentRow::class], version = 3)
 abstract class BillDatabase : RoomDatabase() {
     abstract fun bills(): BillDao
 }
@@ -119,25 +152,62 @@ val migration1To2 = object : Migration(1, 2) {
     }
 }
 
-class BillmivoApplication : Application() {
-    val repository by lazy {
-        BillRepository(Room.databaseBuilder(this, BillDatabase::class.java, "billmivo.db")
-            .addMigrations(migration1To2).build())
+val migration2To3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE schedules ADD COLUMN providerId TEXT")
+        db.execSQL("CREATE TABLE providers (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, category TEXT NOT NULL, phone TEXT NOT NULL, email TEXT NOT NULL, website TEXT NOT NULL, reference TEXT NOT NULL, notes TEXT NOT NULL)")
+        db.execSQL("CREATE TABLE provider_contacts (id TEXT NOT NULL PRIMARY KEY, providerId TEXT NOT NULL, date INTEGER NOT NULL, note TEXT NOT NULL, FOREIGN KEY(providerId) REFERENCES providers(id) ON DELETE CASCADE)")
+        db.execSQL("CREATE INDEX index_provider_contacts_providerId ON provider_contacts(providerId)")
+        db.execSQL("CREATE TABLE documents (id TEXT NOT NULL PRIMARY KEY, billId INTEGER NOT NULL, name TEXT NOT NULL, mimeType TEXT NOT NULL, size INTEGER NOT NULL, added INTEGER NOT NULL, FOREIGN KEY(billId) REFERENCES schedules(id) ON DELETE CASCADE)")
+        db.execSQL("CREATE INDEX index_documents_billId ON documents(billId)")
     }
-    val reminders by lazy { BillReminders(this) }
 }
 
-class BillRepository(private val db: BillDatabase) {
+class BillmivoApplication : Application() {
+    val premium by lazy { installStore(this) }
+    val repository by lazy {
+        BillRepository(Room.databaseBuilder(this, BillDatabase::class.java, "billmivo.db")
+            .addMigrations(migration1To2, migration2To3).build()) { !premium.available || premium.state.value.entitled }
+    }
+    val reminders by lazy { BillReminders(this) }
+    val documents by lazy { DocumentDisk(this) }
+}
+
+class BillRepository(private val db: BillDatabase, private val unlimitedBills: () -> Boolean = { true }) {
     private val dao get() = db.bills()
 
     private suspend fun read() = Records(
         dao.schedules().map { it.schedule() }, dao.payments().map { it.payment() },
         dao.adjustments().map { it.adjustment() }, dao.members().map { it.member() },
-        dao.sharing().map { it.rule() }, dao.reminders().map { it.rule() }
+        dao.sharing().map { it.rule() }, dao.reminders().map { it.rule() }, dao.providers().map { it.provider() },
+        dao.contacts().map { it.contact() }, dao.documents().map { it.document() }
     )
 
-    val records: Flow<Records> = db.invalidationTracker.createFlow("schedules", "payments", "adjustments", "members", "sharing", "reminders")
+    val records: Flow<Records> = db.invalidationTracker.createFlow("schedules", "payments", "adjustments", "members",
+        "sharing", "reminders", "providers", "provider_contacts", "documents")
         .map { db.withTransaction { read() } }
+
+    suspend fun saveProvider(provider: Provider) {
+        require(provider.name.isNotBlank())
+        dao.put(ProviderRow(provider.id, provider.name.trim(), provider.category, provider.phone.trim(),
+            provider.email.trim(), provider.website.trim(), provider.reference.trim(), provider.notes.trim()))
+    }
+
+    suspend fun deleteProvider(id: String) = db.withTransaction {
+        dao.unlink(id)
+        dao.deleteProvider(id)
+    }
+
+    suspend fun recordContact(contact: ProviderContact) {
+        require(contact.note.isNotBlank())
+        dao.put(ContactRow(contact.id, contact.providerId, contact.date.toEpochDay(), contact.note.trim()))
+    }
+    suspend fun deleteContact(id: String) = dao.deleteContact(id)
+
+    suspend fun saveDocument(doc: BillDocument) =
+        dao.put(DocumentRow(doc.id, doc.billId, doc.name, doc.mimeType, doc.size, doc.added.toEpochDay()))
+
+    suspend fun removeDocument(id: String) = dao.deleteDocument(id)
 
     suspend fun saveMember(member: Member) {
         require(member.name.isNotBlank() && member.name.length <= 60)
@@ -166,6 +236,12 @@ class BillRepository(private val db: BillDatabase) {
     }
 
     suspend fun save(schedule: Schedule, previous: Schedule?, today: LocalDate) = db.withTransaction {
+        require(schedule.providerId == null || dao.providers().any { it.id == schedule.providerId })
+        if (!unlimitedBills() && schedule.cadence != Cadence.ONCE &&
+            (previous == null || previous.cadence == Cadence.ONCE) &&
+            dao.schedules().count { it.ends == null && it.cadence != Cadence.ONCE.name } >= 10) {
+            throw RecurringBillLimit()
+        }
         if (previous == null) {
             dao.add(schedule.row())
         } else {

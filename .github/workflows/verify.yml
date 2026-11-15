@@ -1,0 +1,36 @@
+name: Verify Billmivo
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['deliverables/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Offline application and JVM tests
+        run: ./gradlew --no-daemon :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease
+      - name: Amazon SDK compile
+        run: ./gradlew --no-daemon :app:assembleDebug -PbillmivoAmazon=true -PbillmivoAmazonSandbox=true
+      - name: Localized resources
+        shell: pwsh
+        run: ./tools/check-locales.ps1
+      - name: Receipt verifier
+        run: node --test store/receipt-verifier/verify.test.mjs

@@ -60,7 +60,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         val model = ViewModelProvider(this)[BillsModel::class.java]
         if (savedInstanceState == null && intent.action == BillReminders.OPEN_REMINDERS) reminderRequests++
-        setContent { BillmivoApp(model, (application as BillmivoApplication).reminders, reminderRequests) }
+        val app = application as BillmivoApplication
+        app.premium.initialize()
+        setContent { BillmivoApp(model, app.reminders, app.premium, app.documents, reminderRequests) }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -70,24 +72,38 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        (application as BillmivoApplication).reminders.refresh()
+        val app = application as BillmivoApplication
+        app.reminders.refresh()
+        app.premium.refresh()
     }
 }
 
 class BillsModel(application: Application) : AndroidViewModel(application) {
     private val repo = (application as BillmivoApplication).repository
     private val reminders = (application as BillmivoApplication).reminders
+    private val documents = (application as BillmivoApplication).documents
     val records = repo.records.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-    fun mutate(onError: () -> Unit, onSuccess: () -> Unit, action: suspend BillRepository.() -> Unit) {
+    fun mutate(onError: (Int) -> Unit, onSuccess: () -> Unit, action: suspend BillRepository.() -> Unit) {
         viewModelScope.launch {
             try {
                 repo.action()
                 reminders.refresh()
                 onSuccess()
+                launch {
+                    try {
+                        documents.prune()
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
+                        android.util.Log.w("Billmivo", "Deferred cleanup of removed documents.")
+                    }
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
+            } catch (_: RecurringBillLimit) {
+                onError(R.string.premium_limit)
             } catch (_: Exception) {
-                onError()
+                onError(R.string.action_error)
             }
         }
     }
@@ -101,10 +117,11 @@ private enum class Page(val title: Int, val icon: Int) {
     More(R.string.more, R.drawable.ic_more)
 }
 
-private enum class SettingsScreen { General, Reminders, Household }
+private enum class SettingsScreen { General, Reminders, Household, Providers, Documents, Reports, Assistant, Premium }
 
 @Composable
-private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderRequests: Int) {
+private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: PremiumAccess,
+                       documents: DocumentDisk, reminderRequests: Int) {
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences("display", 0) }
     var appearance by rememberSaveable { mutableStateOf(preferences.getString("appearance", "system") ?: "system") }
@@ -112,6 +129,9 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderReq
     val systemDark = isSystemInDarkTheme()
     var page by rememberSaveable { mutableStateOf(Page.Dashboard) }
     var settings by rememberSaveable { mutableStateOf(SettingsScreen.General) }
+    val premiumState by premium.state.collectAsStateWithLifecycle()
+    val unlocked = !premium.available || premiumState.entitled
+    val showPremium = { page = Page.More; settings = SettingsScreen.Premium }
     LaunchedEffect(reminderRequests) {
         if (reminderRequests > 0) {
             page = Page.More
@@ -140,13 +160,15 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderReq
     BillmivoTheme(dark) {
         val data by model.records.collectAsStateWithLifecycle()
         val snackbar = remember { SnackbarHostState() }
-        val error = stringResource(R.string.action_error)
+        var errorId by remember { mutableIntStateOf(R.string.action_error) }
+        val error = stringResource(errorId)
         var failure by remember { mutableStateOf(0) }
         LaunchedEffect(failure) { if (failure > 0) snackbar.showSnackbar(error) }
         val save: (suspend BillRepository.() -> Unit, () -> Unit, () -> Unit) -> Unit =
-            { action, success, failed -> model.mutate({ failed(); failure++ }, success, action) }
+            { action, success, failed -> model.mutate({ errorId = it; failed(); failure++ }, success, action) }
 
         var showEditor by rememberSaveable { mutableStateOf(false) }
+        var draft by remember { mutableStateOf<BillDraft?>(null) }
         var editing by rememberSaveable { mutableStateOf<Long?>(null) }
         var selectedSchedule by rememberSaveable { mutableStateOf<Long?>(null) }
         var selectedDay by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -164,7 +186,7 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderReq
         val forecast = remember(data, today, start, end) { data?.forecast(today, start, end) }
         val spend = remember(data, today, currency) { data?.spending(today, currency) }
 
-        val add = { editing = null; showEditor = true }
+        val add = { editing = null; draft = null; showEditor = true }
         val select: (Occurrence) -> Unit = { selectedSchedule = it.schedule.id; selectedDay = it.date.toEpochDay() }
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val wide = maxWidth >= 760.dp
@@ -199,9 +221,11 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderReq
                                     records, forecast, spend, currency, currencies, period, start, end, today,
                                     onCurrency = { requestedCurrency = it },
                                     onRange = { days, from, until ->
-                                        period = days
-                                        customStart = from.toEpochDay()
-                                        customEnd = until.toEpochDay()
+                                        if (!unlocked && days != 30) showPremium() else {
+                                            period = days
+                                            customStart = from.toEpochDay()
+                                            customEnd = until.toEpochDay()
+                                        }
                                     },
                                     onAdd = add, onSelect = select
                                 )
@@ -213,11 +237,26 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderReq
                                         onTheme = { appearance = it; preferences.edit().putString("appearance", it).apply() },
                                         onSpoken = { spoken = it; preferences.edit().putBoolean("spoken", it).apply() },
                                         onReminders = { settings = SettingsScreen.Reminders },
-                                        onHousehold = { settings = SettingsScreen.Household })
+                                        onHousehold = { settings = SettingsScreen.Household },
+                                        onProviders = { settings = SettingsScreen.Providers },
+                                        onDocuments = { settings = SettingsScreen.Documents },
+                                        onReports = { settings = SettingsScreen.Reports },
+                                        onAssistant = { settings = SettingsScreen.Assistant },
+                                        onPremium = showPremium.takeIf { premium.available })
                                     SettingsScreen.Reminders -> RemindersPage(records, today, reminders, save) {
                                         settings = SettingsScreen.General
                                     }
-                                    SettingsScreen.Household -> HouseholdPage(records, today, save) {
+                                    SettingsScreen.Household -> HouseholdPage(records, today, save,
+                                        upgrade = showPremium.takeUnless { unlocked }) { settings = SettingsScreen.General }
+                                    SettingsScreen.Providers -> ProvidersPage(records, today, save) { settings = SettingsScreen.General }
+                                    SettingsScreen.Documents -> DocumentsPage(records, documents) { settings = SettingsScreen.General }
+                                    SettingsScreen.Reports -> ReportsPage(records, today) { settings = SettingsScreen.General }
+                                    SettingsScreen.Assistant -> AssistantPage(records, today, onDraft = {
+                                        editing = null
+                                        draft = it
+                                        showEditor = true
+                                    }) { settings = SettingsScreen.General }
+                                    SettingsScreen.Premium -> PremiumPage(premium, premiumState) {
                                         settings = SettingsScreen.General
                                     }
                                 }
@@ -225,7 +264,8 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderReq
                         }
                         if (showEditor) {
                             BillEditor(records.schedules.find { it.id == editing }, today, currency,
-                                onClose = { showEditor = false }, save = save)
+                                onClose = { showEditor = false; draft = null }, save = save,
+                                providers = records.providers, draft = draft)
                         }
                         val date = selectedDay?.let(LocalDate::ofEpochDay)
                         val occurrence = remember(records, date, selectedSchedule) {
@@ -236,8 +276,10 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, reminderReq
                         }
                         if (showVoice) {
                             VoiceDialog(records, currency, today, spoken, onClose = { showVoice = false }) {
-                                period = it
-                                page = Page.Dashboard
+                                if (!unlocked && it != 30) showPremium() else {
+                                    period = it
+                                    page = Page.Dashboard
+                                }
                                 showVoice = false
                             }
                         }

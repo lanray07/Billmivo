@@ -42,7 +42,7 @@ class SharingMigrationTest {
                 arrayOf(today.toEpochDay(), today.toEpochDay()))
             database.version = 1
         }
-        val db = Room.databaseBuilder(context, BillDatabase::class.java, name).addMigrations(migration1To2).build()
+        val db = Room.databaseBuilder(context, BillDatabase::class.java, name).addMigrations(migration1To2, migration2To3).build()
         try {
             val repo = BillRepository(db)
             val initial = repo.records.first()

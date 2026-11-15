@@ -4,6 +4,8 @@ Billmivo is a native Android household bill tracker. The initial build centres o
 
 Open **More → Bill reminders** to opt in, set delivery and quiet hours, and configure a schedule for each bill. Notification previews hide bill names by default. Open **More → Household sharing** to add members, assign responsibility, and set equal, percentage, fixed or weighted shares. A payer is recorded only when selected while logging a payment.
 
+**More** also contains the provider directory, bill documents, reports and the offline bill assistant. Link provider records while editing a bill. Attachments are copied into app-private storage. Reports can be saved as CSV or PDF after confirmation. The assistant can review saved balances, due-date groups, duplicates and amounts, or prefill a bill for you to review.
+
 ## Build
 
 Use JDK 17, Android SDK platform 35 and build-tools 35.0.0. Set `ANDROID_HOME` to your SDK directory or let Android Studio create `local.properties`. No environment secrets are required.
@@ -36,4 +38,4 @@ The dashboard build includes English, French, Spanish and Arabic. The UI follows
 
 ## Release scope
 
-See the [dashboard report](deliverables/reports/dashboard-delivery.md) and [reminders and sharing report](deliverables/reports/reminders-sharing.md) for verified hardware, build results and limitations.
+See the [dashboard report](deliverables/reports/dashboard-delivery.md), [reminders and sharing report](deliverables/reports/reminders-sharing.md) and [Amazon release preparation](store/README.md) for build results, hardware coverage, and production setup.

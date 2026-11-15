@@ -121,7 +121,8 @@ fun BillChangesPanel(changes: List<BillChange>, currency: String, locale: java.u
 
 @Composable
 fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit, onSpoken: (Boolean) -> Unit,
-                 onReminders: () -> Unit, onHousehold: () -> Unit) {
+                 onReminders: () -> Unit, onHousehold: () -> Unit, onProviders: () -> Unit,
+                 onDocuments: () -> Unit, onReports: () -> Unit, onAssistant: () -> Unit, onPremium: (() -> Unit)? = null) {
     val languages = linkedMapOf("" to R.string.system, "en" to R.string.language_en,
         "fr" to R.string.language_fr, "es" to R.string.language_es, "ar" to R.string.language_ar)
     val themes = linkedMapOf("system" to R.string.system, "light" to R.string.light, "dark" to R.string.dark)
@@ -130,6 +131,13 @@ fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit,
         Panel(Modifier.fillMaxWidth()) {
             OutlinedButton(onReminders, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.reminders)) }
             OutlinedButton(onHousehold, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.household)) }
+            OutlinedButton(onProviders, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.providers)) }
+            OutlinedButton(onDocuments, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.documents)) }
+            OutlinedButton(onReports, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.reports)) }
+            OutlinedButton(onAssistant, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.assistant)) }
+            if (onPremium != null) OutlinedButton(onPremium, modifier = Modifier.heightIn(min = 48.dp)) {
+                Text(stringResource(R.string.premium_title))
+            }
         }
         Panel(Modifier.fillMaxWidth()) {
             MenuField(stringResource(R.string.language), AppCompatDelegate.getApplicationLocales().toLanguageTags(),

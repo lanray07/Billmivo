@@ -27,8 +27,13 @@ class ReminderDeliveryTest {
         val now = ZonedDateTime.now()
         val date = now.toLocalDate()
         val series = UUID.randomUUID().toString()
+        val fixtureRules = repo.records.first().reminders
+        check(fixtureRules.all { it.series in setOf("energy", "fiber") }) {
+            "Use a clean install or the fictional preview household for the hardware test."
+        }
         fun current() = manager.activeNotifications.firstOrNull { it.id == BillReminders.NOTIFICATION }?.notification
         try {
+            fixtureRules.forEach { repo.saveReminder(ReminderRule(it.series)) }
             service.storePreferences(ReminderPreferences(enabled = true, hours = ReminderHours(now.hour, 0, 0)))
             service.reconcile()
             assertTrue("Notifications must be enabled for this hardware test", service.canNotify())
@@ -58,6 +63,7 @@ class ReminderDeliveryTest {
             assertNull(current())
         } finally {
             repo.delete(series)
+            fixtureRules.forEach { repo.saveReminder(it) }
             service.storePreferences(previous)
             service.reconcile()
         }

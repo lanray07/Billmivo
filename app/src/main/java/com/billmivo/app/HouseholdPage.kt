@@ -16,7 +16,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Composable
-fun HouseholdPage(records: Records, today: LocalDate, save: SaveBillAction, back: () -> Unit) {
+fun HouseholdPage(records: Records, today: LocalDate, save: SaveBillAction,
+                  upgrade: (() -> Unit)? = null, back: () -> Unit) {
     val locale = displayLocale()
     var showMember by rememberSaveable { mutableStateOf(false) }
     var memberId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -38,11 +39,16 @@ fun HouseholdPage(records: Records, today: LocalDate, save: SaveBillAction, back
     PageLayout {
         TextButton(back) { Text(stringResource(R.string.settings)) }
         SectionTitle(stringResource(R.string.household), stringResource(R.string.household_local))
+        if (upgrade != null) {
+            Text(stringResource(R.string.premium_sharing), color = palette.muted)
+            OutlinedButton(upgrade) { Text(stringResource(R.string.premium_title)) }
+        }
         Panel(Modifier.fillMaxWidth()) {
             SectionTitle(stringResource(R.string.members))
             if (records.members.isEmpty()) Text(stringResource(R.string.members_empty), color = palette.muted)
             records.members.forEach { member ->
-                OutlinedButton({ memberId = member.id; showMember = true }, modifier = Modifier.heightIn(min = 48.dp)) {
+                OutlinedButton({ memberId = member.id; showMember = true }, enabled = upgrade == null,
+                    modifier = Modifier.heightIn(min = 48.dp)) {
                     Text(if (member.archived) stringResource(R.string.chart_value, member.name, stringResource(R.string.archived))
                         else member.name)
                 }
@@ -52,7 +58,7 @@ fun HouseholdPage(records: Records, today: LocalDate, save: SaveBillAction, back
                         money(amount, currency, locale)), color = palette.muted)
                 }
             }
-            Button({ memberId = null; showMember = true }) { Text(stringResource(R.string.member_add)) }
+            Button({ memberId = null; showMember = true }, enabled = upgrade == null) { Text(stringResource(R.string.member_add)) }
         }
         Panel(Modifier.fillMaxWidth()) {
             SectionTitle(stringResource(R.string.household_bills), stringResource(R.string.sharing_changes))
@@ -60,7 +66,7 @@ fun HouseholdPage(records: Records, today: LocalDate, save: SaveBillAction, back
             active.forEach { bill ->
                 val rule = records.sharingFor(bill.series, today)
                 val label = rule?.responsibleId?.let(memberNames::get)
-                OutlinedButton({ series = bill.series }, enabled = records.members.isNotEmpty(),
+                OutlinedButton({ series = bill.series }, enabled = records.members.isNotEmpty() && upgrade == null,
                     modifier = Modifier.heightIn(min = 48.dp)) {
                     Text(bill.name)
                 }

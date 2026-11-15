@@ -1,0 +1,112 @@
+{
+  "en-GB": {
+    "deepl": "EN-GB",
+    "listing": "English (United Kingdom)"
+  },
+  "en-US": {
+    "deepl": "EN-US",
+    "listing": "English (United States)"
+  },
+  "en-AU": {
+    "deepl": "EN-GB",
+    "listing": "English (Australia)"
+  },
+  "es-ES": {
+    "deepl": "ES",
+    "listing": "Spanish"
+  },
+  "es-419": {
+    "deepl": "ES-419",
+    "listing": "Spanish (Mexico)"
+  },
+  "fr-FR": {
+    "deepl": "FR",
+    "listing": "French"
+  },
+  "fr-CA": {
+    "deepl": "FR",
+    "listing": "French"
+  },
+  "de-DE": {
+    "deepl": "DE",
+    "listing": "German"
+  },
+  "it-IT": {
+    "deepl": "IT",
+    "listing": "Italian"
+  },
+  "pt-BR": {
+    "deepl": "PT-BR",
+    "listing": "Portuguese (Brazil)"
+  },
+  "pt-PT": {
+    "deepl": "PT-PT",
+    "listing": "Portuguese (Portugal)"
+  },
+  "nl-NL": {
+    "deepl": "NL",
+    "listing": "Dutch"
+  },
+  "pl-PL": {
+    "deepl": "PL",
+    "listing": "Polish",
+    "plurals": [
+      "one",
+      "few",
+      "many",
+      "other"
+    ]
+  },
+  "sv-SE": {
+    "deepl": "SV",
+    "listing": "Swedish"
+  },
+  "ja-JP": {
+    "deepl": "JA",
+    "plurals": [
+      "other"
+    ],
+    "listing": "Japanese"
+  },
+  "hi-IN": {
+    "deepl": "HI"
+  },
+  "ar": {
+    "deepl": "AR",
+    "plurals": [
+      "zero",
+      "one",
+      "two",
+      "few",
+      "many",
+      "other"
+    ]
+  },
+  "tr-TR": {
+    "deepl": "TR"
+  },
+  "id-ID": {
+    "deepl": "ID",
+    "plurals": [
+      "other"
+    ]
+  },
+  "ko-KR": {
+    "deepl": "KO",
+    "plurals": [
+      "other"
+    ]
+  },
+  "zh-Hans": {
+    "deepl": "ZH-HANS",
+    "plurals": [
+      "other"
+    ]
+  },
+  "zh-Hant": {
+    "deepl": "ZH-HANT",
+    "plurals": [
+      "other"
+    ]
+  }
+}
