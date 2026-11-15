@@ -37,6 +37,8 @@ adb shell setprop debug.amazon.sandboxmode debug
 
 On 15 November 2026, the Fire HD 10 (2021, Fire OS 7) loaded the Billmivo SKU from a local App Tester catalog. A fresh checkout for a second sandbox account activated Premium after Cloudflare verified the receipt with Amazon's sandbox RVS. App Tester recorded the transaction as `FULFILLED`. With an earlier sandbox receipt and no cached entitlement, the in-app Restore button independently activated Premium. Changing sandbox accounts cleared the prior account's entitlement. The local US$9.99 amount was test data. Run Live App Testing with the Console catalog and production verifier before release.
 
+The `com.billmivo.app` 0.3.0 paid APK passed the release build and was submitted to the private **Billmivo Fire HD 10 purchase and restore** track. The Console approved the one-time US$9.99 entitlement for testing and listed the Fire HD 10 (2021), model `KFTRWI`, as supported. Production RVS is configured and rejected a synthetic invalid receipt. Record purchase, fulfillment and restore on the tablet after Amazon makes the test build available. Keep the test entitlement separate from any decision about public pricing or availability.
+
 Amazon's guides describe signing for its test workflows and note that Amazon applies its signature to uploaded apps. Keep signing credentials out of source control. [Amazon IAP testing setup](https://developer.amazon.com/docs/in-app-purchasing/iap-get-started.html) · [Amazon binary submission](https://developer.amazon.com/docs/app-submission/submitting-apps-to-amazon-appstore.html)
 
 ### Receipt verifier
