@@ -1,0 +1,12 @@
+.gradle/
+.kotlin/
+.idea/
+**/build/
+local.properties
+*.iml
+*.jks
+*.keystore
+*.apk
+*.aab
+deliverables/android/build-logs/
+deliverables/DELIVERABLES_MANIFEST.csv
