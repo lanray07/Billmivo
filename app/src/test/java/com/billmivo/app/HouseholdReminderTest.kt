@@ -54,4 +54,22 @@ class HouseholdReminderTest {
         val spring = ZonedDateTime.of(2026, 3, 29, 0, 30, 0, 0, zone)
         assertEquals(7, ReminderHours().firstAllowed(spring).hour)
     }
+
+    @Test fun forecastPlansByReminderDateRatherThanBillDueDate() {
+        val overdue = Schedule(1, "water", "Water", "water", "GBP", BigDecimal.TEN, false, date.minusDays(4), Cadence.ONCE)
+        val future = overdue.copy(id = 2, series = "internet", name = "Internet", first = date.plusDays(8),
+            from = date.plusDays(8), cadence = Cadence.MONTHLY)
+        val euros = overdue.copy(id = 3, series = "rent", currency = "EUR")
+        val overdueKey = OccurrenceKey(overdue.id, overdue.first)
+        val futureKey = OccurrenceKey(future.id, future.first)
+        val records = Records(listOf(overdue, future, euros), emptyList(), emptyList(),
+            reminders = listOf(ReminderRule(future.series, leadDays = 3, due = true)), oneOffReminders = listOf(
+                OneOffReminder(overdueKey, date.plusDays(2)), OneOffReminder(futureKey, date.plusDays(5)),
+                OneOffReminder(OccurrenceKey(euros.id, euros.first), date.plusDays(2))))
+        val window = records.plannedReminders(date, date.plusDays(6), "GBP")
+        assertEquals(listOf(date.plusDays(2) to overdueKey, date.plusDays(5) to futureKey),
+            window.map { (day, bill) -> day to bill.key })
+        val paid = records.copy(payments = listOf(Payment(overdueKey, date, overdue.amount)))
+        assertEquals(listOf(futureKey), paid.plannedReminders(date, date.plusDays(6), "GBP").map { it.second.key })
+    }
 }

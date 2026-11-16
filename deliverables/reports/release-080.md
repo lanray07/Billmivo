@@ -4,7 +4,7 @@
 
 ## Private Amazon testing
 
-Amazon delivered version 0.7.0, version code 8, through the existing one-person private track. The Fire HD 10 (2021, `KFTRWI`, Fire OS 7 / Android 28) reported Amazon Appstore as the installer and SDK sandbox mode disabled. With the previous private entitlement reset, the app showed no verified purchase. A new £7.56 test checkout activated Premium, and a separate restore returned Premium active. The Amazon-installed build is still 0.7.0. [Amazon IAP testing modes](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
+Amazon delivered version 0.8.0, version code 9, through the existing one-person private track with German enabled. The Fire HD 10 (2021, `KFTRWI`, Fire OS 7 / Android 28) reported Amazon Appstore as the installer and SDK sandbox mode disabled. After the previous private entitlement was reset, the German paywall showed no verified purchase. Amazon confirmed a fresh £7.56 test checkout, the app activated Premium automatically, and a separate **Amazon-Kauf wiederherstellen** check confirmed active Premium. Amazon documents that Live App Testing purchases carry no charge. [Amazon IAP testing modes](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
 
 ## German localisation
 
@@ -21,6 +21,6 @@ Amazon delivered version 0.7.0, version code 8, through the existing one-person 
 
 ## Open release work
 
-- The 0.8.0 Amazon build needs its own private delivery and billing verification. The public listing remains a draft pending an approved published privacy notice, publisher details, final pricing and distribution, and explicit submission authorisation.
+- The public listing remains a draft pending an approved published privacy notice, publisher details, final pricing and distribution, and explicit submission authorisation.
 - Wider locales beyond English, French, Spanish, Arabic and German still need translation and in-context review. Shipped language and storefront coverage are listed in [localisation preparation](../../store/localisation.md).
 - Microphone testing needs a compatible speech recognizer. Detailed assistive-navigation checks, audible German speech and a configured device-credential challenge still need verification. The Fire HD 10’s existing VoiceView focus smoke test is documented in the [0.7.0 checkpoint](release-070.md).

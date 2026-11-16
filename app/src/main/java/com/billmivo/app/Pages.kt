@@ -187,7 +187,7 @@ fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit,
                  onReminders: () -> Unit, onHousehold: () -> Unit, onProviders: () -> Unit,
                  onDocuments: () -> Unit, onReports: () -> Unit, onAssistant: () -> Unit,
                  onPrivacy: () -> Unit, onSetup: () -> Unit, onCategories: () -> Unit, onPremium: (() -> Unit)? = null) {
-    val themes = linkedMapOf("system" to R.string.system, "light" to R.string.light, "dark" to R.string.dark)
+    val themes = linkedMapOf("system" to R.string.appearance_system, "light" to R.string.light, "dark" to R.string.dark)
     PageLayout {
         SectionTitle(stringResource(R.string.settings))
         Panel(Modifier.fillMaxWidth()) {

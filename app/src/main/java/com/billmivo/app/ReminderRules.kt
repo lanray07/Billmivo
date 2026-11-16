@@ -15,6 +15,27 @@ data class OneOffReminder(val key: OccurrenceKey, val notifyOn: LocalDate)
 
 enum class ReminderKind { UPCOMING, DUE, OVERDUE, INCREASE, ONE_OFF }
 
+internal fun Records.plannedReminders(start: LocalDate, end: LocalDate, currency: String): List<Pair<LocalDate, Occurrence>> {
+    val rules = reminders.filter { it.leadDays != null || it.due }.associateBy { it.series }
+    fun Occurrence.isOpenInCurrency() = open && schedule.currency == currency
+    val recurring = if (rules.isEmpty()) emptyList() else {
+        val lead = rules.values.mapNotNull { it.leadDays }.maxOrNull()?.toLong() ?: 0L
+        occurrences(start, end.plusDays(lead)).filter { it.isOpenInCurrency() }.flatMap { bill ->
+            val rule = rules[bill.schedule.series] ?: return@flatMap emptyList()
+            listOfNotNull(rule.leadDays?.let { bill.date.minusDays(it.toLong()) }, bill.date.takeIf { rule.due })
+                .filter { it in start..end }.map { it to bill }
+        }
+    }
+    val explicit = oneOffReminders.filter { it.notifyOn in start..end }.groupBy { it.key.due }
+        .flatMap { (due, reminders) ->
+            val byKey = reminders.associateBy { it.key }
+            occurrences(due, due).filter { it.isOpenInCurrency() && it.key in byKey }
+                .map { byKey.getValue(it.key).notifyOn to it }
+        }
+    return (recurring + explicit).distinctBy { (day, bill) -> day to bill.key }
+        .sortedWith(compareBy({ it.first }, { it.second.date }, { it.second.schedule.name }))
+}
+
 data class ReminderEvent(val bill: Occurrence, val kind: ReminderKind, val notifyOn: LocalDate? = null) {
     val id get() = if (notifyOn == null) "${bill.schedule.id}/${bill.date.toEpochDay()}/${kind.name}"
         else "${bill.schedule.series}/${bill.date.toEpochDay()}/${kind.name}/${notifyOn.toEpochDay()}"

@@ -388,4 +388,5 @@
     <string name="one_off_edit_note">Si une échéance change, son rappel ponctuel est supprimé.</string>
     <string name="one_off_voice_example">Essayez « rappelle-moi de payer électricité pour vendredi ». Utilisez le nom exact de la facture et un jour ou une date.</string>
     <string name="language_de">Deutsch</string>
+    <string name="appearance_system">Thème de l’appareil</string>
 </resources>

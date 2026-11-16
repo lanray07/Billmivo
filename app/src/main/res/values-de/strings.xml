@@ -388,4 +388,5 @@
         <item quantity="one">%d Tag vorher</item>
         <item quantity="other">%d Tage vorher</item>
     </plurals>
+    <string name="appearance_system">Gerätedesign</string>
 </resources>

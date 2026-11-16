@@ -51,6 +51,8 @@ The next private version, **Billmivo 0.5.0 recurring bills and payment insights*
 
 **Billmivo 0.7.0 dated bill reminders** installed as version code 8 from Amazon on the same Fire HD 10 and one-tester private track. A fresh £7.56 test purchase after resetting the old test entitlement activated Premium. A separate restore run started a fresh Amazon check and confirmed active Premium. [Amazon IAP testing modes](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
 
+**Billmivo 0.8.0 German localisation** installed as version code 9 through the same private track, with German enabled for that test. After the existing entitlement was reset, the German paywall showed no verified purchase. A fresh £7.56 test checkout activated Premium, and **Amazon-Kauf wiederherstellen** independently confirmed the purchase. [0.8.0 release checkpoint](../deliverables/reports/release-080.md)
+
 Amazon's guides describe signing for its test workflows and note that Amazon applies its signature to uploaded apps. Keep signing credentials out of source control. [Amazon IAP testing setup](https://developer.amazon.com/docs/in-app-purchasing/iap-get-started.html) · [Amazon binary submission](https://developer.amazon.com/docs/app-submission/submitting-apps-to-amazon-appstore.html)
 
 ### Receipt verifier

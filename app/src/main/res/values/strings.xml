@@ -385,4 +385,5 @@
     <string name="one_off_edit_note">If a due date changes, its one-off reminder is removed.</string>
     <string name="one_off_voice_example">Try “remind me to pay electricity on Friday”. Use the exact bill name and a weekday or date.</string>
     <string name="language_de">Deutsch</string>
+    <string name="appearance_system">Device theme</string>
 </resources>

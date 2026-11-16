@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -90,7 +91,7 @@ fun Dashboard(
                 RecentPayments(records, currency, 4, showEmpty = false)
             }
             val planning: @Composable () -> Unit = {
-                ForecastPlanning(records, upcoming, currency, today, remindersEnabled, onSelect)
+                ForecastPlanning(records, upcoming, currency, start, end, remindersEnabled, onSelect)
             }
             if (twoColumns) {
                 Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
@@ -134,23 +135,16 @@ fun Dashboard(
 }
 
 @Composable
-private fun ForecastPlanning(records: Records, upcoming: List<Occurrence>, currency: String, today: LocalDate,
+private fun ForecastPlanning(records: Records, upcoming: List<Occurrence>, currency: String, start: LocalDate, end: LocalDate,
                              remindersEnabled: Boolean, select: (Occurrence) -> Unit) {
     val locale = displayLocale()
-    val plannedAlerts = remember(records.reminders, upcoming, today, remindersEnabled) {
-        if (!remindersEnabled) emptyList() else {
-            val rules = records.reminders.associateBy { it.series }
-            upcoming.flatMap { bill ->
-                val rule = rules[bill.schedule.series]
-                listOfNotNull(rule?.leadDays?.let { bill.date.minusDays(it.toLong()) }, bill.date.takeIf { rule?.due == true })
-                    .filter { it >= today }.distinct().map { it to bill }
-            }.sortedBy { it.first }.take(4)
-        }
+    val plannedAlerts = remember(records, currency, start, end, remindersEnabled) {
+        if (remindersEnabled) records.plannedReminders(start, end, currency).take(4) else emptyList()
     }
     if (plannedAlerts.isNotEmpty()) Panel(Modifier.fillMaxWidth()) {
         SectionTitle(stringResource(R.string.forecast_reminders))
         plannedAlerts.forEach { (day, bill) ->
-            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { select(bill) },
+            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(role = Role.Button) { select(bill) },
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(bill.schedule.name, Modifier.weight(1f))
                 Text(dateLabel(day, locale), color = palette.muted)
@@ -273,7 +267,7 @@ fun OccurrenceRow(item: Occurrence, today: LocalDate, onSelect: (Occurrence) -> 
     }
     val statusColor = if (item.open && item.date < today) palette.red else palette.muted
     Row(
-        Modifier.fillMaxWidth().heightIn(min = 58.dp).clickable { onSelect(item) }.padding(vertical = 4.dp),
+        Modifier.fillMaxWidth().heightIn(min = 58.dp).clickable(role = Role.Button) { onSelect(item) }.padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Box(Modifier.size(37.dp).background(if (item.estimated) palette.gold else palette.mint, RoundedCornerShape(11.dp)),
@@ -325,7 +319,7 @@ fun SpendingPanel(spend: Spending, currency: String, locale: Locale) {
             spend.months.forEachIndexed { index, point ->
                 val fraction = point.paid.divide(maximum, MathContext.DECIMAL64).toFloat()
                 val value = stringResource(R.string.chart_value, point.month.format(monthName), money(point.paid, currency, locale))
-                Column(Modifier.weight(1f).clickable { selectedIndex = index }.semantics(mergeDescendants = true) {
+                Column(Modifier.weight(1f).clickable(role = Role.Button) { selectedIndex = index }.semantics(mergeDescendants = true) {
                     contentDescription = value
                     selected = selectedIndex == index
                 }, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(7.dp)) {

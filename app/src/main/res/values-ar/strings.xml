@@ -396,4 +396,5 @@
     <string name="one_off_edit_note">إذا تغيّر تاريخ الاستحقاق، يُزال تذكيره لمرة واحدة.</string>
     <string name="one_off_voice_example">جرّب «ذكرني بدفع الكهرباء يوم الجمعة». استخدم اسم الفاتورة الدقيق ويومًا أو تاريخًا.</string>
     <string name="language_de">Deutsch</string>
+    <string name="appearance_system">مظهر الجهاز</string>
 </resources>

@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -95,7 +97,7 @@ fun Panel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> 
 @Composable
 fun SectionTitle(title: String, subtitle: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(title, style = MaterialTheme.typography.headlineSmall, color = palette.ink)
+        Text(title, Modifier.semantics { heading() }, style = MaterialTheme.typography.headlineSmall, color = palette.ink)
         subtitle?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = palette.muted) }
     }
 }
