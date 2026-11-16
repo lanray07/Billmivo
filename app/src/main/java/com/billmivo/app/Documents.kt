@@ -24,9 +24,13 @@ data class BillDocument(
     val id: String, val billId: Long, val name: String, val mimeType: String, val size: Long, val added: LocalDate
 )
 
-class DocumentDisk(private val app: BillmivoApplication) {
+class DocumentDisk internal constructor(private val app: BillmivoApplication,
+                                        private val repository: BillRepository,
+                                        private val folder: File) {
+    constructor(app: BillmivoApplication) : this(app, app.repository, File(app.filesDir, "bill-documents"))
     private val mutex = Mutex()
-    private val folder = File(app.filesDir, "bill-documents")
+
+    internal suspend fun <T> withFiles(block: suspend () -> T): T = mutex.withLock { block() }
 
     internal fun file(id: String): File {
         require(UUID.fromString(id).toString() == id)
@@ -65,7 +69,7 @@ class DocumentDisk(private val app: BillmivoApplication) {
                 }
                 val document = BillDocument(id, billId, name, mime, size, LocalDate.now())
                 withContext(NonCancellable) {
-                    app.repository.saveDocument(document)
+                    repository.saveDocument(document)
                     committed = true
                 }
                 document
@@ -77,7 +81,7 @@ class DocumentDisk(private val app: BillmivoApplication) {
 
     suspend fun remove(document: BillDocument) = withContext(Dispatchers.IO) {
         mutex.withLock {
-            app.repository.removeDocument(document.id)
+            repository.removeDocument(document.id)
             file(document.id).delete()
         }
     }
@@ -85,7 +89,7 @@ class DocumentDisk(private val app: BillmivoApplication) {
     suspend fun prune() = withContext(Dispatchers.IO) {
         mutex.withLock {
             val files = folder.listFiles() ?: return@withLock
-            val known = app.repository.records.first().documents.map { it.id }.toSet()
+            val known = repository.records.first().documents.map { it.id }.toSet()
             files.filter { it.isFile && it.name !in known }.forEach { it.delete() }
         }
     }
@@ -100,7 +104,7 @@ class DocumentDisk(private val app: BillmivoApplication) {
     }
 
     companion object {
-        private const val limit = 20L * 1024 * 1024
+        internal const val limit = 20L * 1024 * 1024
         val types = setOf("application/pdf", "image/jpeg", "image/png", "image/webp", "text/plain")
     }
 }

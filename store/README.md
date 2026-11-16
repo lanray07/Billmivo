@@ -4,6 +4,8 @@
 
 Use `listings.json` for the display titles, store descriptions, feature bullets and keywords. The United Kingdom, France and Spain sets have eight Fire tablet screenshots each. Provide the English copy as the default storefront description as well. Arabic is a supported app language. The locale matrix records storefront availability separately.
 
+Amazon stopped accepting new Android mobile listings and ended Appstore distribution for non-Fire Android phones in 2025. The Android build can still be used for phone compatibility testing. The submission artwork targets Fire tablets. [Amazon device distribution announcement](https://developer.amazon.com/apps-and-games/blogs/2025/02/upcoming-changes-to-amazon-appstore-for-android-devices-and-coins-program)
+
 Set the app category to Finance if that category appears in the Developer Console. Use the storefront’s category picker as the source of truth. Keywords are mapped to actual features and search phrases. There are no price claims, endorsements or unsupported service claims. [Amazon's listing fields and media rules](https://developer.amazon.com/docs/app-submission/appstore-details.html)
 
 Both required transparent icons and the 1920 × 1200 screenshot compositions are under `deliverables/store-assets/amazon`. The artwork is generated from the original Billmivo mark and the actual Fire app with fictional household data. Raw captures are retained locally. Use `python tools/validate-amazon-package.py --raw deliverables/store-assets/amazon-raw` to validate the package. [Fire tablet test criteria](https://developer.amazon.com/docs/app-testing/test-criteria.html)
@@ -50,3 +52,9 @@ For production RVS and Live App Testing, open the [Amazon Shared Key page](https
 Deploy the sandbox with `npx wrangler@4.162.0 deploy --config store/receipt-verifier/wrangler.toml --env=""`. For production updates, use `--env production` and preserve the configured domain. A standalone Node server is also available for a single instance behind HTTPS with `AMAZON_RVS_MODE` and `AMAZON_RVS_SHARED_SECRET` configured by the host. Run `node --test 'store/receipt-verifier/*.test.mjs'` for verifier and Worker tests. [Amazon production RVS](https://developer.amazon.com/docs/in-app-purchasing/iap-rvs-for-android-apps.html)
 
 See [localisation preparation](localisation.md) for regional scope and the translation workflow.
+
+## Local records and backups
+
+The optional app lock uses the OS credential prompt on compatible devices with a screen lock. It applies on a cold launch and after two minutes away from Billmivo. The app blocks app-window screenshots while its lock is enabled. The setting does not change the device’s credential or encrypt the live Room database.
+
+The `.billmivo` archive uses AES-256-GCM with a random nonce and a key derived from the passphrase with PBKDF2-HMAC-SHA-256, 600,000 iterations and a random salt. The encrypted payload contains Room records and attachment bytes. The payload is limited to 24 MiB and no passphrase is stored. A restore verifies authentication, enforces input bounds and replaces records in a transaction. Purchases, display preferences and notification permission are device-specific. The app uses the system file picker for user-chosen destinations and leaves external copies under the user’s control.

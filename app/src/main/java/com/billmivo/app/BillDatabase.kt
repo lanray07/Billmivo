@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.Currency
 import org.json.JSONArray
 
 @Entity(tableName = "schedules")
@@ -174,6 +175,25 @@ class BillmivoApplication : Application() {
 }
 
 class BillRepository(private val db: BillDatabase, private val unlimitedBills: () -> Boolean = { true }) {
+    internal suspend fun <T> archiveTransaction(block: suspend (SupportSQLiteDatabase) -> T): T =
+        db.withTransaction { block(db.openHelper.writableDatabase) }
+
+    internal suspend fun validateRestoredRecords() {
+        val records = read()
+        val earliest = LocalDate.of(2000, 1, 1)
+        val schedules = records.schedules.associateBy { it.id }
+        val providers = records.providers.map { it.id }.toSet()
+        require(schedules.values.all { schedule ->
+            val currency = Currency.getInstance(schedule.currency)
+            schedule.id > 0 && schedule.name.isNotBlank() && schedule.amount.signum() > 0 &&
+                schedule.first >= earliest && schedule.from >= schedule.first &&
+                schedule.interval > 0 && currency.defaultFractionDigits >= 0 &&
+                (schedule.providerId == null || schedule.providerId in providers)
+        })
+        require(records.payments.all { it.key.scheduleId in schedules && it.amount.signum() > 0 } &&
+            records.adjustments.all { it.key.scheduleId in schedules && (it.confirmed?.signum() ?: 1) > 0 })
+    }
+
     private val dao get() = db.bills()
 
     private suspend fun read() = Records(

@@ -27,8 +27,8 @@ import java.time.LocalDate
 private val voiceLabels = mapOf(7 to R.string.days_7, 30 to R.string.days_30, 90 to R.string.days_90)
 
 @Composable
-fun VoiceDialog(records: Records, currency: String, today: LocalDate, spoken: Boolean,
-                onClose: () -> Unit, onRange: (Int) -> Unit) {
+internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, spoken: Boolean,
+                         onClose: () -> Unit, onCommand: (VoiceCommand) -> Unit) {
     val context = LocalContext.current
     val locale = displayLocale()
     var range by rememberSaveable { mutableIntStateOf(30) }
@@ -70,8 +70,9 @@ fun VoiceDialog(records: Records, currency: String, today: LocalDate, spoken: Bo
                 override fun onResults(results: Bundle?) {
                     listening = false
                     transcript = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull().orEmpty()
-                    val selected = parseForecastRange(transcript, locale)
-                    if (selected == null) status = R.string.voice_error else range = selected
+                    val selected = parseVoiceCommand(transcript, locale, today)
+                    if (selected == null) status = R.string.voice_command_error
+                    if (selected is VoiceCommand.Range) range = selected.days
                 }
             })
             transcript = ""
@@ -93,10 +94,21 @@ fun VoiceDialog(records: Records, currency: String, today: LocalDate, spoken: Bo
     }
     val summary = stringResource(R.string.voice_summary, stringResource(voiceLabels.getValue(range)),
         money(total.confirmed, currency, locale), money(total.estimated, currency, locale))
-    AlertDialog(onDismissRequest = onClose, title = { Text(stringResource(R.string.voice_title)) }, text = {
+    val command = remember(transcript, locale, today) { parseVoiceCommand(transcript, locale, today) }
+    val commandLabel = when (command) {
+        is VoiceCommand.Draft -> stringResource(R.string.voice_review_draft, command.bill.name,
+            money(command.bill.amount, command.bill.currency, locale), dateLabel(command.bill.due, locale))
+        VoiceCommand.Navigate.Overdue -> stringResource(R.string.overdue)
+        VoiceCommand.Navigate.Household -> stringResource(R.string.household)
+        VoiceCommand.Navigate.Increases -> stringResource(R.string.bill_changes)
+        VoiceCommand.Navigate.Reminders -> stringResource(R.string.reminders)
+        else -> null
+    }
+    AlertDialog(onDismissRequest = onClose, title = { Text(stringResource(R.string.voice_command_title)) }, text = {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(R.string.voice_intro), color = palette.muted)
+            Text(stringResource(R.string.voice_command_intro), color = palette.muted)
             Text(stringResource(R.string.voice_try, voiceRanges.joinToString(", ") { java.text.NumberFormat.getIntegerInstance(locale).format(it) }))
+            Text(stringResource(R.string.voice_examples), color = palette.muted)
             if (available) {
                 OutlinedButton({
                     if (listening) {
@@ -108,14 +120,19 @@ fun VoiceDialog(records: Records, currency: String, today: LocalDate, spoken: Bo
                 }) { Text(stringResource(if (listening) R.string.voice_stop else R.string.voice_listen)) }
             } else Text(stringResource(R.string.voice_unavailable), color = palette.muted)
             OutlinedTextField(transcript, {
-                transcript = it.take(100)
-                parseForecastRange(transcript, locale)?.let { parsed -> range = parsed; status = null }
-            }, label = { Text(stringResource(R.string.voice_type)) }, singleLine = true, enabled = !listening)
-            status?.let { Text(stringResource(it), color = palette.red) }
-            MenuField(stringResource(R.string.period), range, voiceRanges,
-                { stringResource(voiceLabels.getValue(it)) }, { range = it })
-            Text(summary)
-            if (spoken) OutlinedButton({
+                transcript = it.take(175)
+                val parsed = parseVoiceCommand(transcript, locale, today)
+                if (parsed is VoiceCommand.Range) range = parsed.days
+                status = null
+            }, label = { Text(stringResource(R.string.voice_command_input)) }, singleLine = true, enabled = !listening)
+            val feedback = status ?: R.string.voice_command_error.takeIf { transcript.isNotBlank() && command == null && !listening }
+            feedback?.let { Text(stringResource(it), color = palette.red) }
+            if (commandLabel != null) Text(commandLabel) else {
+                MenuField(stringResource(R.string.period), range, voiceRanges,
+                    { stringResource(voiceLabels.getValue(it)) }, { range = it; transcript = "" })
+                Text(summary)
+            }
+            if (spoken && commandLabel == null) OutlinedButton({
                 val engine = speech
                 if (engine == null || !ttsReady || engine.setLanguage(locale) < TextToSpeech.LANG_AVAILABLE ||
                     engine.speak(summary, TextToSpeech.QUEUE_FLUSH, null, "forecast") == TextToSpeech.ERROR) {
@@ -123,6 +140,10 @@ fun VoiceDialog(records: Records, currency: String, today: LocalDate, spoken: Bo
                 }
             }) { Text(stringResource(R.string.voice_read)) }
         }
-    }, confirmButton = { Button({ onRange(range) }) { Text(stringResource(R.string.voice_use)) } },
+    }, confirmButton = {
+        Button({ onCommand(command ?: VoiceCommand.Range(range)) }, enabled = !listening && (transcript.isBlank() || command != null)) {
+            Text(stringResource(if (commandLabel != null) R.string.voice_open_command else R.string.voice_use))
+        }
+    },
         dismissButton = { TextButton(onClose) { Text(stringResource(R.string.close)) } })
 }

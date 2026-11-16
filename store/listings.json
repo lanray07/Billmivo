@@ -3,6 +3,8 @@
     "source": "en",
     "name": "Billmivo – Household Bills & Forecast",
     "short": "See which bills are due, plan household costs, and get reminders for the bills you choose.",
+    "release_notes": "Adds guided setup, weekly and filtered calendar views, more voice and typed shortcuts, app lock, and encrypted backups.",
+    "support": "For help, email banksmi@mail.com with your Billmivo version and device model. Please leave out household records and receipts.",
     "long": "Billmivo brings your household bills, upcoming payments and spending history together on your Fire tablet.\n\nPlan for rent, energy, broadband, insurance and other bills with a 7-, 30- or 90-day forecast. Confirmed and estimated amounts are labelled separately. Overdue bills appear apart from upcoming balances, and currencies are kept separate.\n\nSet bill reminders before a due date, on the day or after a missed payment. Choose quiet hours and keep bill names hidden from notification previews. Notification delivery depends on your device settings.\n\nAssign responsibility, split bills with members of your household and record who paid. See changes in bill amounts and compare actual payments over time. Your bill records work offline and are stored on your device.",
     "features": [
       "Forecast upcoming bills over 7, 30 or 90 days, or pick your own dates",
@@ -36,6 +38,8 @@
     "source": "fr",
     "name": "Billmivo – Factures du foyer",
     "short": "Anticipez vos échéances, programmez des rappels et répartissez les factures de votre foyer.",
+    "release_notes": "Ajout de la configuration guidée, de la vue hebdomadaire et des filtres, de nouveaux raccourcis vocaux et écrits, du verrouillage et des sauvegardes chiffrées.",
+    "support": "Écrivez à banksmi@mail.com en indiquant la version de Billmivo et le modèle de votre appareil. Évitez de joindre des données du foyer ou des justificatifs.",
     "long": "Billmivo rassemble les factures, les échéances et l’historique des paiements de votre foyer sur votre tablette Fire.\n\nConsultez les prévisions à 7, 30 ou 90 jours ou choisissez vos dates. Les montants confirmés et estimés sont indiqués séparément. Les factures en retard restent distinctes des prochaines échéances, et chaque devise conserve son propre total.\n\nProgrammez des rappels avant, le jour même ou après une échéance manquée. Choisissez des heures calmes et masquez le nom des factures dans les aperçus. Les notifications dépendent des réglages de votre appareil.\n\nDésignez un responsable, répartissez les factures et enregistrez qui a payé. Retrouvez l’évolution des montants et comparez les paiements effectués. Les données sont conservées sur votre appareil et restent accessibles hors connexion.",
     "features": [
       "Prévisions de factures à 7, 30 ou 90 jours et période personnalisée",
@@ -68,6 +72,8 @@
     "source": "es",
     "name": "Billmivo – Facturas del hogar",
     "short": "Consulta tus vencimientos, configura recordatorios y reparte las facturas de tu hogar.",
+    "release_notes": "Incluye configuración guiada, vista semanal y filtros, más atajos por voz y texto, bloqueo de la aplicación y copias cifradas.",
+    "support": "Para obtener ayuda, escribe a banksmi@mail.com e indica la versión de Billmivo y el modelo de tu dispositivo. Evita enviar datos del hogar o recibos.",
     "long": "Billmivo reúne las facturas, los pagos próximos y el historial de gastos de tu hogar en tu tableta Fire.\n\nPlanifica a 7, 30 o 90 días o elige las fechas. Los importes confirmados y estimados se identifican por separado. Las facturas vencidas se muestran en su propia sección y los totales se calculan para cada moneda.\n\nPrograma recordatorios antes del vencimiento, el mismo día o tras un impago. Configura horas de silencio y oculta los nombres de las facturas en las notificaciones. La entrega de avisos depende de los ajustes del dispositivo.\n\nAsigna responsables, reparte facturas y registra quién ha pagado. Consulta cómo cambian los importes y compara los pagos registrados. Tus datos se guardan en el dispositivo y puedes consultarlos sin conexión.",
     "features": [
       "Previsión a 7, 30 o 90 días y periodos personalizados",

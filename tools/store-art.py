@@ -60,6 +60,19 @@ def compose(raw: Path, title: str, output: Path):
     panel.save(output, optimize=True)
 
 
+def promotional_image(output: Path):
+    panel = Image.new("RGB", (1024, 500), FOREST)
+    draw = ImageDraw.Draw(panel)
+    draw.rounded_rectangle((55, 54, 969, 445), radius=34, outline="#426458", width=2)
+    draw.text((101, 190), "Billmivo", font=font("georgia.ttf", 105), fill=PAPER)
+    draw.rounded_rectangle((101, 331, 289, 340), radius=4, fill=LIME)
+    draw.rounded_rectangle((648, 105, 898, 395), radius=66, fill="#264c41")
+    icon = mark(212)
+    panel.paste(icon, (667, 144), icon)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    panel.save(output, optimize=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Render Billmivo's Fire tablet assets from real app captures.")
     parser.add_argument("--raw", type=Path)
@@ -72,6 +85,7 @@ def main():
     icon_dir.mkdir(parents=True, exist_ok=True)
     for size in (114, 512):
         mark(size).save(icon_dir / f"billmivo-{size}.png")
+    promotional_image(options.out / "promotion" / "billmivo-1024x500.png")
     if options.locale:
         listing = json.loads((STORE / "listings.json").read_text(encoding="utf-8"))[options.locale]
         for index, (scene, title) in enumerate(zip(SCENES, listing["headlines"]), start=1):

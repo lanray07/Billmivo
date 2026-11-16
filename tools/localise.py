@@ -38,13 +38,16 @@ def extraction(locale):
         for category in TAGS[locale].get("plurals", ("one", "other")):
             keys[f"plural/{plural.attrib['name']}/{category}"] = examples.get(category, examples["other"])
     listing = json.loads((STORE / "listings.json").read_text(encoding="utf-8"))["en-GB"]
-    for field in ("name", "short", "long"):
+    for field in ("name", "short", "long", "release_notes", "support"):
         keys[f"listing/{field}"] = listing[field]
     for field in ("features", "keywords", "headlines"):
         for i, text in enumerate(listing[field]):
             keys[f"listing/{field}/{i}"] = text
     for range_, phrase in (("7", "seven"), ("30", "thirty"), ("90", "ninety")):
         keys[f"voice/{range_}"] = phrase
+    for action, phrase in (("overdue", "show overdue bills"), ("sharing", "show household cost sharing"),
+                           ("increases", "show bill increases"), ("reminders", "show bill reminders")):
+        keys[f"voice/{action}"] = phrase
     return keys
 
 

@@ -28,7 +28,8 @@ function Strings([string] $Lang) {
 
 function Find-AppLabel([string] $Label, [switch] $Prefix, [int] $Attempts = 4) {
     for ($attempt = 0; $attempt -lt $Attempts; $attempt++) {
-        & $adb @device shell uiautomator dump $view 2>$null | Out-Null
+        $dump = (& $adb @device shell uiautomator dump $view 2>&1) -join ' '
+        if ($dump -notmatch 'dumped to') { continue }
         $raw = (& $adb @device shell cat $view 2>$null) -join ''
         if (!$raw) { continue }
         [xml] $layout = $raw
@@ -56,9 +57,9 @@ function Save-Scene([string] $File, [string] $Label) {
     if ($LASTEXITCODE -ne 0) { throw "Download failed: $File" }
 }
 
-function Scroll-ToLabel([string] $Label) {
+function Scroll-ToLabel([string] $Label, [switch] $Prefix) {
     for ($attempt = 0; $attempt -lt 5; $attempt++) {
-        if (Find-AppLabel $Label -Attempts 1) { return }
+        if (Find-AppLabel $Label -Prefix:$Prefix -Attempts 1) { return }
         & $adb @device shell input swipe 1000 1020 1000 420 350
     }
     throw "Could not scroll to $Label"
@@ -74,6 +75,7 @@ try {
     $strings = Strings $language
     $from = Strings $CurrentLanguage
     Tap-Label $from.more
+    Scroll-ToLabel "$($from.language) · " -Prefix
     Tap-Label "$($from.language) · " -Prefix
     Tap-Label $from["language_$language"]
     Tap-Label $strings.dashboard
@@ -105,7 +107,7 @@ try {
     Scroll-ToLabel $strings.bill_changes
     Save-Scene 'changes' $strings.bill_changes
     Tap-Label $strings.voice
-    Save-Scene 'voice' $strings.voice_title
+    Save-Scene 'voice' $strings.voice_command_title
     & $adb @device shell input keyevent KEYCODE_BACK
     Tap-Label $strings.calendar
     Save-Scene 'calendar' $strings.calendar

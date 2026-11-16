@@ -33,7 +33,8 @@ import java.util.Locale
 fun Dashboard(
     records: Records, forecast: Forecast, spending: Spending, currency: String, currencies: List<String>,
     period: Int, start: LocalDate, end: LocalDate, today: LocalDate, onCurrency: (String) -> Unit,
-    onRange: (Int, LocalDate, LocalDate) -> Unit, onAdd: () -> Unit, onSelect: (Occurrence) -> Unit
+    onRange: (Int, LocalDate, LocalDate) -> Unit, onAdd: () -> Unit, onSelect: (Occurrence) -> Unit,
+    remindersEnabled: Boolean = false
 ) {
     val locale = displayLocale()
     var customRange by remember { mutableStateOf(false) }
@@ -88,6 +89,9 @@ fun Dashboard(
             val recentPanel: @Composable () -> Unit = {
                 RecentPayments(records, currency, 4, showEmpty = false)
             }
+            val planning: @Composable () -> Unit = {
+                ForecastPlanning(records, upcoming, currency, today, remindersEnabled, onSelect)
+            }
             if (twoColumns) {
                 Row(horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                     Column(Modifier.weight(1.22f), verticalArrangement = Arrangement.spacedBy(18.dp)) {
@@ -103,6 +107,7 @@ fun Dashboard(
                         } else {
                             SpendingPanel(spending, currency, locale)
                             overduePanel()
+                            planning()
                             changesPanel()
                         }
                     }
@@ -115,6 +120,7 @@ fun Dashboard(
                     overduePanel()
                     upcomingPanel()
                     SpendingPanel(spending, currency, locale)
+                    planning()
                     changesPanel()
                     recentPanel()
                 }
@@ -124,6 +130,50 @@ fun Dashboard(
     if (customRange) RangeDialog(start, end, today, { customRange = false }) { from, through ->
         onRange(0, from, through)
         customRange = false
+    }
+}
+
+@Composable
+private fun ForecastPlanning(records: Records, upcoming: List<Occurrence>, currency: String, today: LocalDate,
+                             remindersEnabled: Boolean, select: (Occurrence) -> Unit) {
+    val locale = displayLocale()
+    val plannedAlerts = remember(records.reminders, upcoming, today, remindersEnabled) {
+        if (!remindersEnabled) emptyList() else {
+            val rules = records.reminders.associateBy { it.series }
+            upcoming.flatMap { bill ->
+                val rule = rules[bill.schedule.series]
+                listOfNotNull(rule?.leadDays?.let { bill.date.minusDays(it.toLong()) }, bill.date.takeIf { rule?.due == true })
+                    .filter { it >= today }.distinct().map { it to bill }
+            }.sortedBy { it.first }.take(4)
+        }
+    }
+    if (plannedAlerts.isNotEmpty()) Panel(Modifier.fillMaxWidth()) {
+        SectionTitle(stringResource(R.string.forecast_reminders))
+        plannedAlerts.forEach { (day, bill) ->
+            Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable { select(bill) },
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(bill.schedule.name, Modifier.weight(1f))
+                Text(dateLabel(day, locale), color = palette.muted)
+            }
+        }
+    }
+    val totals = remember(records.sharing, upcoming, currency) {
+        buildMap<String, BigDecimal> {
+            upcoming.forEach { bill ->
+                records.sharingFor(bill.schedule.series, bill.date)?.allocate(bill.amount, currency)?.forEach { (member, amount) ->
+                    put(member, (get(member) ?: BigDecimal.ZERO) + amount)
+                }
+            }
+        }
+    }
+    if (totals.isNotEmpty()) Panel(Modifier.fillMaxWidth()) {
+        SectionTitle(stringResource(R.string.forecast_shares), stringResource(R.string.forecast_shares_detail))
+        records.members.filter { it.id in totals }.forEach { member ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(member.name, Modifier.weight(1f))
+                Text(money(totals.getValue(member.id), currency, locale))
+            }
+        }
     }
 }
 

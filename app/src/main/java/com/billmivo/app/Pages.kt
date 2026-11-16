@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import java.time.temporal.WeekFields
 import java.text.NumberFormat
 
 @Composable
@@ -58,23 +59,79 @@ fun BillsPage(records: Records, onEdit: (Schedule) -> Unit, onAdd: () -> Unit) {
     }
 }
 
+internal enum class CalendarMode(val label: Int) {
+    Month(R.string.calendar_month), Week(R.string.calendar_week), Upcoming(R.string.upcoming),
+    Overdue(R.string.overdue), Paid(R.string.paid)
+}
+
 @Composable
-fun CalendarPage(records: Records, today: LocalDate, onSelect: (Occurrence) -> Unit) {
+internal fun CalendarPage(records: Records, today: LocalDate, mode: CalendarMode,
+                          onMode: (CalendarMode) -> Unit, onSelect: (Occurrence) -> Unit) {
     var offset by rememberSaveable { mutableIntStateOf(0) }
+    var categoryFilter by rememberSaveable { mutableStateOf<String?>(null) }
+    var providerFilter by rememberSaveable { mutableStateOf<String?>(null) }
+    var memberFilter by rememberSaveable { mutableStateOf<String?>(null) }
     val month = YearMonth.from(today).plusMonths(offset.toLong())
     val locale = displayLocale()
-    val items = remember(month, records) { records.occurrences(month.atDay(1), month.atEndOfMonth()) }
+    val firstWeekday = WeekFields.of(locale).firstDayOfWeek
+    val week = today.minusDays(((today.dayOfWeek.value - firstWeekday.value + 7) % 7).toLong()).plusWeeks(offset.toLong())
+    val categoryChoices = records.schedules.map { it.category }.distinct().sorted()
+    val provider = providerFilter?.takeIf { id -> records.providers.any { it.id == id } }
+    val member = memberFilter?.takeIf { id -> records.members.any { it.id == id } }
+    val options = remember(mode, month, week, records, today) {
+        when (mode) {
+            CalendarMode.Month -> records.occurrences(month.atDay(1), month.atEndOfMonth())
+            CalendarMode.Week -> records.occurrences(week, week.plusDays(6))
+            CalendarMode.Upcoming -> records.occurrences(today, today.plusDays(29)).filter { it.open }
+            CalendarMode.Overdue -> records.forecast(today, today, today).overdue
+            CalendarMode.Paid -> {
+                val keys = records.payments.filter { YearMonth.from(it.date) == month }.map { it.key }.toSet()
+                if (keys.isEmpty()) emptyList() else records.occurrences(keys.minOf { it.due }, keys.maxOf { it.due })
+                    .filter { it.key in keys }
+            }
+        }
+    }
+    val items = remember(options, categoryFilter, provider, member, records.sharing, records.payments) {
+        val category = categoryFilter?.takeIf { it in categoryChoices }
+        options.filter { occurrence ->
+            (category == null || occurrence.schedule.category == category) &&
+                (provider == null || occurrence.schedule.providerId == provider) &&
+                (member == null || records.sharingFor(occurrence.schedule.series, occurrence.date)
+                    ?.let { rule -> rule.responsibleId == member || rule.parts.any { it.memberId == member } } == true ||
+                    records.payments.any { it.key == occurrence.key && it.payerId == member })
+        }
+    }
     PageLayout {
         SectionTitle(stringResource(R.string.calendar))
         Panel(Modifier.fillMaxWidth()) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            MenuField(stringResource(R.string.calendar_view), mode, CalendarMode.entries,
+                { stringResource(it.label) }, { offset = 0; onMode(it) })
+            if (categoryChoices.isNotEmpty()) MenuField(stringResource(R.string.category), categoryFilter,
+                listOf(null) + categoryChoices, { key ->
+                    if (key == null) stringResource(R.string.calendar_all) else categories[key]?.let { stringResource(it) } ?: key
+                },
+                { categoryFilter = it })
+            if (records.providers.isNotEmpty()) MenuField(stringResource(R.string.providers), provider,
+                listOf(null) + records.providers.map { it.id },
+                { id -> records.providers.find { it.id == id }?.name ?: stringResource(R.string.calendar_all) },
+                { providerFilter = it })
+            if (records.members.isNotEmpty()) MenuField(stringResource(R.string.household), member,
+                listOf(null) + records.members.map { it.id },
+                { id -> records.members.find { it.id == id }?.name ?: stringResource(R.string.calendar_all) },
+                { memberFilter = it })
+            if (mode in setOf(CalendarMode.Month, CalendarMode.Week, CalendarMode.Paid)) Row(
+                Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton({ offset-- }, enabled = offset > -120) {
-                    Icon(painterResource(R.drawable.ic_previous), stringResource(R.string.previous_month))
+                    Icon(painterResource(R.drawable.ic_previous), stringResource(
+                        if (mode == CalendarMode.Week) R.string.calendar_previous_week else R.string.previous_month))
                 }
-                Text(month.format(DateTimeFormatter.ofPattern("LLLL yyyy", locale)), Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium)
+                val label = if (mode == CalendarMode.Week) dateRange(week, week.plusDays(6), locale).let { (a, b) ->
+                    stringResource(R.string.date_span, a, b)
+                } else month.format(DateTimeFormatter.ofPattern("LLLL yyyy", locale))
+                Text(label, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                 IconButton({ offset++ }, enabled = offset < 120) {
-                    Icon(painterResource(R.drawable.ic_next), stringResource(R.string.next_month))
+                    Icon(painterResource(R.drawable.ic_next), stringResource(
+                        if (mode == CalendarMode.Week) R.string.calendar_next_week else R.string.next_month))
                 }
             }
             OccurrenceList(items, today, onSelect, R.string.calendar_empty)
@@ -122,9 +179,8 @@ fun BillChangesPanel(changes: List<BillChange>, currency: String, locale: java.u
 @Composable
 fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit, onSpoken: (Boolean) -> Unit,
                  onReminders: () -> Unit, onHousehold: () -> Unit, onProviders: () -> Unit,
-                 onDocuments: () -> Unit, onReports: () -> Unit, onAssistant: () -> Unit, onPremium: (() -> Unit)? = null) {
-    val languages = linkedMapOf("" to R.string.system, "en" to R.string.language_en,
-        "fr" to R.string.language_fr, "es" to R.string.language_es, "ar" to R.string.language_ar)
+                 onDocuments: () -> Unit, onReports: () -> Unit, onAssistant: () -> Unit,
+                 onPrivacy: () -> Unit, onSetup: () -> Unit, onPremium: (() -> Unit)? = null) {
     val themes = linkedMapOf("system" to R.string.system, "light" to R.string.light, "dark" to R.string.dark)
     PageLayout {
         SectionTitle(stringResource(R.string.settings))
@@ -138,11 +194,11 @@ fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit,
             if (onPremium != null) OutlinedButton(onPremium, modifier = Modifier.heightIn(min = 48.dp)) {
                 Text(stringResource(R.string.premium_title))
             }
+            OutlinedButton(onPrivacy, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.privacy_title)) }
         }
         Panel(Modifier.fillMaxWidth()) {
-            MenuField(stringResource(R.string.language), AppCompatDelegate.getApplicationLocales().toLanguageTags(),
-                languages.keys.toList(), { stringResource(languages[it] ?: R.string.system) },
-                { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(it)) })
+            LanguageMenu()
+            OutlinedButton(onSetup, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.setup_title)) }
             MenuField(stringResource(R.string.appearance), appearance, themes.keys.toList(),
                 { stringResource(themes.getValue(it)) }, onTheme)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -151,4 +207,13 @@ fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit,
             }
         }
     }
+}
+
+@Composable
+internal fun LanguageMenu() {
+    val languages = linkedMapOf("" to R.string.system, "en" to R.string.language_en,
+        "fr" to R.string.language_fr, "es" to R.string.language_es, "ar" to R.string.language_ar)
+    MenuField(stringResource(R.string.language), AppCompatDelegate.getApplicationLocales().toLanguageTags(),
+        languages.keys.toList(), { stringResource(languages[it] ?: R.string.system) },
+        { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(it)) })
 }
