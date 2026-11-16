@@ -6,7 +6,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$adb = if ($env:ANDROID_HOME) { Join-Path $env:ANDROID_HOME 'platform-tools/adb.exe' } else { 'adb.exe' }
+$sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { $env:ANDROID_SDK_ROOT }
+$adb = if ($sdk) { Join-Path $sdk 'platform-tools/adb.exe' } else { 'adb.exe' }
 if (!$Serial) {
     $hardware = @(& $adb devices -l | Where-Object { $_ -match '\sdevice\s.*\bmodel:KFTRWI\b' })
     if ($hardware.Count -ne 1) { throw 'Connect one KFTRWI Fire HD 10 or supply its ADB serial.' }
@@ -18,16 +19,11 @@ foreach ($apk in @($DebugApk, $TestApk)) {
     $result | Write-Output
     if (($result -join ' ') -notmatch 'Success') { throw "Installation failed: $apk" }
 }
-function Verify([string] $Classes, [string] $Expected, [string] $LogName) {
-    & $adb -s $Serial shell am force-stop com.billmivo.app.debug
-    $run = & $adb -s $Serial shell am instrument -w -e class $Classes com.billmivo.app.debug.test/androidx.test.runner.AndroidJUnitRunner
-    $run | Tee-Object (Join-Path $LogDir $LogName)
-    if (($run -join "`n") -notmatch [regex]::Escape($Expected)) { throw "Fire HD 10 test failed: $LogName" }
-}
-$prefix = 'com.billmivo.app.'
-$tests = @('ReminderDeliveryTest','SharingMigrationTest','HouseholdScreenTest','DocumentsReportsTest',
-    'PremiumLimitTest','RepositoryTest','DashboardTest')
-$classes = ($tests | ForEach-Object { $prefix + $_ }) -join ','
-Verify $classes 'OK (7 tests)' 'fire-030.txt'
-Verify ($prefix + 'BillJourneyTest') 'OK (1 test)' 'fire-030-journey.txt'
-Verify ($prefix + 'AssistantScreenTest') 'OK (1 test)' 'fire-030-assistant.txt'
+& $adb -s $Serial shell am force-stop com.billmivo.app.debug
+$log = Join-Path $LogDir 'fire-instrumentation.txt'
+# Store previews replace demo records and run separately from the regression suite.
+$run = & $adb -s $Serial shell am instrument -w -e notClass com.billmivo.app.StorePreviewFixture com.billmivo.app.debug.test/androidx.test.runner.AndroidJUnitRunner
+$instrumentExit = $LASTEXITCODE
+$run | Tee-Object $log
+$passed = $run -match '^OK \(([1-9][0-9]*) tests?\)\s*$'
+if ($instrumentExit -ne 0 -or !$passed) { throw "Fire HD 10 test failed. See $log" }

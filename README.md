@@ -12,9 +12,12 @@ Use JDK 17, Android SDK platform 35 and build-tools 35.0.0. Set `ANDROID_HOME` t
 
 ```powershell
 .\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:assembleRelease
-.\gradlew.bat :app:connectedDebugAndroidTest
+.\gradlew.bat :app:assembleDebugAndroidTest
+.\tools\test-fire.ps1
 .\tools\check-locales.ps1
 ```
+
+The Fire test script runs the instrumentation regression suite and writes its output to `deliverables/android/build-logs/fire-instrumentation.txt`. Pass `-Serial` to select a device explicitly. The store screenshot fixture runs separately because it seeds demo records.
 
 The debug package is `com.billmivo.app.debug`. The minimum Android API is 28. Release packages use `com.billmivo.app` and require signing before installation or submission. Keep signing credentials outside source control.
 
@@ -30,11 +33,11 @@ The debug package is `com.billmivo.app.debug`. The minimum Android API is 28. Re
 
 ## Architecture
 
-Jetpack Compose renders the responsive dashboard, bills, calendar, insights and settings. `BillsModel` observes Room invalidations and applies transactional changes. `Forecast.kt` contains date and money calculations with no Android dependency. `BillDatabase.kt` contains the Room schema and repository. Local database and preferences are kept in app-private storage. Android backup is disabled and the app declares no Internet permission. Speech is optional, uses the installed device speech service, and opens the microphone only when you request it. Spoken financial totals require an explicit read-aloud action.
+Jetpack Compose renders the responsive dashboard, bills, calendar, insights and settings. `BillsModel` observes Room invalidations and applies transactional changes. `Forecast.kt` contains date and money calculations with no Android dependency. `BillDatabase.kt` contains the Room schema and repository. Local database and preferences are kept in app-private storage. Android automatic backup is disabled. The offline build omits Internet permission, and the Amazon build uses it to verify purchase receipts. Speech is optional, uses the installed device speech service, and opens the microphone only when you request it. Spoken financial totals require an explicit read-aloud action.
 
 ## Languages and voice
 
-The dashboard build includes English, French, Spanish and Arabic. The UI follows the device language by default and offers a manual override. Arabic uses right-to-left layout. Currency and date formatting follow the active locale. The forecast shortcut understands 7, 30 and 90 as digits or supported local number words, with touch and typed controls as alternatives. Microphone recognition and speech output depend on the installed engine and locale.
+The app includes English, French, Spanish, Arabic and German. The UI follows the device language by default and offers a manual override. Arabic uses right-to-left layout. Currency and date formatting follow the active locale. The forecast shortcut understands 7, 30 and 90 as digits or supported local number words, with touch and typed controls as alternatives. Microphone recognition and speech output depend on the installed engine and locale.
 
 ## Release scope
 
