@@ -10,6 +10,21 @@ import java.util.Locale
 class VoiceCommandTest {
     private val today = LocalDate.of(2026, 11, 16)
 
+    @Test fun resolvesNamedReminderDatesInEachShippedLanguage() {
+        assertEquals(VoiceCommand.ReviewReminder("council tax", today.plusDays(4)),
+            parseVoiceCommand("Remind me to pay council tax on Friday", Locale.UK, today))
+        assertEquals(VoiceCommand.ReviewReminder("electricity", today.plusDays(1)),
+            parseVoiceCommand("Remind me to pay electricity tomorrow", Locale.UK, today))
+        assertEquals(VoiceCommand.ReviewReminder("gaz", today.plusDays(1)),
+            parseVoiceCommand("Rappelle-moi de payer gaz pour demain", Locale.FRANCE, today))
+        assertEquals(VoiceCommand.ReviewReminder("agua", today),
+            parseVoiceCommand("Recuérdame pagar agua para hoy", Locale.forLanguageTag("es-ES"), today))
+        assertEquals(VoiceCommand.ReviewReminder("الماء", today.plusDays(4)),
+            parseVoiceCommand("ذكرني بدفع الماء يوم ٢٠٢٦-١١-٢٠", Locale.forLanguageTag("ar"), today))
+        assertNull(parseVoiceCommand("Remind me to pay water on 2026-11-15", Locale.UK, today))
+        assertNull(parseVoiceCommand("Remind me to pay water on 2026-11-31", Locale.UK, today))
+    }
+
     @Test fun routesLocalizedCommandsAndKeepsForecastFallback() {
         assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("Read my upcoming payments", Locale.UK, today))
         assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("Lire mes prochains paiements", Locale.FRANCE, today))

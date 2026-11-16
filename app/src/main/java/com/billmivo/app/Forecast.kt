@@ -81,7 +81,8 @@ data class Records(
     val providerContacts: List<ProviderContact> = emptyList(),
     val documents: List<BillDocument> = emptyList(),
     val pauses: List<RecurrencePause> = emptyList(),
-    val customCategories: List<CustomCategory> = emptyList()
+    val customCategories: List<CustomCategory> = emptyList(),
+    val oneOffReminders: List<OneOffReminder> = emptyList()
 ) {
     fun isPaused(series: String) = pauses.any { it.series == series && it.until == null }
 

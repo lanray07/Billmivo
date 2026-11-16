@@ -6,6 +6,8 @@
 
 Version 0.5.0, version code 6, was delivered by Amazon Appstore to the Fire HD 10 (2021, `KFTRWI`, Fire OS 7 / Android 28). The existing private track retained one tester. With the old private test entitlement reset, cancelling the first checkout kept Premium locked. A fresh £7.56 checkout completed, automatically activated Premium and returned to the Premium screen. A separate restore started a fresh Amazon check and returned to active Premium. Amazon documents that Live App Testing purchases incur no charge. [Amazon IAP testing modes](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
 
+Amazon later delivered 0.6.0, version code 7, through the same private track. After resetting the single tester’s old entitlement, Billmivo showed no verified purchase. A fresh £7.56 checkout activated Premium. A separate Restore Amazon purchase check also returned Premium active. The public listing stayed a draft.
+
 ## App changes
 
 - Cancel a single unpaid bill occurrence. A cancelled bill remains visible in the calendar and monthly report, has no remaining balance, and leaves forecasts and reminders. Future occurrences of the same bill stay scheduled. Partial and completed payments are protected.
@@ -21,7 +23,7 @@ Version 0.5.0, version code 6, was delivered by Amazon Appstore to the Fire HD 1
 
 ## Work still open
 
-- Version 0.6.0 needs its own Amazon delivery and billing verification before a public release. The 0.5.0 build was the authorized private upload.
+- The [0.7.0 checkpoint](release-070.md) tracks later changes and remaining release work.
 - The app ships English, French, Spanish and Arabic. Wider locales need translations and in-context review. The existing Amazon screenshot set covers English, French and Spanish for 0.4.0. See the [locale matrix](../../store/localisation.md).
-- This Fire HD 10 has no compatible push-to-talk recognizer. Other hardware is needed for microphone-permission and speech input checks. VoiceView or TalkBack and the configured device-credential flow still need dedicated verification. Natural-language one-off reminder dates remain open.
+- This Fire HD 10 has no compatible push-to-talk recognizer. Other hardware is needed for microphone-permission and speech input checks. VoiceView or TalkBack and the configured device-credential flow still need dedicated verification.
 - Public release needs final publisher/privacy details and an approved published privacy notice, final pricing and marketplace decisions, and explicit public submission authorization.

@@ -99,8 +99,21 @@ fun RemindersPage(records: Records, today: LocalDate, service: BillReminders, sa
                     ReminderKind.DUE -> R.string.reminder_due
                     ReminderKind.OVERDUE -> R.string.reminder_overdue
                     ReminderKind.INCREASE -> R.string.reminder_increase
+                    ReminderKind.ONE_OFF -> R.string.one_off_reminder
                 }
                 Text(stringResource(R.string.chart_value, event.bill.schedule.name, stringResource(title)))
+            }
+        }
+        val scheduled = records.oneOffReminders.filter { it.notifyOn >= today }.sortedBy { it.notifyOn }
+        if (scheduled.isNotEmpty()) Panel(Modifier.fillMaxWidth()) {
+            SectionTitle(stringResource(R.string.one_off_reminders))
+            val byId = records.schedules.associateBy { it.id }
+            scheduled.forEach { reminder ->
+                val name = byId[reminder.key.scheduleId]?.name.orEmpty()
+                Text(stringResource(R.string.chart_value, name, dateLabel(reminder.notifyOn, locale)))
+                TextButton({ save({ removeOneOffReminder(reminder.key) }, {}, {}) }) {
+                    Text(stringResource(R.string.one_off_remove_for, name))
+                }
             }
         }
         Panel(Modifier.fillMaxWidth()) {
@@ -118,6 +131,38 @@ fun RemindersPage(records: Records, today: LocalDate, service: BillReminders, sa
     bills.find { it.series == selected }?.let {
         ReminderRuleDialog(it, records.reminders.find { rule -> rule.series == it.series }, { selected = null }, save)
     }
+}
+
+@Composable
+internal fun OneOffReminderDialog(item: Occurrence, requestedDay: LocalDate?, today: LocalDate, records: Records,
+                                 service: BillReminders, save: SaveBillAction, close: () -> Unit) {
+    val current = records.oneOffReminders.find { it.key == item.key }?.notifyOn
+    val latest = today.plusDays(90)
+    val initial = (requestedDay ?: current ?: minOf(item.date, today.plusDays(1))).coerceIn(today, latest)
+    val locale = displayLocale()
+    var day by rememberSaveable(item.key.scheduleId, item.date.toEpochDay(), initial.toEpochDay()) {
+        mutableLongStateOf(initial.toEpochDay())
+    }
+    var busy by remember { mutableStateOf(false) }
+    AlertDialog(onDismissRequest = { if (!busy) close() },
+        title = { Text(stringResource(R.string.one_off_reminder)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(stringResource(R.string.chart_value, item.schedule.name, dateLabel(item.date, locale)))
+                DateField(R.string.one_off_reminder_date, LocalDate.ofEpochDay(day), latest, earliest = today) {
+                    day = it.toEpochDay()
+                }
+                Text(stringResource(R.string.one_off_reminder_time), color = palette.muted)
+                if (!service.preferences().enabled || !service.canNotify()) {
+                    Text(stringResource(R.string.one_off_disabled), color = palette.muted)
+                }
+            }
+        },
+        confirmButton = { Button({
+            busy = true
+            save({ saveOneOffReminder(item.key, LocalDate.ofEpochDay(day), today) }, close) { busy = false }
+        }, enabled = !busy) { Text(stringResource(R.string.save)) } },
+        dismissButton = { TextButton(close, enabled = !busy) { Text(stringResource(R.string.cancel)) } })
 }
 
 @Composable

@@ -18,7 +18,11 @@ import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class ReminderDeliveryTest {
-    @Test fun postsPrivateReminderThroughAlarmWhileActivityIsClosedAndCancelsWhenPaid() = runBlocking {
+    @Test fun postsPrivateReminderThroughAlarmWhileActivityIsClosedAndCancelsWhenPaid() = verifyDelivery(false)
+
+    @Test fun deliversOneOffReminderWithoutARecurringRuleAndRemovesItWhenPaid() = verifyDelivery(true)
+
+    private fun verifyDelivery(oneOff: Boolean) = runBlocking {
         val app = ApplicationProvider.getApplicationContext<BillmivoApplication>()
         val service = app.reminders
         val repo = app.repository
@@ -40,7 +44,9 @@ class ReminderDeliveryTest {
             repo.save(Schedule(series = series, name = "Private test bill", category = "other", currency = "GBP",
                 amount = BigDecimal("17.30"), estimated = false, first = date, cadence = Cadence.ONCE), null, date)
             val bill = repo.records.first().schedules.single { it.series == series }
-            repo.saveReminder(ReminderRule(series, due = true))
+            val key = OccurrenceKey(bill.id, date)
+            if (oneOff) repo.saveOneOffReminder(key, date, date)
+            else repo.saveReminder(ReminderRule(series, due = true))
             service.scheduleAt(Instant.now().plusSeconds(6))
             assertNull(current())
             val posted = withTimeout(50_000L) {
@@ -58,9 +64,10 @@ class ReminderDeliveryTest {
             withTimeout(8_000L) { while (current() != null) delay(100) }
             service.reconcile(now = ZonedDateTime.now().plusMinutes(61))
             assertNotNull("The snoozed reminder should return after its delay", current())
-            repo.pay(OccurrenceKey(bill.id, date), bill.amount, date, date)
+            repo.pay(key, bill.amount, date, date)
+            assertTrue(repo.records.first().oneOffReminders.none { it.key == key })
             service.reconcile()
-            assertNull(current())
+            withTimeout(8_000L) { while (current() != null) delay(100) }
         } finally {
             repo.delete(series)
             fixtureRules.forEach { repo.saveReminder(it) }

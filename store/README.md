@@ -47,6 +47,8 @@ The copied private test retained its 12 Fire tablet selections. Amazon warns tha
 
 The next private version, **Billmivo 0.5.0 recurring bills and payment insights**, installed from Amazon as version code 6 on the same Fire HD 10. I reset the single private tester’s prior test entitlement. Backing out of checkout left Premium locked and returned the purchase-incomplete message. Completing a new checkout activated Premium without manual restore, and the separate Restore Amazon purchase action also returned to active Premium. The public listing stayed a draft. [Amazon IAP testing modes](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
 
+**Billmivo 0.6.0 bill cancellation and spoken forecasts** installed from the same private track as version code 7. After resetting the single tester’s previous private entitlement, a new £7.56 test purchase activated Premium. The separate Restore Amazon purchase action started a fresh Amazon check and returned to active Premium.
+
 Amazon's guides describe signing for its test workflows and note that Amazon applies its signature to uploaded apps. Keep signing credentials out of source control. [Amazon IAP testing setup](https://developer.amazon.com/docs/in-app-purchasing/iap-get-started.html) · [Amazon binary submission](https://developer.amazon.com/docs/app-submission/submitting-apps-to-amazon-appstore.html)
 
 ### Receipt verifier

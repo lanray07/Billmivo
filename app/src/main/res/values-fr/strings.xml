@@ -377,4 +377,14 @@
     <string name="cancel_occurrence">Annuler cette échéance</string>
     <string name="cancel_occurrence_prompt">Cette échéance reste dans le calendrier avec le statut Annulée et sort des prévisions. Les prochaines échéances restent prévues.</string>
     <string name="keep_occurrence">Conserver cette échéance</string>
+    <string name="one_off_reminder">Rappel ponctuel</string>
+    <string name="one_off_reminders">Rappels ponctuels programmés</string>
+    <string name="one_off_reminder_date">Date du rappel</string>
+    <string name="one_off_reminder_time">Le rappel suit votre heure de rappel habituelle et vos heures de silence.</string>
+    <string name="one_off_disabled">Pour recevoir ce rappel, activez les rappels de factures et autorisez les notifications dans les paramètres.</string>
+    <string name="one_off_remove_for">Supprimer le rappel pour %1$s</string>
+    <string name="one_off_review_voice">Vérifiez le rappel pour %1$s prévu le %2$s.</string>
+    <string name="one_off_no_match">Utilisez le nom exact d’une seule facture impayée ou ouvrez une facture dans le calendrier pour choisir la date du rappel.</string>
+    <string name="one_off_edit_note">Si une échéance change, son rappel ponctuel est supprimé.</string>
+    <string name="one_off_voice_example">Essayez « rappelle-moi de payer électricité pour vendredi ». Utilisez le nom exact de la facture et un jour ou une date.</string>
 </resources>

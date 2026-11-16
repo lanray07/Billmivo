@@ -269,6 +269,9 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
         var editing by rememberSaveable { mutableStateOf<Long?>(null) }
         var selectedSchedule by rememberSaveable { mutableStateOf<Long?>(null) }
         var selectedDay by rememberSaveable { mutableStateOf<Long?>(null) }
+        var reminderSchedule by rememberSaveable { mutableStateOf<Long?>(null) }
+        var reminderDue by rememberSaveable { mutableStateOf<Long?>(null) }
+        var reminderDay by rememberSaveable { mutableStateOf<Long?>(null) }
         var showVoice by rememberSaveable { mutableStateOf(false) }
         var period by rememberSaveable { mutableStateOf(30) }
         var customStart by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -286,6 +289,13 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
 
         val add = { editing = null; draft = null; showEditor = true }
         val select: (Occurrence) -> Unit = { selectedSchedule = it.schedule.id; selectedDay = it.date.toEpochDay() }
+        val reviewReminder: (Occurrence, LocalDate?) -> Unit = { item, date ->
+            reminderSchedule = item.schedule.id
+            reminderDue = item.date.toEpochDay()
+            reminderDay = date?.toEpochDay()
+            selectedSchedule = null
+            selectedDay = null
+        }
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val wide = maxWidth >= 760.dp
             Scaffold(
@@ -385,7 +395,21 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
                             date?.let { records.occurrences(it, it).find { candidate -> candidate.schedule.id == selectedSchedule } }
                         }
                         occurrence?.let {
-                            OccurrenceDialog(it, today, { selectedSchedule = null; selectedDay = null }, save, records)
+                            OccurrenceDialog(it, today, { selectedSchedule = null; selectedDay = null }, save, records) {
+                                reviewReminder(it, null)
+                            }
+                        }
+                        val targetReminder = remember(records, reminderSchedule, reminderDue) {
+                            reminderDue?.let(LocalDate::ofEpochDay)?.let { due ->
+                                records.occurrences(due, due).find { it.schedule.id == reminderSchedule && it.open }
+                            }
+                        }
+                        targetReminder?.let {
+                            OneOffReminderDialog(it, reminderDay?.let(LocalDate::ofEpochDay), today, records, reminders, save) {
+                                reminderSchedule = null
+                                reminderDue = null
+                                reminderDay = null
+                            }
                         }
                         if (showVoice) {
                             VoiceDialog(records, currency, today, spoken, onClose = { showVoice = false }) { command ->
@@ -400,6 +424,9 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
                                         showEditor = true
                                     }
                                     is VoiceCommand.ReviewPayment -> records.paymentForReview(command.name, today, locale)?.let(select)
+                                    is VoiceCommand.ReviewReminder -> records.reminderForReview(command, today, locale)?.let {
+                                        reviewReminder(it, command.notifyOn)
+                                    }
                                     VoiceCommand.Navigate.Overdue -> { calendarMode = CalendarMode.Overdue; page = Page.Calendar }
                                     VoiceCommand.Navigate.Household -> { settings = SettingsScreen.Household; page = Page.More }
                                     VoiceCommand.Navigate.Increases -> { page = Page.Insights }

@@ -11,20 +11,29 @@ data class ReminderRule(
     val active get() = leadDays != null || due || overdue || increase
 }
 
-enum class ReminderKind { UPCOMING, DUE, OVERDUE, INCREASE }
+data class OneOffReminder(val key: OccurrenceKey, val notifyOn: LocalDate)
 
-data class ReminderEvent(val bill: Occurrence, val kind: ReminderKind) {
-    val id get() = "${bill.schedule.id}/${bill.date.toEpochDay()}/${kind.name}"
+enum class ReminderKind { UPCOMING, DUE, OVERDUE, INCREASE, ONE_OFF }
+
+data class ReminderEvent(val bill: Occurrence, val kind: ReminderKind, val notifyOn: LocalDate? = null) {
+    val id get() = if (notifyOn == null) "${bill.schedule.id}/${bill.date.toEpochDay()}/${kind.name}"
+        else "${bill.schedule.series}/${bill.date.toEpochDay()}/${kind.name}/${notifyOn.toEpochDay()}"
 }
 
 fun Records.reminderEvents(date: LocalDate): List<ReminderEvent> {
     val bySeries = reminders.filter { it.active }.associateBy { it.series }
-    if (bySeries.isEmpty()) return emptyList()
+    val oneOff = oneOffReminders.filter { it.notifyOn == date }.groupBy { it.key.due }
+        .flatMap { (due, reminders) ->
+            val keys = reminders.map { it.key }.toSet()
+            occurrences(due, due).filter { it.open && it.key in keys }
+                .map { ReminderEvent(it, ReminderKind.ONE_OFF, date) }
+        }
+    if (bySeries.isEmpty()) return oneOff
     val latestIncrease = if (bySeries.values.any { it.increase }) {
         schedules.map { it.currency }.distinct().flatMap { billChanges(date, it) }
             .filter { it.current.date == date && it.change.signum() > 0 }.map { it.current.key }.toSet()
     } else emptySet()
-    return occurrences(date.minusDays(1), date.plusDays((bySeries.values.mapNotNull { it.leadDays }.maxOrNull() ?: 0).toLong()))
+    return oneOff + occurrences(date.minusDays(1), date.plusDays((bySeries.values.mapNotNull { it.leadDays }.maxOrNull() ?: 0).toLong()))
         .filter { it.open && it.schedule.series in bySeries }
         .flatMap { bill ->
             val rule = bySeries.getValue(bill.schedule.series)

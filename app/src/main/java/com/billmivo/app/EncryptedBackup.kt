@@ -28,7 +28,8 @@ import javax.crypto.spec.SecretKeySpec
 
 private val legacyArchiveTables = listOf("providers", "members", "schedules", "payments", "adjustments",
     "sharing", "reminders", "provider_contacts", "documents")
-private val archiveTables = listOf("custom_categories") + legacyArchiveTables + "recurrence_pauses"
+private val archiveTablesBeforeReminders = listOf("custom_categories") + legacyArchiveTables + "recurrence_pauses"
+private val archiveTables = archiveTablesBeforeReminders + "one_off_reminders"
 private val legacyMissingColumns = mapOf("schedules" to setOf("notes", "paymentMethod"), "payments" to setOf("method", "notes"))
 private const val metadataLimit = 4 * 1024 * 1024
 private const val payloadLimit = 24 * 1024 * 1024
@@ -116,7 +117,8 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
             val schema = data.optInt("schema", 3)
             val tables = when (schema) {
                 3 -> legacyArchiveTables
-                4, 5 -> archiveTables
+                4, 5 -> archiveTablesBeforeReminders
+                6 -> archiveTables
                 else -> error("Unsupported backup schema")
             }
             val files = attachmentList(data)
@@ -191,7 +193,7 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
     }
 
     private fun snapshot(db: SupportSQLiteDatabase) = JSONObject().apply {
-        put("schema", 5)
+        put("schema", 6)
         archiveTables.forEach { table ->
             val rows = JSONArray()
             db.query("SELECT * FROM $table").use { cursor ->

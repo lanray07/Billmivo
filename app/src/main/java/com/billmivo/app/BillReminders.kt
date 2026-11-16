@@ -77,17 +77,20 @@ class BillReminders(private val app: BillmivoApplication) {
     internal suspend fun reconcile(snooze: Boolean = false, now: ZonedDateTime = ZonedDateTime.now()) = mutex.withLock {
         val options = preferences()
         val records = if (options.enabled && canNotify()) app.repository.records.first() else null
-        if (records == null || records.reminders.none { it.active }) {
+        val today = now.toLocalDate()
+        val yesterday = today.minusDays(1)
+        val recurring = records?.reminders?.any { it.active } == true
+        val scheduledDays = records?.oneOffReminders.orEmpty().map { it.notifyOn }.filter { it >= yesterday }.toSet()
+        if (records == null || (!recurring && scheduledDays.isEmpty())) {
             alarms.cancel(broadcast(ALARM, 1))
             notifications.cancel(NOTIFICATION)
             storage.edit().remove("visible").remove("snoozed").remove("snooze_time").apply()
             return@withLock
         }
-        val today = now.toLocalDate()
         val hours = options.hours
         val openAt = hours.firstAllowed(now)
         val allowed = !openAt.isAfter(now)
-        val candidates = listOf(today.minusDays(1), today).associateWith { records.reminderEvents(it) }
+        val candidates = listOf(yesterday, today).associateWith { records.reminderEvents(it) }
         val open = candidates.values.flatten().associateBy { it.id }
         val ready = candidates.entries.filter { (day, _) ->
             val delivery = hours.delivery(day, now.zone)
@@ -119,11 +122,13 @@ class BillReminders(private val app: BillmivoApplication) {
             .putStringSet("snoozed", deferred).putLong("snooze_time", snoozeTime.toEpochMilli())
             .putBoolean("last_preview", options.previews).apply()
 
-        val next = listOf(today.minusDays(1), today, today.plusDays(1)).map { hours.delivery(it, now.zone).toInstant() }
+        val days = if (recurring) listOf(yesterday, today, today.plusDays(1)) else scheduledDays
+        val next = days.map { hours.delivery(it, now.zone).toInstant() }
             .filter { it.isAfter(now.toInstant()) }.toMutableList()
         if (!allowed && ready.any { it !in seen }) next.add(openAt.toInstant())
         if (deferred.isNotEmpty()) next.add(maxOf(snoozeTime, openAt.toInstant()))
-        next.minOrNull()?.let(::scheduleAt)
+        val checkAt = next.minOrNull()
+        if (checkAt != null) scheduleAt(checkAt) else alarms.cancel(broadcast(ALARM, 1))
     }
 
     private fun post(events: List<ReminderEvent>, previews: Boolean, silent: Boolean) {

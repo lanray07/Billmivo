@@ -40,6 +40,8 @@ class EncryptedBackupTest {
             val original = repo.records.first().schedules.single()
             repo.pay(OccurrenceKey(original.id, today), BigDecimal("11.40"), today, today,
                 method = "Cash", notes = "Private payment note")
+            val reminder = OneOffReminder(OccurrenceKey(original.id, today), today.plusDays(1))
+            repo.saveOneOffReminder(reminder.key, reminder.notifyOn, today)
             repo.setPaused(original.series, today.plusDays(1), true)
             val id = UUID.randomUUID().toString()
             val contents = "Private receipt fixture"
@@ -68,6 +70,7 @@ class EncryptedBackupTest {
             assertEquals("Private payment note", restored.payments.single().notes)
             assertEquals(category, restored.customCategories.single())
             assertTrue(restored.isPaused(original.series))
+            assertEquals(reminder, restored.oneOffReminders.single())
             val document = restored.documents.single()
             assertFalse(id == document.id)
             assertEquals(contents, disk.file(document.id).readText())
@@ -79,6 +82,7 @@ class EncryptedBackupTest {
                 remove("schema")
                 remove("custom_categories")
                 remove("recurrence_pauses")
+                remove("one_off_reminders")
                 getJSONArray("schedules").getJSONObject(0).apply {
                     remove("notes"); remove("paymentMethod"); put("category", "utilities")
                 }
@@ -98,6 +102,7 @@ class EncryptedBackupTest {
             assertEquals(null, migrated.payments.single().method)
             assertTrue(migrated.customCategories.isEmpty())
             assertTrue(migrated.pauses.isEmpty())
+            assertTrue(migrated.oneOffReminders.isEmpty())
             val migratedFile = disk.file(migrated.documents.single().id)
             assertEquals(contents, migratedFile.readText())
 

@@ -47,7 +47,8 @@ def extraction(locale):
         keys[f"voice/{range_}"] = phrase
     for action, phrase in (("overdue", "show overdue bills"), ("sharing", "show household cost sharing"),
                            ("increases", "show bill increases"), ("reminders", "show bill reminders"),
-                           ("upcoming", "read my upcoming payments"), ("payment", "mark %1$s as paid")):
+                           ("upcoming", "read my upcoming payments"), ("payment", "mark %1$s as paid"),
+                           ("dated_reminder", "remind me to pay %1$s on %2$s")):
         keys[f"voice/{action}"] = phrase
     return keys
 

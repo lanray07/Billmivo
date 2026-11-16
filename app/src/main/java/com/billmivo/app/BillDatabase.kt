@@ -97,6 +97,13 @@ data class ReminderRow(
     fun rule() = ReminderRule(series, leadDays, due, overdue, increase)
 }
 
+@Entity(tableName = "one_off_reminders", primaryKeys = ["scheduleId", "due"],
+    foreignKeys = [ForeignKey(entity = ScheduleRow::class, parentColumns = ["id"], childColumns = ["scheduleId"],
+        onDelete = ForeignKey.CASCADE)])
+data class OneOffReminderRow(val scheduleId: Long, val due: Long, val notifyOn: Long) {
+    fun reminder() = OneOffReminder(OccurrenceKey(scheduleId, LocalDate.ofEpochDay(due)), LocalDate.ofEpochDay(notifyOn))
+}
+
 @Entity(tableName = "providers")
 data class ProviderRow(@PrimaryKey val id: String, val name: String, val category: String, val phone: String,
                        val email: String, val website: String, val reference: String, val notes: String) {
@@ -126,6 +133,11 @@ interface BillDao {
     @Query("SELECT * FROM members ORDER BY name COLLATE NOCASE, id") suspend fun members(): List<MemberRow>
     @Query("SELECT * FROM sharing") suspend fun sharing(): List<SharingRow>
     @Query("SELECT * FROM reminders") suspend fun reminders(): List<ReminderRow>
+    @Query("SELECT * FROM one_off_reminders") suspend fun oneOffReminders(): List<OneOffReminderRow>
+    @Upsert suspend fun put(reminder: OneOffReminderRow)
+    @Query("DELETE FROM one_off_reminders WHERE scheduleId = :id AND due = :due") suspend fun deleteOneOff(id: Long, due: Long)
+    @Query("DELETE FROM one_off_reminders WHERE scheduleId IN (SELECT id FROM schedules WHERE series = :series)")
+    suspend fun deleteOneOffSeries(series: String)
     @Query("SELECT * FROM recurrence_pauses") suspend fun pauses(): List<PauseRow>
     @Upsert suspend fun put(pause: PauseRow)
     @Query("DELETE FROM recurrence_pauses WHERE series = :series") suspend fun deletePauses(series: String)
@@ -158,7 +170,7 @@ interface BillDao {
 
 @Database(entities = [ScheduleRow::class, PaymentRow::class, AdjustmentRow::class,
     MemberRow::class, SharingRow::class, ReminderRow::class, ProviderRow::class, ContactRow::class,
-    DocumentRow::class, PauseRow::class, CategoryRow::class], version = 5)
+    DocumentRow::class, PauseRow::class, CategoryRow::class, OneOffReminderRow::class], version = 6)
 abstract class BillDatabase : RoomDatabase() {
     abstract fun bills(): BillDao
 }
@@ -200,11 +212,19 @@ val migration4To5 = object : Migration(4, 5) {
     }
 }
 
+val migration5To6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE one_off_reminders (scheduleId INTEGER NOT NULL, due INTEGER NOT NULL, notifyOn INTEGER NOT NULL, PRIMARY KEY(scheduleId, due), FOREIGN KEY(scheduleId) REFERENCES schedules(id) ON DELETE CASCADE)")
+    }
+}
+
 class BillmivoApplication : Application() {
     val premium by lazy { installStore(this) }
     val repository by lazy {
         BillRepository(Room.databaseBuilder(this, BillDatabase::class.java, "billmivo.db")
-            .addMigrations(migration1To2, migration2To3, migration3To4, migration4To5).build()) { !premium.available || premium.state.value.entitled }
+            .addMigrations(migration1To2, migration2To3, migration3To4, migration4To5, migration5To6).build()) {
+            !premium.available || premium.state.value.entitled
+        }
     }
     val reminders by lazy { BillReminders(this) }
     val documents by lazy { DocumentDisk(this) }
@@ -242,6 +262,7 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
             (it.method?.length ?: 0) <= 60 && (it.notes?.length ?: 0) <= 1000 } &&
             records.adjustments.all { it.key.scheduleId in schedules && (it.confirmed?.signum() ?: 1) > 0 &&
                 !(it.cancelled && it.skipped) })
+        require(records.oneOffReminders.all { it.notifyOn >= earliest && it.key.scheduleId in schedules })
     }
 
     private val dao get() = db.bills()
@@ -251,11 +272,12 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         dao.adjustments().map { it.adjustment() }, dao.members().map { it.member() },
         dao.sharing().map { it.rule() }, dao.reminders().map { it.rule() }, dao.providers().map { it.provider() },
         dao.contacts().map { it.contact() }, dao.documents().map { it.document() },
-        dao.pauses().map { it.pause() }, dao.categories().map { CustomCategory(it.id, it.name) }
+        dao.pauses().map { it.pause() }, dao.categories().map { CustomCategory(it.id, it.name) },
+        dao.oneOffReminders().map { it.reminder() }
     )
 
     val records: Flow<Records> = db.invalidationTracker.createFlow("schedules", "payments", "adjustments", "members",
-        "sharing", "reminders", "providers", "provider_contacts", "documents", "recurrence_pauses", "custom_categories")
+        "sharing", "reminders", "providers", "provider_contacts", "documents", "recurrence_pauses", "custom_categories", "one_off_reminders")
         .map { db.withTransaction { read() } }
 
     suspend fun saveProvider(provider: Provider) = db.withTransaction {
@@ -307,6 +329,14 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         else dao.deleteReminder(rule.series)
     }
 
+    suspend fun saveOneOffReminder(key: OccurrenceKey, notifyOn: LocalDate, today: LocalDate) = db.withTransaction {
+        require(notifyOn in today..today.plusDays(90))
+        require(read().occurrences(key.due, key.due).any { it.key == key && it.open })
+        dao.put(OneOffReminderRow(key.scheduleId, key.due.toEpochDay(), notifyOn.toEpochDay()))
+    }
+
+    suspend fun removeOneOffReminder(key: OccurrenceKey) = dao.deleteOneOff(key.scheduleId, key.due.toEpochDay())
+
     suspend fun save(schedule: Schedule, previous: Schedule?, today: LocalDate) = db.withTransaction {
         require(schedule.providerId == null || dao.providers().any { it.id == schedule.providerId })
         require(schedule.category in categories || dao.categories().any { it.id == schedule.category })
@@ -332,7 +362,14 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
                     dao.put(it.copy(ends = maxOf(it.starts, cutoff.toEpochDay())))
                 }
             }
-            dao.add(schedule.copy(from = maxOf(schedule.first, cutoff)).row())
+            val revised = schedule.copy(from = maxOf(schedule.first, cutoff))
+            val newId = dao.add(revised.row())
+            records.oneOffReminders.filter { it.key.scheduleId == active.id && it.key.due >= cutoff }.forEach { reminder ->
+                removeOneOffReminder(reminder.key)
+                if (revised.dates(reminder.key.due, reminder.key.due).any()) {
+                    dao.put(OneOffReminderRow(newId, reminder.key.due.toEpochDay(), reminder.notifyOn.toEpochDay()))
+                }
+            }
         }
     }
 
@@ -374,6 +411,7 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         val cutoff = maxOf(today, lastRecordedDue?.plusDays(1) ?: today)
         check(dao.close(schedule.id, cutoff.toEpochDay()) == 1)
         dao.deleteReminder(schedule.series)
+        dao.deleteOneOffSeries(schedule.series)
         val priorEnd = records.schedules.filter { it.id in seriesIds }.mapNotNull { it.until }.maxOrNull() ?: today
         records.occurrences(today, maxOf(cutoff, priorEnd).minusDays(1))
             .filter { it.schedule.id in seriesIds && it.open && it.paid.signum() == 0 }
@@ -398,6 +436,7 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         dao.pay(PaymentRow(scheduleId = key.scheduleId, due = key.due.toEpochDay(),
             date = paymentDate.toEpochDay(), amount = amount.toPlainString(), payerId = payerId,
             method = method?.trim()?.takeIf(String::isNotEmpty), notes = notes?.trim()?.takeIf(String::isNotEmpty)))
+        if (amount.compareTo(occurrence.remaining) == 0) removeOneOffReminder(key)
     }
 
     suspend fun confirm(key: OccurrenceKey, amount: BigDecimal) = db.withTransaction {
@@ -416,5 +455,6 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         dao.adjust(AdjustmentRow(key.scheduleId, key.due.toEpochDay(),
             occurrence.amount.takeUnless { occurrence.estimated }?.toPlainString(), skipped = !cancelled,
             cancelled = true.takeIf { cancelled }))
+        removeOneOffReminder(key)
     }
 }

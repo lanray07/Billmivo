@@ -377,4 +377,14 @@
     <string name="cancel_occurrence">Cancelar este vencimiento</string>
     <string name="cancel_occurrence_prompt">Este vencimiento seguirá en el calendario como cancelado y se quitará de la previsión. Los próximos vencimientos seguirán programados.</string>
     <string name="keep_occurrence">Conservar vencimiento</string>
+    <string name="one_off_reminder">Recordatorio puntual</string>
+    <string name="one_off_reminders">Recordatorios puntuales programados</string>
+    <string name="one_off_reminder_date">Fecha del recordatorio</string>
+    <string name="one_off_reminder_time">Se aplican tu hora habitual de recordatorios y tus horas de silencio.</string>
+    <string name="one_off_disabled">Para recibirlo, activa los recordatorios de facturas y permite las notificaciones en Ajustes.</string>
+    <string name="one_off_remove_for">Quitar el recordatorio de %1$s</string>
+    <string name="one_off_review_voice">Revisa el recordatorio de %1$s para el %2$s.</string>
+    <string name="one_off_no_match">Usa el nombre exacto de una única factura pendiente o abre una factura del calendario para elegir la fecha del recordatorio.</string>
+    <string name="one_off_edit_note">Si cambia un vencimiento, se quita su recordatorio puntual.</string>
+    <string name="one_off_voice_example">Prueba «recuérdame pagar electricidad el viernes». Usa el nombre exacto de la factura y un día o una fecha.</string>
 </resources>

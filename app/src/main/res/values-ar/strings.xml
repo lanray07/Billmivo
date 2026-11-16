@@ -385,4 +385,14 @@
     <string name="cancel_occurrence">إلغاء هذا الاستحقاق</string>
     <string name="cancel_occurrence_prompt">يبقى هذا الاستحقاق في التقويم بحالة ملغاة ويُستبعد من التوقعات. تظل الاستحقاقات التالية لهذه الفاتورة مجدولة.</string>
     <string name="keep_occurrence">الإبقاء على الاستحقاق</string>
+    <string name="one_off_reminder">تذكير لمرة واحدة</string>
+    <string name="one_off_reminders">التذكيرات المجدولة لمرة واحدة</string>
+    <string name="one_off_reminder_date">تاريخ التذكير</string>
+    <string name="one_off_reminder_time">يستخدم التذكير وقت التنبيه المعتاد وساعات الهدوء.</string>
+    <string name="one_off_disabled">لتلقي هذا التذكير، فعّل تذكيرات الفواتير واسمح بالإشعارات من الإعدادات.</string>
+    <string name="one_off_remove_for">إزالة التذكير لـ %1$s</string>
+    <string name="one_off_review_voice">راجع تذكير %1$s ليوم %2$s.</string>
+    <string name="one_off_no_match">استخدم الاسم الدقيق لفاتورة واحدة غير مدفوعة، أو افتح فاتورة من التقويم لاختيار تاريخ تذكيرها.</string>
+    <string name="one_off_edit_note">إذا تغيّر تاريخ الاستحقاق، يُزال تذكيره لمرة واحدة.</string>
+    <string name="one_off_voice_example">جرّب «ذكرني بدفع الكهرباء يوم الجمعة». استخدم اسم الفاتورة الدقيق ويومًا أو تاريخًا.</string>
 </resources>

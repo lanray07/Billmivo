@@ -374,4 +374,14 @@
     <string name="cancel_occurrence">Cancel this occurrence</string>
     <string name="cancel_occurrence_prompt">This occurrence stays in your calendar as cancelled and drops out of the forecast. Future occurrences of this bill stay scheduled.</string>
     <string name="keep_occurrence">Keep occurrence</string>
+    <string name="one_off_reminder">One-off reminder</string>
+    <string name="one_off_reminders">Scheduled one-off reminders</string>
+    <string name="one_off_reminder_date">Reminder date</string>
+    <string name="one_off_reminder_time">The reminder uses your usual reminder time and quiet hours.</string>
+    <string name="one_off_disabled">To receive this reminder, turn on bill reminders and allow notifications in Settings.</string>
+    <string name="one_off_remove_for">Remove reminder for %1$s</string>
+    <string name="one_off_review_voice">Review a reminder for %1$s on %2$s.</string>
+    <string name="one_off_no_match">Use the exact name of one unpaid bill, or open a bill from the calendar to choose its reminder date.</string>
+    <string name="one_off_edit_note">If a due date changes, its one-off reminder is removed.</string>
+    <string name="one_off_voice_example">Try “remind me to pay electricity on Friday”. Use the exact bill name and a weekday or date.</string>
 </resources>

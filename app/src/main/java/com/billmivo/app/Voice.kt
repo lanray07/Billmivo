@@ -109,12 +109,18 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
     val payment = remember(command, records, today, locale) {
         (command as? VoiceCommand.ReviewPayment)?.let { records.paymentForReview(it.name, today, locale) }
     }
+    val reminder = remember(command, records, today, locale) {
+        (command as? VoiceCommand.ReviewReminder)?.let { records.reminderForReview(it, today, locale) }
+    }
     val commandLabel = when (command) {
         is VoiceCommand.Draft -> stringResource(R.string.voice_review_draft, command.bill.name,
             money(command.bill.amount, command.bill.currency, locale), dateLabel(command.bill.due, locale))
         is VoiceCommand.ReviewPayment -> payment?.let {
             stringResource(R.string.voice_review_payment, it.schedule.name, dateLabel(it.date, locale))
         } ?: stringResource(R.string.voice_payment_no_match)
+        is VoiceCommand.ReviewReminder -> reminder?.let {
+            stringResource(R.string.one_off_review_voice, it.schedule.name, dateLabel(command.notifyOn, locale))
+        } ?: stringResource(R.string.one_off_no_match)
         VoiceCommand.Navigate.Overdue -> stringResource(R.string.overdue)
         VoiceCommand.Navigate.Household -> stringResource(R.string.household)
         VoiceCommand.Navigate.Increases -> stringResource(R.string.bill_changes)
@@ -127,6 +133,7 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
             Text(stringResource(R.string.voice_command_intro), color = palette.muted)
             Text(stringResource(R.string.voice_try, voiceRanges.joinToString(", ") { java.text.NumberFormat.getIntegerInstance(locale).format(it) }))
             Text(stringResource(R.string.voice_examples), color = palette.muted)
+            Text(stringResource(R.string.one_off_voice_example), color = palette.muted)
             if (available) {
                 OutlinedButton({
                     if (listening) {
@@ -161,7 +168,8 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
         }
     }, confirmButton = {
         Button({ onCommand(command ?: VoiceCommand.Range(range)) }, enabled = !listening &&
-            (transcript.isBlank() || command != null) && (command !is VoiceCommand.ReviewPayment || payment != null)) {
+            (transcript.isBlank() || command != null) && (command !is VoiceCommand.ReviewPayment || payment != null) &&
+            (command !is VoiceCommand.ReviewReminder || reminder != null)) {
             Text(stringResource(if (commandLabel != null) R.string.voice_open_command else R.string.voice_use))
         }
     },

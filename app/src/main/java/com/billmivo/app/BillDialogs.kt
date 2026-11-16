@@ -23,13 +23,14 @@ typealias SaveBillAction = (suspend BillRepository.() -> Unit, () -> Unit, () ->
 
 @Composable
 fun DateField(label: Int, date: LocalDate, latest: LocalDate = LocalDate.now().plusYears(10),
+              earliest: LocalDate = LocalDate.of(2000, 1, 1),
               onChange: (LocalDate) -> Unit) {
     val context = LocalContext.current
     val locale = displayLocale()
     OutlinedButton({
         DatePickerDialog(context, { _, year, month, day -> onChange(LocalDate.of(year, month + 1, day)) },
             date.year, date.monthValue - 1, date.dayOfMonth).apply {
-            datePicker.minDate = LocalDate.of(2000, 1, 1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            datePicker.minDate = earliest.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
             datePicker.maxDate = latest.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
         }.show()
     }, Modifier.heightIn(min = 48.dp)) {
@@ -107,7 +108,12 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
         title = { Text(stringResource(if (previous == null) R.string.add_bill else R.string.edit_bill)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                if (previous != null && !archived) Text(stringResource(R.string.edit_note), color = palette.muted)
+                if (previous != null && !archived) {
+                    Text(stringResource(R.string.edit_note), color = palette.muted)
+                    if (records.oneOffReminders.any { it.key.scheduleId == previous.id }) {
+                        Text(stringResource(R.string.one_off_edit_note), color = palette.muted)
+                    }
+                }
                 OutlinedTextField(name, { name = it.take(100) }, label = { Text(stringResource(R.string.name)) },
                     modifier = Modifier.fillMaxWidth(), singleLine = true, enabled = !archived)
                 OutlinedTextField(amount, { amount = it.take(30) }, label = { Text(stringResource(R.string.amount)) },
@@ -203,7 +209,8 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
 }
 
 @Composable
-fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save: SaveBillAction, records: Records) {
+fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save: SaveBillAction,
+                     records: Records, onReminder: () -> Unit) {
     val locale = displayLocale()
     val currency = item.schedule.currency
     val action = if (item.estimated) R.string.confirm_amount else R.string.record_payment
@@ -243,6 +250,7 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                     }
                 }
                 if (item.open) {
+                    TextButton(onReminder, enabled = !busy) { Text(stringResource(R.string.one_off_reminder)) }
                     if (item.paid.signum() > 0) Text(stringResource(R.string.chart_value, stringResource(R.string.remaining),
                         money(item.remaining, currency, locale)))
                     Text(stringResource(if (item.estimated) R.string.confirm_note else R.string.payment_note), color = palette.muted)
