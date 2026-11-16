@@ -263,6 +263,7 @@ fun OccurrenceList(items: List<Occurrence>, today: LocalDate, onSelect: (Occurre
 fun OccurrenceRow(item: Occurrence, today: LocalDate, onSelect: (Occurrence) -> Unit) {
     val locale = displayLocale()
     val status = when {
+        item.cancelled -> R.string.cancelled_occurrence
         item.skipped -> R.string.skipped
         !item.open -> R.string.paid
         item.paid.signum() > 0 -> R.string.part_paid
@@ -277,7 +278,7 @@ fun OccurrenceRow(item: Occurrence, today: LocalDate, onSelect: (Occurrence) -> 
     ) {
         Box(Modifier.size(37.dp).background(if (item.estimated) palette.gold else palette.mint, RoundedCornerShape(11.dp)),
             contentAlignment = Alignment.Center) {
-            Icon(painterResource(if (item.estimated) R.drawable.ic_time else if (!item.open && !item.skipped)
+            Icon(painterResource(if (item.estimated) R.drawable.ic_time else if (!item.open && !item.dismissed)
                 R.drawable.ic_check else R.drawable.ic_bills), null,
                 Modifier.size(19.dp), tint = if (item.estimated) palette.amberText else palette.green)
         }

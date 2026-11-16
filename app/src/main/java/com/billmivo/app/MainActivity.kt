@@ -404,6 +404,7 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
                                     VoiceCommand.Navigate.Household -> { settings = SettingsScreen.Household; page = Page.More }
                                     VoiceCommand.Navigate.Increases -> { page = Page.Insights }
                                     VoiceCommand.Navigate.Reminders -> { settings = SettingsScreen.Reminders; page = Page.More }
+                                    VoiceCommand.Navigate.Upcoming -> { calendarMode = CalendarMode.Upcoming; page = Page.Calendar }
                                 }
                                 showVoice = false
                             }

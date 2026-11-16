@@ -65,7 +65,7 @@ fun BillsPage(records: Records, onEdit: (Schedule) -> Unit, onAdd: () -> Unit) {
 
 internal enum class CalendarMode(val label: Int) {
     Month(R.string.calendar_month), Week(R.string.calendar_week), Upcoming(R.string.upcoming),
-    Overdue(R.string.overdue), Paid(R.string.paid)
+    Overdue(R.string.overdue), Paid(R.string.paid), Cancelled(R.string.cancelled_occurrence)
 }
 
 @Composable
@@ -88,6 +88,7 @@ internal fun CalendarPage(records: Records, today: LocalDate, mode: CalendarMode
             CalendarMode.Week -> records.occurrences(week, week.plusDays(6))
             CalendarMode.Upcoming -> records.occurrences(today, today.plusDays(29)).filter { it.open }
             CalendarMode.Overdue -> records.forecast(today, today, today).overdue
+            CalendarMode.Cancelled -> records.occurrences(month.atDay(1), month.atEndOfMonth()).filter { it.cancelled }
             CalendarMode.Paid -> {
                 val keys = records.payments.filter { YearMonth.from(it.date) == month }.map { it.key }.toSet()
                 if (keys.isEmpty()) emptyList() else records.occurrences(keys.minOf { it.due }, keys.maxOf { it.due })
@@ -123,7 +124,7 @@ internal fun CalendarPage(records: Records, today: LocalDate, mode: CalendarMode
                 listOf(null) + records.members.map { it.id },
                 { id -> records.members.find { it.id == id }?.name ?: stringResource(R.string.calendar_all) },
                 { memberFilter = it })
-            if (mode in setOf(CalendarMode.Month, CalendarMode.Week, CalendarMode.Paid)) Row(
+            if (mode in setOf(CalendarMode.Month, CalendarMode.Week, CalendarMode.Paid, CalendarMode.Cancelled)) Row(
                 Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton({ offset-- }, enabled = offset > -120) {
                     Icon(painterResource(R.drawable.ic_previous), stringResource(

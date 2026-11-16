@@ -65,8 +65,10 @@ data class CategoryRow(@PrimaryKey val id: String, val name: String)
     foreignKeys = [ForeignKey(entity = ScheduleRow::class, parentColumns = ["id"], childColumns = ["scheduleId"],
         onDelete = ForeignKey.CASCADE)]
 )
-data class AdjustmentRow(val scheduleId: Long, val due: Long, val confirmed: String?, val skipped: Boolean) {
-    fun adjustment() = Adjustment(OccurrenceKey(scheduleId, LocalDate.ofEpochDay(due)), confirmed?.toBigDecimal(), skipped)
+data class AdjustmentRow(val scheduleId: Long, val due: Long, val confirmed: String?, val skipped: Boolean,
+                         val cancelled: Boolean? = null) {
+    fun adjustment() = Adjustment(OccurrenceKey(scheduleId, LocalDate.ofEpochDay(due)),
+        confirmed?.toBigDecimal(), skipped, cancelled == true)
 }
 
 @Entity(tableName = "members")
@@ -156,7 +158,7 @@ interface BillDao {
 
 @Database(entities = [ScheduleRow::class, PaymentRow::class, AdjustmentRow::class,
     MemberRow::class, SharingRow::class, ReminderRow::class, ProviderRow::class, ContactRow::class,
-    DocumentRow::class, PauseRow::class, CategoryRow::class], version = 4)
+    DocumentRow::class, PauseRow::class, CategoryRow::class], version = 5)
 abstract class BillDatabase : RoomDatabase() {
     abstract fun bills(): BillDao
 }
@@ -192,11 +194,17 @@ val migration3To4 = object : Migration(3, 4) {
     }
 }
 
+val migration4To5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE adjustments ADD COLUMN cancelled INTEGER")
+    }
+}
+
 class BillmivoApplication : Application() {
     val premium by lazy { installStore(this) }
     val repository by lazy {
         BillRepository(Room.databaseBuilder(this, BillDatabase::class.java, "billmivo.db")
-            .addMigrations(migration1To2, migration2To3, migration3To4).build()) { !premium.available || premium.state.value.entitled }
+            .addMigrations(migration1To2, migration2To3, migration3To4, migration4To5).build()) { !premium.available || premium.state.value.entitled }
     }
     val reminders by lazy { BillReminders(this) }
     val documents by lazy { DocumentDisk(this) }
@@ -232,7 +240,8 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         })
         require(records.payments.all { it.key.scheduleId in schedules && it.amount.signum() > 0 &&
             (it.method?.length ?: 0) <= 60 && (it.notes?.length ?: 0) <= 1000 } &&
-            records.adjustments.all { it.key.scheduleId in schedules && (it.confirmed?.signum() ?: 1) > 0 })
+            records.adjustments.all { it.key.scheduleId in schedules && (it.confirmed?.signum() ?: 1) > 0 &&
+                !(it.cancelled && it.skipped) })
     }
 
     private val dao get() = db.bills()
@@ -359,9 +368,10 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         val records = read()
         val active = records.schedules.single { it.id == schedule.id && it.until == null }
         val seriesIds = records.schedules.filter { it.series == active.series }.map { it.id }.toSet()
-        val lastPaidDue = records.payments.filter { it.key.scheduleId == schedule.id }.maxOfOrNull { it.key.due }
-        // Preserve bills with early payment records without leaving their future schedule active.
-        val cutoff = maxOf(today, lastPaidDue?.plusDays(1) ?: today)
+        val lastRecordedDue = (records.payments.map { it.key } + records.adjustments.filter { it.cancelled }.map { it.key })
+            .filter { it.scheduleId == schedule.id }.maxOfOrNull { it.due }
+        // Keep recorded payments and cancellations visible when the series ends.
+        val cutoff = maxOf(today, lastRecordedDue?.plusDays(1) ?: today)
         check(dao.close(schedule.id, cutoff.toEpochDay()) == 1)
         dao.deleteReminder(schedule.series)
         val priorEnd = records.schedules.filter { it.id in seriesIds }.mapNotNull { it.until }.maxOrNull() ?: today
@@ -396,10 +406,15 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         dao.adjust(AdjustmentRow(key.scheduleId, key.due.toEpochDay(), amount.toPlainString(), false))
     }
 
-    suspend fun skip(key: OccurrenceKey) = db.withTransaction {
+    suspend fun skip(key: OccurrenceKey) = dismiss(key, cancelled = false)
+
+    suspend fun cancelOccurrence(key: OccurrenceKey) = dismiss(key, cancelled = true)
+
+    private suspend fun dismiss(key: OccurrenceKey, cancelled: Boolean) = db.withTransaction {
         val occurrence = read().occurrences(key.due, key.due).single { it.key == key }
         require(occurrence.open && occurrence.paid.signum() == 0)
         dao.adjust(AdjustmentRow(key.scheduleId, key.due.toEpochDay(),
-            occurrence.amount.takeUnless { occurrence.estimated }?.toPlainString(), true))
+            occurrence.amount.takeUnless { occurrence.estimated }?.toPlainString(), skipped = !cancelled,
+            cancelled = true.takeIf { cancelled }))
     }
 }

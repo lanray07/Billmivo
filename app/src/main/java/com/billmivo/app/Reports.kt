@@ -31,6 +31,7 @@ fun Records.report(kind: ReportKind, today: LocalDate, context: Context): BillRe
     fun openForecast() = forecast(today, today, horizon)
     fun Occurrence.entry(outstanding: Boolean) = ReportRow(schedule.name, date, schedule.currency,
         if (outstanding) remaining else amount, label(when {
+            cancelled -> R.string.cancelled_occurrence
             skipped -> R.string.skipped
             estimated -> R.string.estimated
             !open -> R.string.paid

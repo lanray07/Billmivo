@@ -7,14 +7,14 @@ internal sealed interface VoiceCommand {
     data class Range(val days: Int) : VoiceCommand
     data class Draft(val bill: BillDraft) : VoiceCommand
     data class ReviewPayment(val name: String) : VoiceCommand
-    enum class Navigate : VoiceCommand { Overdue, Household, Increases, Reminders }
+    enum class Navigate : VoiceCommand { Overdue, Household, Increases, Reminders, Upcoming }
 }
 
 private val shortcuts = mapOf(
-    "en" to listOf("show overdue bills", "show household cost sharing", "show bill increases", "show bill reminders"),
-    "fr" to listOf("afficher les factures en retard", "afficher le partage des dépenses", "afficher les hausses de factures", "afficher les rappels"),
-    "es" to listOf("mostrar facturas vencidas", "mostrar gastos compartidos", "mostrar aumentos de facturas", "mostrar recordatorios"),
-    "ar" to listOf("عرض الفواتير المتأخرة", "عرض تقاسم تكاليف الأسرة", "عرض زيادات الفواتير", "عرض تذكيرات الفواتير")
+    "en" to listOf("show overdue bills", "show household cost sharing", "show bill increases", "show bill reminders", "read my upcoming payments"),
+    "fr" to listOf("afficher les factures en retard", "afficher le partage des dépenses", "afficher les hausses de factures", "afficher les rappels", "lire mes prochains paiements"),
+    "es" to listOf("mostrar facturas vencidas", "mostrar gastos compartidos", "mostrar aumentos de facturas", "mostrar recordatorios", "leer mis próximos pagos"),
+    "ar" to listOf("عرض الفواتير المتأخرة", "عرض تقاسم تكاليف الأسرة", "عرض زيادات الفواتير", "عرض تذكيرات الفواتير", "اقرأ دفعاتي القادمة")
 )
 
 private val paymentRequests = mapOf(
@@ -27,7 +27,7 @@ private val paymentRequests = mapOf(
 internal fun parseVoiceCommand(input: String, locale: Locale, today: LocalDate): VoiceCommand? {
     parseBillDraft(input, locale, today)?.let { return VoiceCommand.Draft(it) }
     val phrase = input.trim().trimEnd('.', '!', '?', '؟').lowercase(locale).replace(Regex("\\s+"), " ")
-    paymentRequests[locale.language]?.matchEntire(phrase)?.groupValues?.get(1)
+    (paymentRequests[locale.language] ?: paymentRequests.getValue("en")).matchEntire(phrase)?.groupValues?.get(1)
         ?.takeIf { it.isNotBlank() && it.length <= 100 }?.let { return VoiceCommand.ReviewPayment(it) }
     val phrases = shortcuts[locale.language] ?: shortcuts.getValue("en")
     val route = phrases.indexOf(phrase)

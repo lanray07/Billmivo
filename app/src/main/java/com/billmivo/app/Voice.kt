@@ -89,12 +89,23 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
         if (granted) start() else status = R.string.voice_permission
     }
     val available = remember { SpeechRecognizer.isRecognitionAvailable(context) }
-    val total = remember(records, range, today, currency) {
-        records.forecast(today, today, today.plusDays(range.toLong() - 1)).totals(currency)
-    }
-    val summary = stringResource(R.string.voice_summary, stringResource(voiceLabels.getValue(range)),
-        money(total.confirmed, currency, locale), money(total.estimated, currency, locale))
     val command = remember(transcript, locale, today) { parseVoiceCommand(transcript, locale, today) }
+    val listUpcoming = command == VoiceCommand.Navigate.Upcoming
+    val days = if (listUpcoming) 30 else range
+    val forecast = remember(records, days, today) {
+        records.forecast(today, today, today.plusDays(days.toLong() - 1))
+    }
+    val total = forecast.totals(currency)
+    val summary = stringResource(R.string.voice_summary, stringResource(voiceLabels.getValue(days)),
+        money(total.confirmed, currency, locale), money(total.estimated, currency, locale))
+    val upcoming = if (listUpcoming) forecast.upcoming.filter { it.schedule.currency == currency } else emptyList()
+    val lines = upcoming.take(10).map { item ->
+        stringResource(R.string.assistant_summary_line,
+            stringResource(R.string.chart_value, item.schedule.name, money(item.remaining, currency, locale)),
+            dateLabel(item.date, locale), stringResource(if (item.estimated) R.string.estimated else R.string.confirmed))
+    }
+    val spokenLines = listOf(summary) + lines +
+        listOfNotNull(if (upcoming.size > lines.size) stringResource(R.string.assistant_first_ten) else null)
     val payment = remember(command, records, today, locale) {
         (command as? VoiceCommand.ReviewPayment)?.let { records.paymentForReview(it.name, today, locale) }
     }
@@ -108,6 +119,7 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
         VoiceCommand.Navigate.Household -> stringResource(R.string.household)
         VoiceCommand.Navigate.Increases -> stringResource(R.string.bill_changes)
         VoiceCommand.Navigate.Reminders -> stringResource(R.string.reminders)
+        VoiceCommand.Navigate.Upcoming -> stringResource(R.string.upcoming)
         else -> null
     }
     AlertDialog(onDismissRequest = onClose, title = { Text(stringResource(R.string.voice_command_title)) }, text = {
@@ -138,10 +150,11 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
                     { stringResource(voiceLabels.getValue(it)) }, { range = it; transcript = "" })
                 Text(summary)
             }
-            if (spoken && commandLabel == null) OutlinedButton({
+            if (listUpcoming) spokenLines.forEach { Text(it) }
+            if (spoken && (commandLabel == null || listUpcoming)) OutlinedButton({
                 val engine = speech
                 if (engine == null || !ttsReady || engine.setLanguage(locale) < TextToSpeech.LANG_AVAILABLE ||
-                    engine.speak(summary, TextToSpeech.QUEUE_FLUSH, null, "forecast") == TextToSpeech.ERROR) {
+                    engine.speak(spokenLines.joinToString("\n"), TextToSpeech.QUEUE_FLUSH, null, "forecast") == TextToSpeech.ERROR) {
                     status = R.string.voice_speech_unavailable
                 }
             }) { Text(stringResource(R.string.voice_read)) }

@@ -15,6 +15,38 @@ import java.time.LocalDate
 
 @RunWith(AndroidJUnit4::class)
 class RepositoryTest {
+    @Test fun cancellationKeepsItsOwnStatusAndRemovesOnlyOneObligation() = runBlocking {
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), BillDatabase::class.java).build()
+        try {
+            val repo = BillRepository(db)
+            val today = LocalDate.of(2026, 11, 16)
+            val amount = BigDecimal("40.00")
+            repo.save(Schedule(series = "rent", name = "Rent", category = "rent", currency = "GBP",
+                amount = amount, estimated = false, first = today, cadence = Cadence.DAILY), null, today)
+            val schedule = repo.records.first().schedules.single()
+            val cancelled = OccurrenceKey(schedule.id, today)
+            val skipped = OccurrenceKey(schedule.id, today.plusDays(1))
+            val partial = OccurrenceKey(schedule.id, today.plusDays(2))
+            repo.saveReminder(ReminderRule(schedule.series, due = true))
+            repo.cancelOccurrence(cancelled)
+            repo.skip(skipped)
+            repo.pay(partial, BigDecimal("12.00"), today, today)
+            assertTrue(runCatching { repo.cancelOccurrence(partial) }.isFailure)
+            assertTrue(runCatching { repo.pay(cancelled, amount, today, today) }.isFailure)
+            val records = repo.records.first()
+            val occurrences = records.occurrences(today, today.plusDays(3))
+            assertTrue(occurrences[0].cancelled && !occurrences[0].skipped)
+            assertEquals(0, occurrences[0].remaining.signum())
+            assertTrue(occurrences[1].skipped && !occurrences[1].cancelled)
+            assertEquals(listOf(today.plusDays(2), today.plusDays(3)),
+                records.forecast(today, today, today.plusDays(3)).upcoming.map { it.date })
+            assertTrue(records.reminderEvents(today).isEmpty())
+            assertEquals(BigDecimal("12.00"), records.payments.single().amount)
+        } finally {
+            db.close()
+        }
+    }
+
     @Test fun keepsPaymentDetailsAndScheduleHistoryThroughPauseAndCategoryChanges() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val db = Room.inMemoryDatabaseBuilder(context, BillDatabase::class.java).build()

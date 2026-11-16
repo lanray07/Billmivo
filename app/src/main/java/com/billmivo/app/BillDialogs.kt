@@ -212,7 +212,7 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
     }
     var validation by remember { mutableStateOf<Int?>(null) }
     var busy by remember { mutableStateOf(false) }
-    var skip by rememberSaveable { mutableStateOf(false) }
+    var dismissal by rememberSaveable { mutableStateOf<Int?>(null) }
     var paidOn by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableLongStateOf(today.toEpochDay()) }
     var payer by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableStateOf("") }
     var method by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableStateOf(item.schedule.paymentMethod.orEmpty()) }
@@ -261,10 +261,19 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                         OutlinedTextField(notes, { notes = it.take(1000) }, label = { Text(stringResource(R.string.payment_notes)) },
                             maxLines = 4, enabled = !busy)
                     }
-                    if (item.paid.signum() == 0) TextButton({ skip = true }, enabled = !busy) {
-                        Text(stringResource(R.string.skip_bill))
+                    if (item.paid.signum() == 0) {
+                        TextButton({ dismissal = R.string.skip_bill }, enabled = !busy) {
+                            Text(stringResource(R.string.skip_bill))
+                        }
+                        TextButton({ dismissal = R.string.cancel_occurrence }, enabled = !busy) {
+                            Text(stringResource(R.string.cancel_occurrence))
+                        }
                     }
-                } else Text(stringResource(if (item.skipped) R.string.skipped else R.string.paid))
+                } else Text(stringResource(when {
+                    item.cancelled -> R.string.cancelled_occurrence
+                    item.skipped -> R.string.skipped
+                    else -> R.string.paid
+                }))
                 validation?.let { Text(stringResource(it), color = palette.red) }
             }
         },
@@ -288,12 +297,19 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
             else TextButton(close) { Text(stringResource(R.string.close)) }
         },
         dismissButton = { if (item.open) TextButton(close, enabled = !busy) { Text(stringResource(R.string.cancel)) } })
-    if (skip) AlertDialog(onDismissRequest = { skip = false }, title = { Text(stringResource(R.string.skip_bill)) },
-        text = { Text(stringResource(R.string.skip_prompt)) },
-        confirmButton = { Button({
-            skip = false
-            busy = true
-            save({ skip(item.key) }, close) { busy = false; validation = R.string.action_error }
-        }) { Text(stringResource(R.string.skip_bill)) } },
-        dismissButton = { TextButton({ skip = false }) { Text(stringResource(R.string.cancel)) } })
+    dismissal?.let { selected ->
+        val cancelling = selected == R.string.cancel_occurrence
+        AlertDialog(onDismissRequest = { dismissal = null }, title = { Text(stringResource(selected)) },
+            text = { Text(stringResource(if (cancelling) R.string.cancel_occurrence_prompt else R.string.skip_prompt)) },
+            confirmButton = { Button({
+                dismissal = null
+                busy = true
+                save({ if (cancelling) cancelOccurrence(item.key) else skip(item.key) }, close) {
+                    busy = false; validation = R.string.action_error
+                }
+            }) { Text(stringResource(selected)) } },
+            dismissButton = { TextButton({ dismissal = null }) {
+                Text(stringResource(if (cancelling) R.string.keep_occurrence else R.string.cancel))
+            } })
+    }
 }

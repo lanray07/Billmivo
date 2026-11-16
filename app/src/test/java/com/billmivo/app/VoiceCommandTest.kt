@@ -11,6 +11,11 @@ class VoiceCommandTest {
     private val today = LocalDate.of(2026, 11, 16)
 
     @Test fun routesLocalizedCommandsAndKeepsForecastFallback() {
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("Read my upcoming payments", Locale.UK, today))
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("Lire mes prochains paiements", Locale.FRANCE, today))
+        assertEquals(VoiceCommand.Navigate.Upcoming,
+            parseVoiceCommand("Leer mis próximos pagos", Locale.forLanguageTag("es-ES"), today))
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("اقرأ دفعاتي القادمة", Locale.forLanguageTag("ar"), today))
         assertEquals(VoiceCommand.Navigate.Overdue, parseVoiceCommand("Show overdue bills!", Locale.UK, today))
         assertEquals(VoiceCommand.Navigate.Household, parseVoiceCommand("afficher le partage des dépenses", Locale.FRANCE, today))
         assertEquals(VoiceCommand.Navigate.Increases, parseVoiceCommand("mostrar aumentos de facturas", Locale.forLanguageTag("es-ES"), today))

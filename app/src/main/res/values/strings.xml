@@ -327,7 +327,7 @@
     <string name="calendar_all">All</string>
     <string name="calendar_previous_week">Previous week</string>
     <string name="calendar_next_week">Next week</string>
-    <string name="voice_examples">Try ‘show overdue bills’ or ‘show household cost sharing’. To prepare a bill, use the format in Bill assistant.</string>
+    <string name="voice_examples">Try “read my upcoming payments” or “show overdue bills”. To prepare a bill, use the format in Bill assistant.</string>
     <string name="voice_open_command">Open</string>
     <string name="voice_review_draft">Review %1$s · %2$s · %3$s</string>
     <string name="voice_command_title">Voice shortcuts</string>
@@ -370,4 +370,8 @@
     <string name="insights_by_member">Household contributions recorded</string>
     <string name="voice_review_payment">Review a payment for %1$s due %2$s.</string>
     <string name="voice_payment_no_match">Use the exact name of one confirmed bill that is overdue or due within 30 days.</string>
+    <string name="cancelled_occurrence">Cancelled</string>
+    <string name="cancel_occurrence">Cancel this occurrence</string>
+    <string name="cancel_occurrence_prompt">This occurrence stays in your calendar as cancelled and drops out of the forecast. Future occurrences of this bill stay scheduled.</string>
+    <string name="keep_occurrence">Keep occurrence</string>
 </resources>

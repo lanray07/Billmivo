@@ -47,7 +47,8 @@ data class Schedule(
 }
 
 data class OccurrenceKey(val scheduleId: Long, val due: LocalDate)
-data class Adjustment(val key: OccurrenceKey, val confirmed: BigDecimal? = null, val skipped: Boolean = false)
+data class Adjustment(val key: OccurrenceKey, val confirmed: BigDecimal? = null, val skipped: Boolean = false,
+                      val cancelled: Boolean = false)
 data class Payment(val key: OccurrenceKey, val date: LocalDate, val amount: BigDecimal, val payerId: String? = null,
                    val method: String? = null, val notes: String? = null)
 data class RecurrencePause(val series: String, val from: LocalDate, val until: LocalDate? = null) {
@@ -60,11 +61,13 @@ data class Occurrence(
     val amount: BigDecimal,
     val estimated: Boolean,
     val paid: BigDecimal,
-    val skipped: Boolean
+    val skipped: Boolean,
+    val cancelled: Boolean = false
 ) {
     val key get() = OccurrenceKey(schedule.id, date)
-    val remaining: BigDecimal get() = (amount - paid).max(BigDecimal.ZERO)
-    val open get() = !skipped && remaining.signum() > 0
+    val dismissed get() = skipped || cancelled
+    val remaining: BigDecimal get() = if (cancelled) BigDecimal.ZERO else (amount - paid).max(BigDecimal.ZERO)
+    val open get() = !dismissed && remaining.signum() > 0
 }
 
 data class Records(
@@ -91,11 +94,11 @@ data class Records(
             schedule.dates(start, end).mapNotNull { due ->
                 val key = OccurrenceKey(schedule.id, due)
                 val change = modified[key]
-                if (key !in paid && pauses.any { it.covers(due) }) return@mapNotNull null
+                if (key !in paid && change?.cancelled != true && pauses.any { it.covers(due) }) return@mapNotNull null
                 Occurrence(
                     schedule, due, change?.confirmed ?: schedule.amount,
                     schedule.estimated && change?.confirmed == null, paid[key] ?: BigDecimal.ZERO,
-                    change?.skipped == true
+                    change?.skipped == true, change?.cancelled == true
                 )
             }.toList()
         }.sortedWith(compareBy({ it.date }, { it.schedule.name }, { it.schedule.id }))
@@ -158,7 +161,7 @@ data class BillChange(val bill: Schedule, val previous: Occurrence, val current:
 
 fun Records.billChanges(today: LocalDate, currency: String): List<BillChange> =
     occurrences(today.minusYears(2), today)
-        .filter { !it.estimated && !it.skipped && it.schedule.currency == currency && it.schedule.cadence != Cadence.ONCE }
+        .filter { !it.estimated && !it.dismissed && it.schedule.currency == currency && it.schedule.cadence != Cadence.ONCE }
         .groupBy { it.schedule.series }.values.mapNotNull { history ->
             history.zipWithNext().asReversed().firstNotNullOfOrNull { (previous, current) ->
                 val comparable = previous.schedule.cadence == current.schedule.cadence &&

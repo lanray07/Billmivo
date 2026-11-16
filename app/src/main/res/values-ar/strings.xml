@@ -338,7 +338,7 @@
     <string name="calendar_all">الكل</string>
     <string name="calendar_previous_week">الأسبوع السابق</string>
     <string name="calendar_next_week">الأسبوع التالي</string>
-    <string name="voice_examples">جرّب «عرض الفواتير المتأخرة» أو «عرض تقاسم تكاليف الأسرة». لإعداد فاتورة، استخدم التنسيق الموجود في مساعد الفواتير.</string>
+    <string name="voice_examples">جرّب «اقرأ دفعاتي القادمة» أو «عرض الفواتير المتأخرة». لإعداد فاتورة، استخدم الصيغة الموضحة في مساعد الفواتير.</string>
     <string name="voice_open_command">فتح</string>
     <string name="voice_review_draft">مراجعة %1$s · %2$s · %3$s</string>
     <string name="voice_command_title">اختصارات صوتية</string>
@@ -381,4 +381,8 @@
     <string name="insights_by_member">مساهمات الأسرة المسجلة</string>
     <string name="voice_review_payment">راجع دفعة %1$s المستحقة في %2$s.</string>
     <string name="voice_payment_no_match">استخدم الاسم الدقيق لفاتورة مؤكدة واحدة متأخرة أو مستحقة خلال ٣٠ يومًا.</string>
+    <string name="cancelled_occurrence">ملغاة</string>
+    <string name="cancel_occurrence">إلغاء هذا الاستحقاق</string>
+    <string name="cancel_occurrence_prompt">يبقى هذا الاستحقاق في التقويم بحالة ملغاة ويُستبعد من التوقعات. تظل الاستحقاقات التالية لهذه الفاتورة مجدولة.</string>
+    <string name="keep_occurrence">الإبقاء على الاستحقاق</string>
 </resources>

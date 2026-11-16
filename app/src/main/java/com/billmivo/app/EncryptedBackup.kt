@@ -113,9 +113,10 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
             val metadata = ByteArray(size).also(source::readFully)
             val data = JSONObject(metadata.decodeToString(throwOnInvalidSequence = true))
             metadata.fill(0)
-            val tables = when (data.optInt("schema", 3)) {
+            val schema = data.optInt("schema", 3)
+            val tables = when (schema) {
                 3 -> legacyArchiveTables
-                4 -> archiveTables
+                4, 5 -> archiveTables
                 else -> error("Unsupported backup schema")
             }
             val files = attachmentList(data)
@@ -149,7 +150,11 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
                         repository.archiveTransaction { db ->
                             clearRows(db)
                             tables.forEach { table ->
-                                val missing = if (tables == legacyArchiveTables) legacyMissingColumns[table].orEmpty() else emptySet()
+                                val missing = when {
+                                    schema < 5 && table == "adjustments" -> setOf("cancelled")
+                                    schema == 3 -> legacyMissingColumns[table].orEmpty()
+                                    else -> emptySet()
+                                }
                                 insertRows(db, table, data.getJSONArray(table), missing)
                             }
                             repository.validateRestoredRecords()
@@ -186,7 +191,7 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
     }
 
     private fun snapshot(db: SupportSQLiteDatabase) = JSONObject().apply {
-        put("schema", 4)
+        put("schema", 5)
         archiveTables.forEach { table ->
             val rows = JSONArray()
             db.query("SELECT * FROM $table").use { cursor ->

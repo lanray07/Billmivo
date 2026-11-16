@@ -330,7 +330,7 @@
     <string name="calendar_all">Todo</string>
     <string name="calendar_previous_week">Semana anterior</string>
     <string name="calendar_next_week">Semana siguiente</string>
-    <string name="voice_examples">Prueba «mostrar facturas vencidas» o «mostrar gastos compartidos». Para preparar una factura, usa el formato del asistente.</string>
+    <string name="voice_examples">Prueba «leer mis próximos pagos» o «mostrar facturas vencidas». Para preparar una factura, usa el formato del asistente.</string>
     <string name="voice_open_command">Abrir</string>
     <string name="voice_review_draft">Revisar %1$s · %2$s · %3$s</string>
     <string name="voice_command_title">Atajos de voz</string>
@@ -373,4 +373,8 @@
     <string name="insights_by_member">Aportaciones del hogar registradas</string>
     <string name="voice_review_payment">Revisa un pago de %1$s con vencimiento el %2$s.</string>
     <string name="voice_payment_no_match">Usa el nombre exacto de una única factura confirmada, vencida o con vencimiento en los próximos 30 días.</string>
+    <string name="cancelled_occurrence">Cancelada</string>
+    <string name="cancel_occurrence">Cancelar este vencimiento</string>
+    <string name="cancel_occurrence_prompt">Este vencimiento seguirá en el calendario como cancelado y se quitará de la previsión. Los próximos vencimientos seguirán programados.</string>
+    <string name="keep_occurrence">Conservar vencimiento</string>
 </resources>

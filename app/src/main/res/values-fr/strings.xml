@@ -330,7 +330,7 @@
     <string name="calendar_all">Tous</string>
     <string name="calendar_previous_week">Semaine précédente</string>
     <string name="calendar_next_week">Semaine suivante</string>
-    <string name="voice_examples">Essayez « afficher les factures en retard » ou « afficher le partage des dépenses ». Pour préparer une facture, utilisez le format de l’assistant.</string>
+    <string name="voice_examples">Essayez « lire mes prochains paiements » ou « afficher les factures en retard ». Pour préparer une facture, utilisez le format indiqué dans l’assistant.</string>
     <string name="voice_open_command">Ouvrir</string>
     <string name="voice_review_draft">Vérifier %1$s · %2$s · %3$s</string>
     <string name="voice_command_title">Raccourcis vocaux</string>
@@ -373,4 +373,8 @@
     <string name="insights_by_member">Contributions du foyer enregistrées</string>
     <string name="voice_review_payment">Vérifiez un paiement pour %1$s, échéance le %2$s.</string>
     <string name="voice_payment_no_match">Utilisez le nom exact d’une seule facture confirmée, en retard ou à régler sous 30 jours.</string>
+    <string name="cancelled_occurrence">Annulée</string>
+    <string name="cancel_occurrence">Annuler cette échéance</string>
+    <string name="cancel_occurrence_prompt">Cette échéance reste dans le calendrier avec le statut Annulée et sort des prévisions. Les prochaines échéances restent prévues.</string>
+    <string name="keep_occurrence">Conserver cette échéance</string>
 </resources>

@@ -45,6 +45,8 @@ On 16 November 2026, **Billmivo 0.4.0 forecast and encrypted backup** went live 
 
 The copied private test retained its 12 Fire tablet selections. Amazon warns that target API 35 excludes devices with a minimum target of 36. It lists API 36 for Fire OS 16 and API 28 for Fire OS 7. Verify the final list of eligible tablets in the Console for the release APK. [Amazon target API requirements](https://developer.amazon.com/docs/app-submission/device-filtering-and-compatibility.html#minimum-api-levels-for-targetsdkversion)
 
+The next private version, **Billmivo 0.5.0 recurring bills and payment insights**, installed from Amazon as version code 6 on the same Fire HD 10. I reset the single private tester’s prior test entitlement. Backing out of checkout left Premium locked and returned the purchase-incomplete message. Completing a new checkout activated Premium without manual restore, and the separate Restore Amazon purchase action also returned to active Premium. The public listing stayed a draft. [Amazon IAP testing modes](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
+
 Amazon's guides describe signing for its test workflows and note that Amazon applies its signature to uploaded apps. Keep signing credentials out of source control. [Amazon IAP testing setup](https://developer.amazon.com/docs/in-app-purchasing/iap-get-started.html) · [Amazon binary submission](https://developer.amazon.com/docs/app-submission/submitting-apps-to-amazon-appstore.html)
 
 ### Receipt verifier
