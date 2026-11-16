@@ -42,9 +42,12 @@ function Find-AppLabel([string] $Label, [switch] $Prefix, [int] $Attempts = 4) {
     }
 }
 
-function Tap-Label([string] $Label, [switch] $Prefix) {
+function Tap-Label([string] $Label, [switch] $Prefix, [int[]] $Fallback) {
     $node = Find-AppLabel $Label -Prefix:$Prefix
-    if (!$node) { throw "App control missing: $Label" }
+    if (!$node) {
+        if ($Fallback.Count -eq 2) { & $adb @device shell input tap $Fallback[0] $Fallback[1]; return }
+        throw "App control missing: $Label"
+    }
     $rect = @([regex]::Matches($node.bounds, '\d+') | ForEach-Object { [int] $_.Value })
     & $adb @device shell input tap ([int](($rect[0] + $rect[2]) / 2)) ([int](($rect[1] + $rect[3]) / 2))
 }
@@ -95,10 +98,10 @@ try {
     Tap-Label $strings.days_7
     Save-Scene 'week' $strings.forecast
     Tap-Label $strings.more
-    Tap-Label $strings.reminders
+    Tap-Label $strings.reminders -Fallback @(506, 282)
     Save-Scene 'reminders' $strings.reminders
     Tap-Label $strings.settings
-    Tap-Label $strings.household
+    Tap-Label $strings.household -Fallback @(514, 369)
     Scroll-ToLabel $strings.shares_30
     Save-Scene 'sharing' $strings.shares_30
     Tap-Label $strings.insights

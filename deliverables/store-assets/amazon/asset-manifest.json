@@ -26,8 +26,8 @@
           1920,
           1200
         ],
-        "sha256": "9de445a0edf9902c53b6e82828ab721dea70d9b85e0294ea208cfd1aca873b40",
-        "raw_sha256": "7d292b0a5b5b7c9ee3158d05a09f2ea5ce0f40c28541f97ffe17db2e94407b81"
+        "sha256": "e794101e0e945f04bc5f3252a1b4ca4a9580b0a8317813f06cdac230f69bafda",
+        "raw_sha256": "5adbe15c1a53020c367733a4f2cc793809193ee270b4b49c0ddf1fe85b7bc13f"
       },
       {
         "file": "02-week.png",
@@ -35,8 +35,8 @@
           1920,
           1200
         ],
-        "sha256": "49b0132920615c2990d9acf642e8bd3b8521f547f85244ed436825e2f37e2564",
-        "raw_sha256": "3f9ac908c293508143732ddd1352c59e6f40294e5554b7fd2e5d04242580ad24"
+        "sha256": "c34e1294adf989aec9569608ce83dfc4fdeb61666721209a141bafe981980592",
+        "raw_sha256": "9e1f6e59876be0b413b802fb6c516223bb3e9560ef5077aadb2cd933077996ff"
       },
       {
         "file": "03-reminders.png",
@@ -45,7 +45,7 @@
           1200
         ],
         "sha256": "c53d2e2ee54f1a45a6a8b2e772a286907b6b78cb6ecb1b70ae3a69a7945da9b6",
-        "raw_sha256": "9490a4088f7fb0d9d9c298a7569670d42b642bca5ac438fca3905f1a1e5b40a7"
+        "raw_sha256": "76d889034ecf1c713f75b6b79b14129328dae1120e58d70fcac28c33a7caafe5"
       },
       {
         "file": "04-spending.png",
@@ -54,7 +54,7 @@
           1200
         ],
         "sha256": "138cd54ea5d101f1ecb3cf3595f7ac06e74677eb217f6b520d04168b03442c78",
-        "raw_sha256": "f299ff3a28d28563a300a55daf7d37c214f3fe08869b78871ca2283db9a6b6ce"
+        "raw_sha256": "ce253cc30bba7c1786896f9fe9a9d59b6ae313b5691c6bc1f86982a7811f8c36"
       },
       {
         "file": "05-changes.png",
@@ -62,8 +62,8 @@
           1920,
           1200
         ],
-        "sha256": "54968b28e6f7223b47fbd675ce83a270efda7487cf31615630c319d0dfd7823a",
-        "raw_sha256": "9a573f1109dea75d2039fa63ea44fc921ddfee9d10beb38abe3a65b6ec408b8e"
+        "sha256": "cda3928265e37bd120b6f9754a587d2ad36ad15953861052419d27879fd3cafb",
+        "raw_sha256": "3d2dbd3a57af5fbe9def398714d364cb1f2f4074758a8caa58ff767cfa710f21"
       },
       {
         "file": "06-voice.png",
@@ -71,8 +71,8 @@
           1920,
           1200
         ],
-        "sha256": "197536f483f96455d12276bed03f5c87e59000893ee59481842240d600600f39",
-        "raw_sha256": "c13f213cc239dc6439f0bef5bb3ba06b56478edc925e3be104d7b83369aa0e24"
+        "sha256": "c09047abffbcbf73ade10b79ca1977726f93f2312df3746bb0543c64bcb3c13b",
+        "raw_sha256": "562b600fff78557d6b707ff0c303e6a1ef0ae0ca97ec9e099bbb8de09533545d"
       },
       {
         "file": "07-sharing.png",
@@ -81,7 +81,7 @@
           1200
         ],
         "sha256": "a158bd3ee6372ef00952ca65fbbe57c93f2251b5c1e563f62318749b5b4595d6",
-        "raw_sha256": "456b43034d57ec7a4258874c97d66921a53b85caee92c0a36ea6b73169c0ab12"
+        "raw_sha256": "f49f5b8be7a0060c8880526a662890ffcf224eff06281b2367e530f9fd8b1d3f"
       },
       {
         "file": "08-calendar.png",
@@ -89,8 +89,8 @@
           1920,
           1200
         ],
-        "sha256": "b7285728f3eabba9a2ae624746189ca9ab839964b3d6044f6b6706a64468b165",
-        "raw_sha256": "0ac61aaff562e0465229d422cc47fd20bb5ddfeaff3e35374c600d98ff5ffe4a"
+        "sha256": "b4b9064ef4524f37d6646b5d5d8310ff824457f85e2dac207aca7dc071d431e3",
+        "raw_sha256": "543da6b29ae281e3ebae3a70f01c56543400217fa472cd9d4655c6da90da6690"
       }
     ],
     "fr-FR": [
@@ -100,8 +100,8 @@
           1920,
           1200
         ],
-        "sha256": "59977d351bc5a80439d098bc9d0956f0264ea3ad653bae532ec363fa6ebdf006",
-        "raw_sha256": "0a0adc01bc83448e7e4fe247aba67b49d1f20acb35521734e489249d9e3b2174"
+        "sha256": "32b5772e81becccf470cb08c11a787c380b06a2b68d5453a2725889aff96a7f0",
+        "raw_sha256": "9f43104dcd47235944f3acf5fd3ba9862457b2a57fcc079e2dba9ca23c432b2b"
       },
       {
         "file": "02-week.png",
@@ -109,8 +109,8 @@
           1920,
           1200
         ],
-        "sha256": "7e44cf1b42d53cf674d5f17a0ab2b22b32d78188459a7e6c82e4c64932669812",
-        "raw_sha256": "1bbbdf9ec95b06c462b6bc591aaf02812a71ff8284179aa86bec65ec8c95beba"
+        "sha256": "0bb7e9cda7a9812b3d3ee619009e759c51e9674ab1a8e818b58df1d9487976e7",
+        "raw_sha256": "d60219a26fea650ab83bfa5ac87154f49dfa6d625b20cee3bb298fc1c3e56e1a"
       },
       {
         "file": "03-reminders.png",
@@ -119,7 +119,7 @@
           1200
         ],
         "sha256": "061136196356a95011905e52d2bfbfcac6dc508ddd440709c7597de9702cb780",
-        "raw_sha256": "21f3aef19bd63eb04d247620e28dffe2e00013fccc30e61b0ab52c8ed358b223"
+        "raw_sha256": "077d2a68dcdc07f26800b932c98d39e8dc28969252fb7a424163ca10d4a34a15"
       },
       {
         "file": "04-spending.png",
@@ -128,7 +128,7 @@
           1200
         ],
         "sha256": "7ea5fe09875345f763de8ae5aad194a70207aec92135de624ced7b7923572c54",
-        "raw_sha256": "a0bba42ae4d5ef7d4ac5f5b880321dd7ac5eaa8c528870e897739ca1abc2e3c5"
+        "raw_sha256": "74c59511085fea7d5e04c805abe759fa71d58e47131aec51093dc2c1c8af1b31"
       },
       {
         "file": "05-changes.png",
@@ -136,8 +136,8 @@
           1920,
           1200
         ],
-        "sha256": "9d56a8a9b4a35d2a7af8a542052682283ba1bb851526a1cc58d57c281251460d",
-        "raw_sha256": "9963a076c50e08af4c95e092c7937370ab869637c8ea1194b235f57fa465eabb"
+        "sha256": "7a82ae7c501de71c8fe701fde801bdb7fc334dba6bf70fd20ed2ffb0a34a34c6",
+        "raw_sha256": "e7baf06e74089484b8bba24fd87fe7e10381f3f3c79c2a974dbea065ac246155"
       },
       {
         "file": "06-voice.png",
@@ -145,8 +145,8 @@
           1920,
           1200
         ],
-        "sha256": "277621c5779f83a7e7caab66490dd24b0d4366ac21c3f9aa08da97d313963d87",
-        "raw_sha256": "0642209220d6e7f59294388d301776f0dfd7afb9e73c242067969869f4c9db1d"
+        "sha256": "57ee3a5f59e2725b9c348199acd46ba5a6fab30188e86cfa83842d55a9179fa6",
+        "raw_sha256": "689f8927d783387f5c2df8c3fb048545218779e205dd378300f263cd08712faa"
       },
       {
         "file": "07-sharing.png",
@@ -155,7 +155,7 @@
           1200
         ],
         "sha256": "a5fa20ebec92e4ad22e503b28dd37b3a03ed96dd765a137ad435c6cf6ebee95e",
-        "raw_sha256": "3407200c18445f2989a8c370f0022d7b02db52b97db3bbb292732da665c68fa0"
+        "raw_sha256": "8451c33684bc760f1656c8c4f2b80d3ff8a5a9028c5c7d2cff74df683cdce8d7"
       },
       {
         "file": "08-calendar.png",
@@ -163,8 +163,8 @@
           1920,
           1200
         ],
-        "sha256": "53771292a3b6b92c97945c4bc806926c0b99ff8c83c15bccc7d1e86e26a5d042",
-        "raw_sha256": "6c1dac06d8f0f076b2956e898b99f2ed5ad39e67a70e81b4ff23f910f6d959b5"
+        "sha256": "c1cafbb9fcb45e7e7dfcab5a54d0cfba28b5f1c9a3fbbc3d286f1b1a6a98a0f6",
+        "raw_sha256": "896efdd1b1d0bc97b97ec2e90a5d04898bb5a83f4f5aa0eaa640ac81b177e64f"
       }
     ],
     "es-ES": [
@@ -174,8 +174,8 @@
           1920,
           1200
         ],
-        "sha256": "fb9d95a8bdd8f5917c88879c40a7daaaebe53437d1225c0c2766f7d82f863bb7",
-        "raw_sha256": "a3837e550f7e49992de59b4a358af88c8c092caa04100fff13366a35ca08cc5d"
+        "sha256": "8ba3c9db38a37aead30c9e56b60b354c584fd915b727b216957e42059d395b76",
+        "raw_sha256": "c740955875178420339dead33b5702d86c1b7974fa220c206c22088c666fe307"
       },
       {
         "file": "02-week.png",
@@ -183,8 +183,8 @@
           1920,
           1200
         ],
-        "sha256": "005a2fb9ca35a27dbc2de5e80b7d3a93002d2a39e0c59670961b3f0db356c0f6",
-        "raw_sha256": "47d5c97e3aec3ec10aeeb4dc49668d4e6433579d3465b66b1228c64750793690"
+        "sha256": "03237edb25132c44555f2babbbc67370b3b70aa296a3884297ab1dad56e44945",
+        "raw_sha256": "550331da64cbd1e20c9b601304431dc708629c5e6a2bda021cc1a5d3178f7e17"
       },
       {
         "file": "03-reminders.png",
@@ -193,7 +193,7 @@
           1200
         ],
         "sha256": "f7e6882d4db17f47232580db5bf6d04941b4a29ad004d7f1cb3ad58f158c31cf",
-        "raw_sha256": "032e175cdb617d5479de2cae1bfc109e5644a93eed2773b1bd24b1687d353989"
+        "raw_sha256": "21e3c5d71b1b05384a799cb73a3df2c23be676483baea8fb1be7ffdf79907f25"
       },
       {
         "file": "04-spending.png",
@@ -202,7 +202,7 @@
           1200
         ],
         "sha256": "b038078f18e8862ed656382dc52def7cf0e6ec1999be76869897d3c515acf8ef",
-        "raw_sha256": "072d49c5d17ab7d330bb24cb4ff2813b78edffe90a334e95f3288f68af1b1f6a"
+        "raw_sha256": "afa69eb6cc834b5dffbc2f5b383c2c08b452de3aa490806b3f0a40c263d4d355"
       },
       {
         "file": "05-changes.png",
@@ -210,8 +210,8 @@
           1920,
           1200
         ],
-        "sha256": "2bbd9a1cc6378c4c2d3861fc06f16d4f09702d58486bbd3e41f3a74f260fae5f",
-        "raw_sha256": "7a751e4c37f2abee378aab3a7dedefba79615d80880e567dc1cd734fc3dc3814"
+        "sha256": "125db3efa8c218de4503796842998cd5cf7907e5d7dc1d59e102f3068d3605bb",
+        "raw_sha256": "3f038e32a0fee1a2fb438ee5bd256b908a5b5bf88b38cddf1ee400436012278f"
       },
       {
         "file": "06-voice.png",
@@ -219,8 +219,8 @@
           1920,
           1200
         ],
-        "sha256": "36eee202f8f6ff84706d48ead10a68215cb21f3883cce94375f67713c0ba0270",
-        "raw_sha256": "19707038cf2dddbb602e4a28079551e68025e136b76c55a48ebc18253adec06b"
+        "sha256": "43ef79f66bc356e79b851826aeb916614b0d7bcc5cfd20f64f298a434c770388",
+        "raw_sha256": "63aa3dfb617239d8e940ee4efb449fd57ee7ebd960afa494a886c96b3bd94018"
       },
       {
         "file": "07-sharing.png",
@@ -228,8 +228,8 @@
           1920,
           1200
         ],
-        "sha256": "df272015e1482d88cad3bd93dc059a053919a2a6efb40ece031c2f6ae14a734f",
-        "raw_sha256": "a78b958720e6c47bee3c9ecf194551a9f4c03d77ca89c5ce3e2d1ced8f9e06e4"
+        "sha256": "9d258dbf488fa5947c38b1c79192057e436f157dfe338e0e749de991b5384e5f",
+        "raw_sha256": "5466dc3f2a773199b04e38c8d3ad13ca032b6e2f8a7e24e8fd9dd2d5ac58566d"
       },
       {
         "file": "08-calendar.png",
@@ -237,8 +237,8 @@
           1920,
           1200
         ],
-        "sha256": "a52b9237cc2988b6be911fbb8eeddc80a082479193b05e1d9a7e42ad55eab580",
-        "raw_sha256": "b8e4177ebf8effa7e51709638702844f7d70679ec830e9f3d3e3e1946edec80e"
+        "sha256": "7aedde2a8c75fe2dd23f14e1d7ad2f2a5c454d9c3cfc0e4a841cdd15e0da86e1",
+        "raw_sha256": "696254cd8e264b030bc9bbb614988987ecc937763c209a5de3c26f645fe55b47"
       }
     ]
   }
