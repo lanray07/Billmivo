@@ -31,6 +31,8 @@ fun installStore(context: Context): PremiumAccess = AmazonPremium(context.applic
 
 private const val SKU = "billmivo_premium"
 private const val OFFLINE_VALIDITY_MILLIS = 3 * 24 * 60 * 60 * 1000L
+private const val CHECKOUT_TIMEOUT_MILLIS = 5 * 60_000L
+private const val VERIFICATION_TIMEOUT_MILLIS = 45_000L
 
 private class AmazonPremium(private val context: Context) : PremiumAccess, PurchasingListener {
     private val storage = context.getSharedPreferences("amazon-premium", Context.MODE_PRIVATE)
@@ -81,7 +83,7 @@ private class AmazonPremium(private val context: Context) : PremiumAccess, Purch
 
     override fun buy() {
         if (!initialized || state.value.busy || state.value.entitled || state.value.price == null) return
-        startOperation()
+        startOperation(CHECKOUT_TIMEOUT_MILLIS)
         runCatching { purchase = PurchasingService.purchase(SKU) }.onFailure { finish(R.string.premium_error) }
     }
 
@@ -124,6 +126,7 @@ private class AmazonPremium(private val context: Context) : PremiumAccess, Purch
                         finish(R.string.premium_error)
                         return@launch
                     }
+                    startOperation()
                     invalidateOtherAccount(user)
                     when (verify(user, receipt.receiptId)) {
                         true -> if (purchase == response.requestId) {
@@ -190,12 +193,15 @@ private class AmazonPremium(private val context: Context) : PremiumAccess, Purch
     private fun accountKey(user: String) = MessageDigest.getInstance("SHA-256").digest(user.toByteArray())
         .joinToString("") { "%02x".format(it) }
 
-    private fun startOperation() {
+    private fun startOperation(timeoutMillis: Long = VERIFICATION_TIMEOUT_MILLIS) {
         cache.update { it.copy(busy = true, message = null) }
         pendingCheck?.cancel()
         pendingCheck = scope.launch {
-            delay(45_000)
+            delay(timeoutMillis)
+            val checkoutExpired = purchase != null && timeoutMillis == CHECKOUT_TIMEOUT_MILLIS
             finish(R.string.premium_retry)
+            // A delayed or missing checkout callback can still have created a valid purchase.
+            if (checkoutExpired) restore()
         }
     }
 
