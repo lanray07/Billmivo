@@ -27,15 +27,15 @@ data class ScheduleRow(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val series: String, val name: String, val category: String, val currency: String, val amount: String,
     val estimated: Boolean, val first: Long, val cadence: String, val interval: Long, val starts: Long, val ends: Long?,
-    val providerId: String? = null
+    val providerId: String? = null, val notes: String? = null, val paymentMethod: String? = null
 ) {
     fun schedule() = Schedule(id, series, name, category, currency, amount.toBigDecimal(), estimated,
         LocalDate.ofEpochDay(first), Cadence.valueOf(cadence), interval, LocalDate.ofEpochDay(starts),
-        ends?.let(LocalDate::ofEpochDay), providerId)
+        ends?.let(LocalDate::ofEpochDay), providerId, notes, paymentMethod)
 }
 
 private fun Schedule.row() = ScheduleRow(id, series, name, category, currency, amount.toPlainString(), estimated,
-    first.toEpochDay(), cadence.name, interval, from.toEpochDay(), until?.toEpochDay(), providerId)
+    first.toEpochDay(), cadence.name, interval, from.toEpochDay(), until?.toEpochDay(), providerId, notes, paymentMethod)
 
 @Entity(
     tableName = "payments",
@@ -45,11 +45,20 @@ private fun Schedule.row() = ScheduleRow(id, series, name, category, currency, a
 )
 data class PaymentRow(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val scheduleId: Long, val due: Long, val date: Long, val amount: String, val payerId: String? = null
+    val scheduleId: Long, val due: Long, val date: Long, val amount: String, val payerId: String? = null,
+    val method: String? = null, val notes: String? = null
 ) {
     fun payment() = Payment(OccurrenceKey(scheduleId, LocalDate.ofEpochDay(due)),
-        LocalDate.ofEpochDay(date), amount.toBigDecimal(), payerId)
+        LocalDate.ofEpochDay(date), amount.toBigDecimal(), payerId, method, notes)
 }
+
+@Entity(tableName = "recurrence_pauses", primaryKeys = ["series", "starts"])
+data class PauseRow(val series: String, val starts: Long, val ends: Long?) {
+    fun pause() = RecurrencePause(series, LocalDate.ofEpochDay(starts), ends?.let(LocalDate::ofEpochDay))
+}
+
+@Entity(tableName = "custom_categories")
+data class CategoryRow(@PrimaryKey val id: String, val name: String)
 
 @Entity(
     tableName = "adjustments", primaryKeys = ["scheduleId", "due"],
@@ -115,6 +124,14 @@ interface BillDao {
     @Query("SELECT * FROM members ORDER BY name COLLATE NOCASE, id") suspend fun members(): List<MemberRow>
     @Query("SELECT * FROM sharing") suspend fun sharing(): List<SharingRow>
     @Query("SELECT * FROM reminders") suspend fun reminders(): List<ReminderRow>
+    @Query("SELECT * FROM recurrence_pauses") suspend fun pauses(): List<PauseRow>
+    @Upsert suspend fun put(pause: PauseRow)
+    @Query("DELETE FROM recurrence_pauses WHERE series = :series") suspend fun deletePauses(series: String)
+    @Query("SELECT * FROM custom_categories ORDER BY name COLLATE NOCASE, id") suspend fun categories(): List<CategoryRow>
+    @Upsert suspend fun put(category: CategoryRow)
+    @Query("DELETE FROM custom_categories WHERE id = :id") suspend fun deleteCategory(id: String)
+    @Query("UPDATE schedules SET category = 'other' WHERE category = :id") suspend fun unlinkBillCategory(id: String)
+    @Query("UPDATE providers SET category = 'other' WHERE category = :id") suspend fun unlinkProviderCategory(id: String)
     @Upsert suspend fun put(member: MemberRow)
     @Upsert suspend fun put(rule: SharingRow)
     @Upsert suspend fun put(rule: ReminderRow)
@@ -139,7 +156,7 @@ interface BillDao {
 
 @Database(entities = [ScheduleRow::class, PaymentRow::class, AdjustmentRow::class,
     MemberRow::class, SharingRow::class, ReminderRow::class, ProviderRow::class, ContactRow::class,
-    DocumentRow::class], version = 3)
+    DocumentRow::class, PauseRow::class, CategoryRow::class], version = 4)
 abstract class BillDatabase : RoomDatabase() {
     abstract fun bills(): BillDao
 }
@@ -164,11 +181,22 @@ val migration2To3 = object : Migration(2, 3) {
     }
 }
 
+val migration3To4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE schedules ADD COLUMN notes TEXT")
+        db.execSQL("ALTER TABLE schedules ADD COLUMN paymentMethod TEXT")
+        db.execSQL("ALTER TABLE payments ADD COLUMN method TEXT")
+        db.execSQL("ALTER TABLE payments ADD COLUMN notes TEXT")
+        db.execSQL("CREATE TABLE recurrence_pauses (series TEXT NOT NULL, starts INTEGER NOT NULL, ends INTEGER, PRIMARY KEY(series, starts))")
+        db.execSQL("CREATE TABLE custom_categories (id TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL)")
+    }
+}
+
 class BillmivoApplication : Application() {
     val premium by lazy { installStore(this) }
     val repository by lazy {
         BillRepository(Room.databaseBuilder(this, BillDatabase::class.java, "billmivo.db")
-            .addMigrations(migration1To2, migration2To3).build()) { !premium.available || premium.state.value.entitled }
+            .addMigrations(migration1To2, migration2To3, migration3To4).build()) { !premium.available || premium.state.value.entitled }
     }
     val reminders by lazy { BillReminders(this) }
     val documents by lazy { DocumentDisk(this) }
@@ -183,14 +211,27 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         val earliest = LocalDate.of(2000, 1, 1)
         val schedules = records.schedules.associateBy { it.id }
         val providers = records.providers.map { it.id }.toSet()
+        val series = schedules.values.map { it.series }.toSet()
+        val customIds = records.customCategories.map { it.id }.toSet()
+        fun validCategory(id: String) = id in categories || id in customIds
+        require(records.customCategories.all { it.id.startsWith("custom:") && it.name.isNotBlank() && it.name.length <= 60 })
+        require(records.providers.all { validCategory(it.category) })
+        require(records.pauses.groupBy { it.series }.all { (id, periods) ->
+            val sorted = periods.sortedBy { it.from }
+            id in series && sorted.all { it.from >= earliest && (it.until == null || it.until >= it.from) } &&
+                sorted.zipWithNext().all { (prior, next) -> prior.until != null && prior.until <= next.from }
+        })
         require(schedules.values.all { schedule ->
             val currency = Currency.getInstance(schedule.currency)
             schedule.id > 0 && schedule.name.isNotBlank() && schedule.amount.signum() > 0 &&
                 schedule.first >= earliest && schedule.from >= schedule.first &&
                 schedule.interval > 0 && currency.defaultFractionDigits >= 0 &&
+                validCategory(schedule.category) && (schedule.notes?.length ?: 0) <= 1000 &&
+                (schedule.paymentMethod?.length ?: 0) <= 60 &&
                 (schedule.providerId == null || schedule.providerId in providers)
         })
-        require(records.payments.all { it.key.scheduleId in schedules && it.amount.signum() > 0 } &&
+        require(records.payments.all { it.key.scheduleId in schedules && it.amount.signum() > 0 &&
+            (it.method?.length ?: 0) <= 60 && (it.notes?.length ?: 0) <= 1000 } &&
             records.adjustments.all { it.key.scheduleId in schedules && (it.confirmed?.signum() ?: 1) > 0 })
     }
 
@@ -200,15 +241,17 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
         dao.schedules().map { it.schedule() }, dao.payments().map { it.payment() },
         dao.adjustments().map { it.adjustment() }, dao.members().map { it.member() },
         dao.sharing().map { it.rule() }, dao.reminders().map { it.rule() }, dao.providers().map { it.provider() },
-        dao.contacts().map { it.contact() }, dao.documents().map { it.document() }
+        dao.contacts().map { it.contact() }, dao.documents().map { it.document() },
+        dao.pauses().map { it.pause() }, dao.categories().map { CustomCategory(it.id, it.name) }
     )
 
     val records: Flow<Records> = db.invalidationTracker.createFlow("schedules", "payments", "adjustments", "members",
-        "sharing", "reminders", "providers", "provider_contacts", "documents")
+        "sharing", "reminders", "providers", "provider_contacts", "documents", "recurrence_pauses", "custom_categories")
         .map { db.withTransaction { read() } }
 
-    suspend fun saveProvider(provider: Provider) {
+    suspend fun saveProvider(provider: Provider) = db.withTransaction {
         require(provider.name.isNotBlank())
+        require(provider.category in categories || dao.categories().any { it.id == provider.category })
         dao.put(ProviderRow(provider.id, provider.name.trim(), provider.category, provider.phone.trim(),
             provider.email.trim(), provider.website.trim(), provider.reference.trim(), provider.notes.trim()))
     }
@@ -257,6 +300,8 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
 
     suspend fun save(schedule: Schedule, previous: Schedule?, today: LocalDate) = db.withTransaction {
         require(schedule.providerId == null || dao.providers().any { it.id == schedule.providerId })
+        require(schedule.category in categories || dao.categories().any { it.id == schedule.category })
+        require((schedule.notes?.length ?: 0) <= 1000 && (schedule.paymentMethod?.length ?: 0) <= 60)
         if (!unlimitedBills() && schedule.cadence != Cadence.ONCE &&
             (previous == null || previous.cadence == Cadence.ONCE) &&
             dao.schedules().count { it.ends == null && it.cadence != Cadence.ONCE.name } >= 10) {
@@ -273,7 +318,40 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
             val cutoff = maxOf(today, latestTouched?.plusDays(1) ?: today, previousCutoff ?: today)
             require(schedule.cadence != Cadence.ONCE || schedule.first >= cutoff)
             check(dao.close(active.id, cutoff.toEpochDay()) == 1)
+            if (schedule.cadence == Cadence.ONCE) {
+                dao.pauses().singleOrNull { it.series == active.series && it.ends == null }?.let {
+                    dao.put(it.copy(ends = maxOf(it.starts, cutoff.toEpochDay())))
+                }
+            }
             dao.add(schedule.copy(from = maxOf(schedule.first, cutoff)).row())
+        }
+    }
+
+    suspend fun saveCategory(category: CustomCategory) = db.withTransaction {
+        val name = category.name.trim()
+        require(category.id.startsWith("custom:") && name.isNotEmpty() && name.length <= 60)
+        require(dao.categories().none { it.id != category.id && it.name.equals(name, ignoreCase = true) })
+        dao.put(CategoryRow(category.id, name))
+    }
+
+    suspend fun deleteCategory(id: String) = db.withTransaction {
+        require(dao.categories().any { it.id == id })
+        dao.unlinkBillCategory(id)
+        dao.unlinkProviderCategory(id)
+        dao.deleteCategory(id)
+    }
+
+    suspend fun setPaused(series: String, today: LocalDate, paused: Boolean) = db.withTransaction {
+        require(dao.schedules().any { it.series == series && it.ends == null && it.cadence != Cadence.ONCE.name })
+        val pauses = dao.pauses().filter { it.series == series }
+        val current = pauses.singleOrNull { it.ends == null }
+        if (paused && current == null) {
+            require(pauses.none { it.ends != null && it.ends > today.toEpochDay() })
+            dao.put(PauseRow(series, today.toEpochDay(), null))
+        }
+        if (!paused && current != null) {
+            require(today.toEpochDay() >= current.starts)
+            dao.put(current.copy(ends = today.toEpochDay()))
         }
     }
 
@@ -296,17 +374,20 @@ class BillRepository(private val db: BillDatabase, private val unlimitedBills: (
     suspend fun delete(series: String) = db.withTransaction {
         dao.deleteSharing(series)
         dao.deleteReminder(series)
+        dao.deletePauses(series)
         dao.delete(series)
     }
 
     suspend fun pay(key: OccurrenceKey, amount: BigDecimal, paymentDate: LocalDate, today: LocalDate = LocalDate.now(),
-                    payerId: String? = null) = db.withTransaction {
+                    payerId: String? = null, method: String? = null, notes: String? = null) = db.withTransaction {
         val records = read()
         val occurrence = records.occurrences(key.due, key.due).single { it.key == key }
         require(occurrence.open && !occurrence.estimated && amount.signum() > 0 && amount <= occurrence.remaining &&
-            paymentDate <= today && (payerId == null || records.members.any { it.id == payerId }))
+            paymentDate <= today && (payerId == null || records.members.any { it.id == payerId }) &&
+            (method == null || method.length <= 60) && (notes == null || notes.length <= 1000))
         dao.pay(PaymentRow(scheduleId = key.scheduleId, due = key.due.toEpochDay(),
-            date = paymentDate.toEpochDay(), amount = amount.toPlainString(), payerId = payerId))
+            date = paymentDate.toEpochDay(), amount = amount.toPlainString(), payerId = payerId,
+            method = method?.trim()?.takeIf(String::isNotEmpty), notes = notes?.trim()?.takeIf(String::isNotEmpty)))
     }
 
     suspend fun confirm(key: OccurrenceKey, amount: BigDecimal) = db.withTransaction {

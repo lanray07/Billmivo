@@ -26,8 +26,10 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
-private val archiveTables = listOf("providers", "members", "schedules", "payments", "adjustments",
+private val legacyArchiveTables = listOf("providers", "members", "schedules", "payments", "adjustments",
     "sharing", "reminders", "provider_contacts", "documents")
+private val archiveTables = listOf("custom_categories") + legacyArchiveTables + "recurrence_pauses"
+private val legacyMissingColumns = mapOf("schedules" to setOf("notes", "paymentMethod"), "payments" to setOf("method", "notes"))
 private const val metadataLimit = 4 * 1024 * 1024
 private const val payloadLimit = 24 * 1024 * 1024
 
@@ -111,6 +113,11 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
             val metadata = ByteArray(size).also(source::readFully)
             val data = JSONObject(metadata.decodeToString(throwOnInvalidSequence = true))
             metadata.fill(0)
+            val tables = when (data.optInt("schema", 3)) {
+                3 -> legacyArchiveTables
+                4 -> archiveTables
+                else -> error("Unsupported backup schema")
+            }
             val files = attachmentList(data)
             require(files.sumOf { it.second } == source.available().toLong())
             documents.withFiles {
@@ -141,7 +148,10 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
                     withContext(NonCancellable) {
                         repository.archiveTransaction { db ->
                             clearRows(db)
-                            archiveTables.forEach { insertRows(db, it, data.getJSONArray(it)) }
+                            tables.forEach { table ->
+                                val missing = if (tables == legacyArchiveTables) legacyMissingColumns[table].orEmpty() else emptySet()
+                                insertRows(db, table, data.getJSONArray(table), missing)
+                            }
                             repository.validateRestoredRecords()
                         }
                         committed = true
@@ -176,6 +186,7 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
     }
 
     private fun snapshot(db: SupportSQLiteDatabase) = JSONObject().apply {
+        put("schema", 4)
         archiveTables.forEach { table ->
             val rows = JSONArray()
             db.query("SELECT * FROM $table").use { cursor ->
@@ -196,10 +207,10 @@ class EncryptedBackup internal constructor(private val resolver: ContentResolver
         }
     }
 
-    private fun insertRows(db: SupportSQLiteDatabase, table: String, rows: JSONArray) {
+    private fun insertRows(db: SupportSQLiteDatabase, table: String, rows: JSONArray, absentColumns: Set<String>) {
         val columns = db.query("PRAGMA table_info($table)").use { cursor ->
             buildMap { while (cursor.moveToNext()) put(cursor.getString(1), cursor.getString(2)) }
-        }
+        } - absentColumns
         for (index in 0 until rows.length()) {
             val row = rows.getJSONObject(index)
             require(row.keys().asSequence().toSet() == columns.keys)

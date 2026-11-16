@@ -72,7 +72,7 @@ fun AssistantPage(records: Records, today: LocalDate, onDraft: (BillDraft) -> Un
                 AssistantTask.Categories -> {
                     if (forecast.upcoming.isEmpty()) Text(stringResource(R.string.no_upcoming))
                     forecast.upcoming.groupBy { it.schedule.category to it.schedule.currency }.forEach { (key, bills) ->
-                        val title = stringResource(categories[key.first] ?: R.string.other)
+                        val title = categoryName(key.first, records)
                         val total = money(bills.sumOf { it.remaining }, key.second, locale)
                         Text(stringResource(R.string.chart_value, title, total))
                     }

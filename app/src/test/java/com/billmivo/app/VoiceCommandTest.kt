@@ -21,6 +21,19 @@ class VoiceCommandTest {
     @Test fun billDraftTakesPrecedenceAndUnknownActionsDoNotCreateRecords() {
         assertTrue(parseVoiceCommand("Water costs 30 GBP due 2026-11-30", Locale.UK, today) is VoiceCommand.Draft)
         assertNull(parseVoiceCommand("Water costs 30 GBP due 2026-11-31", Locale.UK, today))
-        assertNull(parseVoiceCommand("Mark broadband as paid", Locale.UK, today))
+        assertEquals(VoiceCommand.ReviewPayment("broadband"), parseVoiceCommand("Mark my broadband as paid", Locale.UK, today))
+        assertEquals(VoiceCommand.ReviewPayment("gaz"), parseVoiceCommand("Marquer le gaz comme payé", Locale.FRANCE, today))
+        assertEquals(VoiceCommand.ReviewPayment("agua"), parseVoiceCommand("Marcar el agua como pagada", Locale.forLanguageTag("es-ES"), today))
+        assertEquals(VoiceCommand.ReviewPayment("الماء"), parseVoiceCommand("تسجيل دفع الماء", Locale.forLanguageTag("ar"), today))
+    }
+
+    @Test fun paymentReviewRejectsAmbiguityAndUnconfirmedEstimates() {
+        val original = Schedule(1, "water", "Water", "utilities", "GBP", "25.00".toBigDecimal(), false,
+            today.minusDays(2), Cadence.MONTHLY)
+        val records = Records(listOf(original), emptyList(), emptyList())
+        assertEquals(today.minusDays(2), records.paymentForReview("WATER", today, Locale.UK)?.date)
+        assertNull(records.copy(schedules = listOf(original, original.copy(id = 2, series = "other-water")))
+            .paymentForReview("water", today, Locale.UK))
+        assertNull(records.copy(schedules = listOf(original.copy(estimated = true))).paymentForReview("water", today, Locale.UK))
     }
 }

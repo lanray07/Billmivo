@@ -11,6 +11,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.json.JSONObject
+import java.io.DataInputStream
 import java.io.File
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -30,10 +32,15 @@ class EncryptedBackupTest {
         val password = "fixture passphrase 9575".toCharArray()
         val today = LocalDate.of(2026, 11, 16)
         try {
-            repo.save(Schedule(series = "source", name = "Private water bill", category = "utilities", currency = "GBP",
-                amount = BigDecimal("41.79"), estimated = false, first = today, cadence = Cadence.MONTHLY), null, today)
+            val category = CustomCategory("custom:backup-test", "Household water")
+            repo.saveCategory(category)
+            repo.save(Schedule(series = "source", name = "Private water bill", category = category.id, currency = "GBP",
+                amount = BigDecimal("41.79"), estimated = false, first = today, cadence = Cadence.MONTHLY,
+                notes = "Private bill note", paymentMethod = "Bank transfer"), null, today)
             val original = repo.records.first().schedules.single()
-            repo.pay(OccurrenceKey(original.id, today), BigDecimal("11.40"), today, today)
+            repo.pay(OccurrenceKey(original.id, today), BigDecimal("11.40"), today, today,
+                method = "Cash", notes = "Private payment note")
+            repo.setPaused(original.series, today.plusDays(1), true)
             val id = UUID.randomUUID().toString()
             val contents = "Private receipt fixture"
             disk.file(id).writeText(contents)
@@ -57,14 +64,47 @@ class EncryptedBackupTest {
             val restored = repo.records.first()
             assertEquals(original, restored.schedules.single())
             assertEquals(BigDecimal("11.40"), restored.payments.single().amount)
+            assertEquals("Cash", restored.payments.single().method)
+            assertEquals("Private payment note", restored.payments.single().notes)
+            assertEquals(category, restored.customCategories.single())
+            assertTrue(restored.isPaused(original.series))
             val document = restored.documents.single()
             assertFalse(id == document.id)
             assertEquals(contents, disk.file(document.id).readText())
 
+            val payload = BackupEnvelope(password).read(bytes.inputStream())
+            val source = DataInputStream(payload.inputStream())
+            val metadata = ByteArray(source.readInt()).also(source::readFully)
+            val legacy = JSONObject(metadata.decodeToString()).apply {
+                remove("schema")
+                remove("custom_categories")
+                remove("recurrence_pauses")
+                getJSONArray("schedules").getJSONObject(0).apply {
+                    remove("notes"); remove("paymentMethod"); put("category", "utilities")
+                }
+                getJSONArray("payments").getJSONObject(0).apply { remove("notes"); remove("method") }
+            }.toString().encodeToByteArray()
+            resolverFile.outputStream().use { output ->
+                BackupEnvelope(password).write(output) { target ->
+                    target.writeInt(legacy.size)
+                    target.write(legacy)
+                    source.copyTo(target)
+                }
+            }
+            backup.restore(uri, password)
+            val migrated = repo.records.first()
+            assertEquals(original.copy(category = "utilities", notes = null, paymentMethod = null), migrated.schedules.single())
+            assertEquals(BigDecimal("11.40"), migrated.payments.single().amount)
+            assertEquals(null, migrated.payments.single().method)
+            assertTrue(migrated.customCategories.isEmpty())
+            assertTrue(migrated.pauses.isEmpty())
+            val migratedFile = disk.file(migrated.documents.single().id)
+            assertEquals(contents, migratedFile.readText())
+
             backup.erase()
             assertTrue(repo.records.first().schedules.isEmpty())
             assertTrue(repo.records.first().payments.isEmpty())
-            assertFalse(disk.file(document.id).exists())
+            assertFalse(migratedFile.exists())
         } finally {
             password.fill('\u0000')
             db.close()

@@ -49,7 +49,11 @@ fun BillsPage(records: Records, onEdit: (Schedule) -> Unit, onAdd: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Column(Modifier.weight(1f)) {
                             Text(bill.name, style = MaterialTheme.typography.titleMedium)
-                            Text(stringResource(if (bill.estimated) R.string.estimated else R.string.confirmed), color = palette.muted)
+                            Text(stringResource(when {
+                                bill.until == null && records.isPaused(bill.series) -> R.string.paused
+                                bill.estimated -> R.string.estimated
+                                else -> R.string.confirmed
+                            }), color = palette.muted)
                         }
                         Text(money(bill.amount, bill.currency, displayLocale()))
                     }
@@ -108,7 +112,7 @@ internal fun CalendarPage(records: Records, today: LocalDate, mode: CalendarMode
                 { stringResource(it.label) }, { offset = 0; onMode(it) })
             if (categoryChoices.isNotEmpty()) MenuField(stringResource(R.string.category), categoryFilter,
                 listOf(null) + categoryChoices, { key ->
-                    if (key == null) stringResource(R.string.calendar_all) else categories[key]?.let { stringResource(it) } ?: key
+                    if (key == null) stringResource(R.string.calendar_all) else categoryName(key, records)
                 },
                 { categoryFilter = it })
             if (records.providers.isNotEmpty()) MenuField(stringResource(R.string.providers), provider,
@@ -149,6 +153,7 @@ fun InsightsPage(records: Records, spending: Spending, currency: String, currenc
         if (currencies.size > 1) MenuField(stringResource(R.string.currency), currency, currencies, { it }, onCurrency)
         SpendingPanel(spending, currency, locale)
         BillChangesPanel(changes, currency, locale)
+        HouseholdInsights(records, today, currency)
         RecentPayments(records, currency, Int.MAX_VALUE)
     }
 }
@@ -180,7 +185,7 @@ fun BillChangesPanel(changes: List<BillChange>, currency: String, locale: java.u
 fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit, onSpoken: (Boolean) -> Unit,
                  onReminders: () -> Unit, onHousehold: () -> Unit, onProviders: () -> Unit,
                  onDocuments: () -> Unit, onReports: () -> Unit, onAssistant: () -> Unit,
-                 onPrivacy: () -> Unit, onSetup: () -> Unit, onPremium: (() -> Unit)? = null) {
+                 onPrivacy: () -> Unit, onSetup: () -> Unit, onCategories: () -> Unit, onPremium: (() -> Unit)? = null) {
     val themes = linkedMapOf("system" to R.string.system, "light" to R.string.light, "dark" to R.string.dark)
     PageLayout {
         SectionTitle(stringResource(R.string.settings))
@@ -195,6 +200,7 @@ fun SettingsPage(appearance: String, spoken: Boolean, onTheme: (String) -> Unit,
                 Text(stringResource(R.string.premium_title))
             }
             OutlinedButton(onPrivacy, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.privacy_title)) }
+            OutlinedButton(onCategories, modifier = Modifier.heightIn(min = 48.dp)) { Text(stringResource(R.string.custom_categories)) }
         }
         Panel(Modifier.fillMaxWidth()) {
             LanguageMenu()

@@ -199,7 +199,7 @@ private enum class Page(val title: Int, val icon: Int) {
     More(R.string.more, R.drawable.ic_more)
 }
 
-private enum class SettingsScreen { General, Reminders, Household, Providers, Documents, Reports, Assistant, Premium, Privacy, Setup }
+private enum class SettingsScreen { General, Reminders, Household, Providers, Documents, Reports, Assistant, Premium, Privacy, Setup, Categories }
 
 @Composable
 private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: PremiumAccess,
@@ -343,6 +343,7 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
                                         onAssistant = { settings = SettingsScreen.Assistant },
                                         onPrivacy = { settings = SettingsScreen.Privacy },
                                         onSetup = { settings = SettingsScreen.Setup },
+                                        onCategories = { settings = SettingsScreen.Categories },
                                         onPremium = showPremium.takeIf { premium.available })
                                     SettingsScreen.Reminders -> RemindersPage(records, today, reminders, save) {
                                         settings = SettingsScreen.General
@@ -350,6 +351,7 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
                                     SettingsScreen.Household -> HouseholdPage(records, today, save,
                                         upgrade = showPremium.takeUnless { unlocked }) { settings = SettingsScreen.General }
                                     SettingsScreen.Providers -> ProvidersPage(records, today, save) { settings = SettingsScreen.General }
+                                    SettingsScreen.Categories -> CategoriesPage(records, save) { settings = SettingsScreen.General }
                                     SettingsScreen.Documents -> DocumentsPage(records, documents) { settings = SettingsScreen.General }
                                     SettingsScreen.Reports -> ReportsPage(records, today) { settings = SettingsScreen.General }
                                     SettingsScreen.Privacy -> PrivacyPage(lockEnabled, credentialAvailable, onLockChange,
@@ -376,7 +378,7 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
                         if (showEditor) {
                             BillEditor(records.schedules.find { it.id == editing }, today, defaultMoney ?: currency,
                                 onClose = { showEditor = false; draft = null }, save = save,
-                                providers = records.providers, draft = draft)
+                                records = records, draft = draft)
                         }
                         val date = selectedDay?.let(LocalDate::ofEpochDay)
                         val occurrence = remember(records, date, selectedSchedule) {
@@ -397,6 +399,7 @@ private fun BillmivoApp(model: BillsModel, reminders: BillReminders, premium: Pr
                                         draft = command.bill
                                         showEditor = true
                                     }
+                                    is VoiceCommand.ReviewPayment -> records.paymentForReview(command.name, today, locale)?.let(select)
                                     VoiceCommand.Navigate.Overdue -> { calendarMode = CalendarMode.Overdue; page = Page.Calendar }
                                     VoiceCommand.Navigate.Household -> { settings = SettingsScreen.Household; page = Page.More }
                                     VoiceCommand.Navigate.Increases -> { page = Page.Insights }

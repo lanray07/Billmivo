@@ -24,7 +24,9 @@ data class Schedule(
     val interval: Long = 1,
     val from: LocalDate = first,
     val until: LocalDate? = null,
-    val providerId: String? = null
+    val providerId: String? = null,
+    val notes: String? = null,
+    val paymentMethod: String? = null
 ) {
     fun dates(start: LocalDate, end: LocalDate): Sequence<LocalDate> {
         val lower = maxOf(start, first, from)
@@ -46,7 +48,12 @@ data class Schedule(
 
 data class OccurrenceKey(val scheduleId: Long, val due: LocalDate)
 data class Adjustment(val key: OccurrenceKey, val confirmed: BigDecimal? = null, val skipped: Boolean = false)
-data class Payment(val key: OccurrenceKey, val date: LocalDate, val amount: BigDecimal, val payerId: String? = null)
+data class Payment(val key: OccurrenceKey, val date: LocalDate, val amount: BigDecimal, val payerId: String? = null,
+                   val method: String? = null, val notes: String? = null)
+data class RecurrencePause(val series: String, val from: LocalDate, val until: LocalDate? = null) {
+    fun covers(date: LocalDate) = date >= from && (until == null || date < until)
+}
+data class CustomCategory(val id: String, val name: String)
 data class Occurrence(
     val schedule: Schedule,
     val date: LocalDate,
@@ -69,15 +76,22 @@ data class Records(
     val reminders: List<ReminderRule> = emptyList(),
     val providers: List<Provider> = emptyList(),
     val providerContacts: List<ProviderContact> = emptyList(),
-    val documents: List<BillDocument> = emptyList()
+    val documents: List<BillDocument> = emptyList(),
+    val pauses: List<RecurrencePause> = emptyList(),
+    val customCategories: List<CustomCategory> = emptyList()
 ) {
+    fun isPaused(series: String) = pauses.any { it.series == series && it.until == null }
+
     fun occurrences(start: LocalDate, end: LocalDate): List<Occurrence> {
         val paid = payments.groupingBy { it.key }.fold(BigDecimal.ZERO) { sum, payment -> sum + payment.amount }
         val modified = adjustments.associateBy { it.key }
+        val pausesBySeries = pauses.groupBy { it.series }
         return schedules.flatMap { schedule ->
-            schedule.dates(start, end).map { due ->
+            val pauses = pausesBySeries[schedule.series].orEmpty()
+            schedule.dates(start, end).mapNotNull { due ->
                 val key = OccurrenceKey(schedule.id, due)
                 val change = modified[key]
+                if (key !in paid && pauses.any { it.covers(due) }) return@mapNotNull null
                 Occurrence(
                     schedule, due, change?.confirmed ?: schedule.amount,
                     schedule.estimated && change?.confirmed == null, paid[key] ?: BigDecimal.ZERO,

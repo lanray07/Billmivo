@@ -59,6 +59,12 @@ fun RangeDialog(from: LocalDate, through: LocalDate, today: LocalDate, close: ()
 }
 
 val categories = mapOf(
+    "rent" to R.string.category_rent, "mortgage" to R.string.category_mortgage,
+    "council_tax" to R.string.category_council_tax, "electricity" to R.string.category_electricity,
+    "gas" to R.string.category_gas, "water" to R.string.category_water,
+    "broadband" to R.string.category_broadband, "mobile_phone" to R.string.category_mobile,
+    "television" to R.string.category_tv, "school_fees" to R.string.category_school,
+    "transport" to R.string.category_transport, "household_services" to R.string.category_household_services,
     "housing" to R.string.housing, "utilities" to R.string.utilities, "internet" to R.string.internet,
     "insurance" to R.string.insurance, "tax" to R.string.tax, "services" to R.string.services,
     "subscriptions" to R.string.subscriptions, "other" to R.string.other
@@ -73,7 +79,7 @@ private val marketCurrencies = Currency.getAvailableCurrencies().filter { it.def
 
 @Composable
 fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, onClose: () -> Unit,
-               save: SaveBillAction, providers: List<Provider>, draft: BillDraft? = null) {
+               save: SaveBillAction, records: Records, draft: BillDraft? = null) {
     val locale = displayLocale()
     var name by rememberSaveable(previous?.id) { mutableStateOf(previous?.name ?: draft?.name.orEmpty()) }
     var amount by rememberSaveable(previous?.id) {
@@ -82,6 +88,8 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
     var first by rememberSaveable(previous?.id) { mutableLongStateOf((previous?.first ?: draft?.due ?: today).toEpochDay()) }
     var currency by rememberSaveable(previous?.id) { mutableStateOf(previous?.currency ?: draft?.currency ?: defaultCurrency) }
     var category by rememberSaveable(previous?.id) { mutableStateOf(previous?.category ?: "other") }
+    var notes by rememberSaveable(previous?.id) { mutableStateOf(previous?.notes.orEmpty()) }
+    var paymentMethod by rememberSaveable(previous?.id) { mutableStateOf(previous?.paymentMethod.orEmpty()) }
     var provider by rememberSaveable(previous?.id) { mutableStateOf(previous?.providerId.orEmpty()) }
     var cadence by rememberSaveable(previous?.id) { mutableStateOf(previous?.cadence ?: if (draft != null) Cadence.ONCE else Cadence.MONTHLY) }
     var interval by rememberSaveable(previous?.id) { mutableStateOf(previous?.interval?.toString() ?: "30") }
@@ -91,6 +99,8 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
     var validation by remember { mutableStateOf<Int?>(null) }
     val date = LocalDate.ofEpochDay(first)
     val archived = previous?.until != null
+    val paused = previous?.let { records.isPaused(it.series) } == true
+    val providers = records.providers
 
     AlertDialog(
         onDismissRequest = { if (!busy) onClose() },
@@ -113,8 +123,7 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
                     if (cadence == Cadence.CUSTOM) OutlinedTextField(interval, { interval = it.take(4) },
                         label = { Text(stringResource(R.string.day_interval)) }, singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                    MenuField(stringResource(R.string.category), category, categories.keys.toList(),
-                        { stringResource(categories.getValue(it)) }, { category = it })
+                    CategoryMenu(category, records, { category = it })
                     if (providers.isNotEmpty()) MenuField(stringResource(R.string.provider), provider,
                         listOf("") + providers.map { it.id },
                         { id -> providers.find { it.id == id }?.name ?: stringResource(R.string.unassigned) },
@@ -125,8 +134,19 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
                     }
                     if (estimate) Text(stringResource(R.string.estimate_help), color = palette.muted)
                 } else Text(stringResource(R.string.archived))
+                if (!archived || paymentMethod.isNotEmpty()) OutlinedTextField(paymentMethod, { paymentMethod = it.take(60) },
+                    label = { Text(stringResource(R.string.payment_method)) }, modifier = Modifier.fillMaxWidth(),
+                    singleLine = true, readOnly = archived)
+                if (!archived || notes.isNotEmpty()) OutlinedTextField(notes, { notes = it.take(1000) },
+                    label = { Text(stringResource(R.string.bill_notes)) }, modifier = Modifier.fillMaxWidth(),
+                    maxLines = 4, readOnly = archived)
                 validation?.let { Text(stringResource(it), color = palette.red) }
                 if (previous != null) {
+                    if (!archived && previous.cadence != Cadence.ONCE) {
+                        val pauseAction = if (paused) R.string.resume_recurrence else R.string.pause_recurrence
+                        if (paused) Text(stringResource(R.string.paused), color = palette.muted)
+                        TextButton(onClick = { confirm = pauseAction }, enabled = !busy) { Text(stringResource(pauseAction)) }
+                    }
                     if (!archived) TextButton(onClick = { confirm = R.string.archive }, enabled = !busy) {
                         Text(stringResource(R.string.archive))
                     }
@@ -150,7 +170,8 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
                 } else {
                     val schedule = Schedule(series = previous?.series ?: UUID.randomUUID().toString(), name = name.trim(),
                         category = category, currency = currency, amount = value, estimated = estimate,
-                        first = date, cadence = cadence, interval = repeat, providerId = provider.takeIf(String::isNotBlank))
+                        first = date, cadence = cadence, interval = repeat, providerId = provider.takeIf(String::isNotBlank),
+                        notes = notes.trim().takeIf(String::isNotEmpty), paymentMethod = paymentMethod.trim().takeIf(String::isNotEmpty))
                     busy = true
                     save({ save(schedule, previous, today) }, onClose) { busy = false; validation = R.string.action_error }
                 }
@@ -160,13 +181,22 @@ fun BillEditor(previous: Schedule?, today: LocalDate, defaultCurrency: String, o
     val action = confirm
     if (action != null && previous != null) AlertDialog(onDismissRequest = { confirm = null },
         title = { Text(stringResource(action)) },
-        text = { Text(stringResource(if (action == R.string.archive) R.string.archive_note else R.string.delete_note)) },
+        text = { Text(stringResource(when (action) {
+            R.string.archive -> R.string.archive_note
+            R.string.pause_recurrence -> R.string.pause_recurrence_note
+            R.string.resume_recurrence -> R.string.resume_recurrence_note
+            else -> R.string.delete_note
+        })) },
         confirmButton = {
             Button({
                 confirm = null
                 busy = true
                 save({
-                    if (action == R.string.archive) archive(previous, today) else delete(previous.series)
+                    when (action) {
+                        R.string.archive -> archive(previous, today)
+                        R.string.pause_recurrence, R.string.resume_recurrence -> setPaused(previous.series, today, action == R.string.pause_recurrence)
+                        else -> delete(previous.series)
+                    }
                 }, onClose) { busy = false; validation = R.string.action_error }
             }) { Text(stringResource(action)) }
         }, dismissButton = { TextButton({ confirm = null }) { Text(stringResource(R.string.cancel)) } })
@@ -185,7 +215,10 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
     var skip by rememberSaveable { mutableStateOf(false) }
     var paidOn by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableLongStateOf(today.toEpochDay()) }
     var payer by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableStateOf("") }
+    var method by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableStateOf(item.schedule.paymentMethod.orEmpty()) }
+    var notes by rememberSaveable(item.schedule.id, item.date.toEpochDay()) { mutableStateOf("") }
     val members = records.members.filterNot { it.archived }
+    val payments = records.payments.filter { it.key == item.key }.sortedByDescending { it.date }
     AlertDialog(onDismissRequest = { if (!busy) close() },
         title = { Text(item.schedule.name) },
         text = {
@@ -194,12 +227,21 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                 records.providers.find { it.id == item.schedule.providerId }?.let {
                     Text(stringResource(R.string.chart_value, stringResource(R.string.provider), it.name))
                 }
+                item.schedule.notes?.let { Text(stringResource(R.string.chart_value, stringResource(R.string.bill_notes), it)) }
                 Text(stringResource(R.string.chart_value, stringResource(if (item.estimated) R.string.estimated else R.string.confirmed),
                     money(item.amount, currency, locale)))
                 if (item.paid.signum() > 0) Text(stringResource(R.string.chart_value, stringResource(R.string.paid),
                     money(item.paid, currency, locale)))
                 BillAllocation(item, records.sharingFor(item.schedule.series, item.date), records.members,
-                    records.payments.filter { it.key == item.key })
+                    payments)
+                if (payments.isNotEmpty()) {
+                    Text(stringResource(R.string.payment_history), style = MaterialTheme.typography.titleSmall)
+                    payments.forEach { payment ->
+                        Text(stringResource(R.string.chart_value, dateLabel(payment.date, locale), money(payment.amount, currency, locale)))
+                        payment.method?.let { Text(stringResource(R.string.chart_value, stringResource(R.string.payment_method), it)) }
+                        payment.notes?.let { Text(it, color = palette.muted) }
+                    }
+                }
                 if (item.open) {
                     if (item.paid.signum() > 0) Text(stringResource(R.string.chart_value, stringResource(R.string.remaining),
                         money(item.remaining, currency, locale)))
@@ -212,6 +254,12 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                     if (!item.estimated && members.isNotEmpty()) {
                         MenuField(stringResource(R.string.paid_by), payer, listOf("") + members.map { it.id },
                             { id -> members.find { it.id == id }?.name ?: stringResource(R.string.unassigned) }, { payer = it })
+                    }
+                    if (!item.estimated) {
+                        OutlinedTextField(method, { method = it.take(60) }, label = { Text(stringResource(R.string.payment_method)) },
+                            singleLine = true, enabled = !busy)
+                        OutlinedTextField(notes, { notes = it.take(1000) }, label = { Text(stringResource(R.string.payment_notes)) },
+                            maxLines = 4, enabled = !busy)
                     }
                     if (item.paid.signum() == 0) TextButton({ skip = true }, enabled = !busy) {
                         Text(stringResource(R.string.skip_bill))
@@ -232,7 +280,7 @@ fun OccurrenceDialog(item: Occurrence, today: LocalDate, close: () -> Unit, save
                     busy = true
                     val paymentDate = LocalDate.ofEpochDay(paidOn)
                     save({ if (item.estimated) confirm(item.key, amount) else
-                        pay(item.key, amount, paymentDate, today, payer.takeIf(String::isNotBlank)) },
+                        pay(item.key, amount, paymentDate, today, payer.takeIf(String::isNotBlank), method, notes) },
                         if (item.estimated) ({ busy = false }) else close
                     ) { busy = false; validation = R.string.action_error }
                 }

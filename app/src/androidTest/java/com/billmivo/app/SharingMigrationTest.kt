@@ -42,13 +42,16 @@ class SharingMigrationTest {
                 arrayOf(today.toEpochDay(), today.toEpochDay()))
             database.version = 1
         }
-        val db = Room.databaseBuilder(context, BillDatabase::class.java, name).addMigrations(migration1To2, migration2To3).build()
+        val db = Room.databaseBuilder(context, BillDatabase::class.java, name)
+            .addMigrations(migration1To2, migration2To3, migration3To4).build()
         try {
             val repo = BillRepository(db)
             val initial = repo.records.first()
             assertEquals("Rent", initial.schedules.single().name)
             assertEquals(BigDecimal("2.34"), initial.payments.single().amount)
             assertNull(initial.payments.single().payerId)
+            assertNull(initial.payments.single().method)
+            assertNull(initial.schedules.single().notes)
             assertTrue(initial.members.isEmpty())
             val sam = Member("sam", "Sam")
             val robin = Member("robin", "Robin")

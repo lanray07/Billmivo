@@ -95,9 +95,15 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
     val summary = stringResource(R.string.voice_summary, stringResource(voiceLabels.getValue(range)),
         money(total.confirmed, currency, locale), money(total.estimated, currency, locale))
     val command = remember(transcript, locale, today) { parseVoiceCommand(transcript, locale, today) }
+    val payment = remember(command, records, today, locale) {
+        (command as? VoiceCommand.ReviewPayment)?.let { records.paymentForReview(it.name, today, locale) }
+    }
     val commandLabel = when (command) {
         is VoiceCommand.Draft -> stringResource(R.string.voice_review_draft, command.bill.name,
             money(command.bill.amount, command.bill.currency, locale), dateLabel(command.bill.due, locale))
+        is VoiceCommand.ReviewPayment -> payment?.let {
+            stringResource(R.string.voice_review_payment, it.schedule.name, dateLabel(it.date, locale))
+        } ?: stringResource(R.string.voice_payment_no_match)
         VoiceCommand.Navigate.Overdue -> stringResource(R.string.overdue)
         VoiceCommand.Navigate.Household -> stringResource(R.string.household)
         VoiceCommand.Navigate.Increases -> stringResource(R.string.bill_changes)
@@ -141,7 +147,8 @@ internal fun VoiceDialog(records: Records, currency: String, today: LocalDate, s
             }) { Text(stringResource(R.string.voice_read)) }
         }
     }, confirmButton = {
-        Button({ onCommand(command ?: VoiceCommand.Range(range)) }, enabled = !listening && (transcript.isBlank() || command != null)) {
+        Button({ onCommand(command ?: VoiceCommand.Range(range)) }, enabled = !listening &&
+            (transcript.isBlank() || command != null) && (command !is VoiceCommand.ReviewPayment || payment != null)) {
             Text(stringResource(if (commandLabel != null) R.string.voice_open_command else R.string.voice_use))
         }
     },

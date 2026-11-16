@@ -42,7 +42,7 @@ fun ProvidersPage(records: Records, today: LocalDate, save: SaveBillAction, back
                 Button({ edit = true }) { Text(stringResource(R.string.provider_add)) }
             }
         } else {
-            SectionTitle(provider.name, stringResource(categories[provider.category] ?: R.string.other))
+            SectionTitle(provider.name, categoryName(provider.category, records))
             Panel(Modifier.fillMaxWidth()) {
                 listOf(R.string.provider_phone to provider.phone, R.string.provider_email to provider.email,
                     R.string.provider_website to provider.website, R.string.provider_reference to provider.reference,
@@ -71,7 +71,7 @@ fun ProvidersPage(records: Records, today: LocalDate, save: SaveBillAction, back
             }
         }
     }
-    if (edit) ProviderDialog(provider, { edit = false }, save)
+    if (edit) ProviderDialog(provider, records, { edit = false }, save)
     if (addContact && provider != null) {
         var note by rememberSaveable { mutableStateOf("") }
         var day by rememberSaveable { mutableLongStateOf(today.toEpochDay()) }
@@ -101,7 +101,7 @@ fun ProvidersPage(records: Records, today: LocalDate, save: SaveBillAction, back
 }
 
 @Composable
-private fun ProviderDialog(provider: Provider?, close: () -> Unit, save: SaveBillAction) {
+private fun ProviderDialog(provider: Provider?, records: Records, close: () -> Unit, save: SaveBillAction) {
     val id = rememberSaveable { provider?.id ?: UUID.randomUUID().toString() }
     var name by rememberSaveable { mutableStateOf(provider?.name.orEmpty()) }
     var category by rememberSaveable { mutableStateOf(provider?.category ?: "other") }
@@ -115,8 +115,7 @@ private fun ProviderDialog(provider: Provider?, close: () -> Unit, save: SaveBil
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(name, { name = it.take(100) }, label = { Text(stringResource(R.string.provider_name)) }, singleLine = true)
-                MenuField(stringResource(R.string.category), category, categories.keys.toList(),
-                    { stringResource(categories.getValue(it)) }, { category = it })
+                CategoryMenu(category, records, { category = it })
                 OutlinedTextField(phone, { phone = it.take(50) }, label = { Text(stringResource(R.string.provider_phone)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true)
                 OutlinedTextField(email, { email = it.take(200) }, label = { Text(stringResource(R.string.provider_email)) },
