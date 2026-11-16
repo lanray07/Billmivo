@@ -10,6 +10,19 @@ import java.util.Locale
 class VoiceCommandTest {
     private val today = LocalDate.of(2026, 11, 16)
 
+    @Test fun supportsGermanCommandsAndEuroFormatting() {
+        val german = Locale.GERMANY
+        assertEquals("EUR", defaultCurrency(Locale.GERMAN))
+        assertEquals("29.95".toBigDecimal(), parseAmount("29,95", "EUR", german))
+        assertEquals(VoiceCommand.Range(30), parseVoiceCommand("dreißig", german, today))
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("Lies meine nächsten Zahlungen vor", german, today))
+        assertEquals(VoiceCommand.ReviewReminder("strom", today.plusDays(4)),
+            parseVoiceCommand("Erinnere mich an die Zahlung für Strom am Freitag", german, today))
+        assertEquals(VoiceCommand.ReviewPayment("miete"), parseVoiceCommand("Markiere Miete als bezahlt", german, today))
+        assertEquals(VoiceCommand.Draft(BillDraft("Internet", "29.95".toBigDecimal(), "EUR", today)),
+            parseVoiceCommand("Internet kostet 29,95 EUR fällig am 2026-11-16", german, today))
+    }
+
     @Test fun resolvesNamedReminderDatesInEachShippedLanguage() {
         assertEquals(VoiceCommand.ReviewReminder("council tax", today.plusDays(4)),
             parseVoiceCommand("Remind me to pay council tax on Friday", Locale.UK, today))

@@ -6,6 +6,8 @@
 
 Amazon Appstore delivered 0.6.0, version code 7, to the Fire HD 10 (2021, `KFTRWI`, Fire OS 7 / Android 28). The private track retained one tester. The app showed no verified purchase after the prior test entitlement was reset. A fresh £7.56 test checkout activated Premium, and a separate Restore Amazon purchase check returned to active Premium. Live App Testing purchases incur no charge. [Amazon IAP testing modes](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
 
+Amazon subsequently delivered 0.7.0, version code 8, on the same one-person track. After resetting the previous test entitlement, the Fire HD 10 showed no verified purchase. A fresh £7.56 checkout activated Premium, and a separate restore returned Premium active. The public listing stayed a draft.
+
 ## Dated reminders
 
 - Open an unpaid bill occurrence and choose One-off reminder to set a date. The reminder uses the saved notification hour and respects quiet hours. It requires bill reminders and system notifications to be enabled.
@@ -22,7 +24,7 @@ Amazon Appstore delivered 0.6.0, version code 7, to the Fire HD 10 (2021, `KFTRW
 
 ## Remaining work
 
-- The prepared 0.7.0 Amazon binary still needs a private Appstore delivery and checkout test. The authorized private test was 0.6.0.
+- The [0.8.0 checkpoint](release-080.md) tracks later localisation and release work.
 - Wider interface locales and storefront screenshots require translation and in-context review. The app currently ships English, French, Spanish and Arabic and has an English, French and Spanish store asset pack. See the [locale matrix](../../store/localisation.md).
 - This Fire HD 10 uses typed commands and can start playback through the OS speech output engine. Actual microphone input needs a device with a compatible speech recognizer. Full screen-reader traversal and activation, audible intelligibility, and a configured device-credential test remain open.
 - Public release needs the approved privacy notice URL, finalized publisher details, pricing, distribution and explicit public submission authorization.

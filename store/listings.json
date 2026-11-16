@@ -101,5 +101,40 @@
       "Reparte las facturas del hogar",
       "Consulta tu calendario sin conexión"
     ]
+  },
+  "de-DE": {
+    "source": "de",
+    "name": "Billmivo – Haushaltsrechnungen",
+    "short": "Behalten Sie fällige Rechnungen im Blick, planen Sie Haushaltskosten und stellen Sie Erinnerungen ein.",
+    "release_notes": "Neu auf Deutsch: Rechnungsprognose, Zahlungskalender, einmalige Erinnerungen und Sprachbefehle mit Texteingabe als Alternative.",
+    "support": "Schreiben Sie an banksmi@mail.com und nennen Sie die Billmivo-Version und Ihr Gerätemodell. Bitte senden Sie keine Haushaltsdaten oder Belege mit.",
+    "long": "Billmivo bündelt Rechnungen, Zahlungstermine und Ausgaben Ihres Haushalts auf Ihrem Fire-Tablet.\n\nPlanen Sie Miete, Strom, Internet, Versicherungen und weitere Rechnungen mit Prognosen für 7, 30 oder 90 Tage oder einem eigenen Zeitraum. Bestätigte und geschätzte Beträge bleiben getrennt. Überfällige Rechnungen und unterschiedliche Währungen haben eigene Summen.\n\nLegen Sie einmalige Erinnerungen oder Regeln für wiederkehrende Rechnungen fest. Wählen Sie Ruhezeiten und blenden Sie Rechnungsnamen in Mitteilungsvorschauen aus. Die Zustellung hängt von Ihren Geräteeinstellungen ab.\n\nVerteilen Sie Kosten im Haushalt und halten Sie fest, wer bezahlt hat. Sehen Sie, wie sich Rechnungsbeträge und erfasste Zahlungen entwickeln. Ihre Rechnungsdaten bleiben auf dem Gerät und sind offline verfügbar.",
+    "features": [
+      "Rechnungen für 7, 30 oder 90 Tage oder einen eigenen Zeitraum planen",
+      "Einmalige Erinnerungen und Regeln für wiederkehrende Rechnungen einstellen",
+      "Haushaltskosten nach Anteilen, Prozentwerten, Beträgen oder Gewichtung aufteilen",
+      "Überfällige Beträge, Teilzahlungen und Haushaltsausgaben verfolgen",
+      "Rechnungen offline auf dem Fire-Tablet verwalten"
+    ],
+    "keywords": [
+      "Haushaltsrechnungen",
+      "Zahlungskalender",
+      "Rechnungserinnerung",
+      "Fixkosten",
+      "Haushaltsausgaben",
+      "Kosten teilen",
+      "Rechnungsprognose",
+      "Zahlungstermine"
+    ],
+    "headlines": [
+      "Fällige Rechnungen im Blick",
+      "Zahlungen für diese Woche planen",
+      "Erinnerungen für Ihre Rechnungen",
+      "Zahlungen im Zeitverlauf sehen",
+      "Änderungen beim Betrag erkennen",
+      "Prognosezeitraum selbst wählen",
+      "Haushaltskosten fair aufteilen",
+      "Zahlungskalender offline nutzen"
+    ]
   }
 }

@@ -33,6 +33,7 @@ def main():
     manifest = {"target": "Fire tablet", "icons": [], "listings": {}}
     for size in (114, 512):
         manifest["icons"].append(inspect(options.assets / "icons" / f"billmivo-{size}.png", (size, size), True))
+    manifest["promotion"] = inspect(options.assets / "promotion" / "billmivo-1024x500.png", (1024, 500))
     for locale, definition in definitions.items():
         if (len(definition["short"].encode("utf-8")) > 2000 or "\n" in definition["short"] or
                 len(definition["long"]) > 4000 or not 3 <= len(definition["features"]) <= 5 or

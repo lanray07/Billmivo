@@ -387,4 +387,5 @@
     <string name="one_off_no_match">Usa el nombre exacto de una única factura pendiente o abre una factura del calendario para elegir la fecha del recordatorio.</string>
     <string name="one_off_edit_note">Si cambia un vencimiento, se quita su recordatorio puntual.</string>
     <string name="one_off_voice_example">Prueba «recuérdame pagar electricidad el viernes». Usa el nombre exacto de la factura y un día o una fecha.</string>
+    <string name="language_de">Deutsch</string>
 </resources>

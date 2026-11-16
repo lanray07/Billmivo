@@ -8,7 +8,7 @@ import java.util.Locale
 data class BillDraft(val name: String, val amount: BigDecimal, val currency: String, val due: LocalDate)
 
 private val draftPhrases = mapOf("en" to ("costs" to "due"), "fr" to ("coûte" to "pour le"),
-    "es" to ("cuesta" to "vence el"), "ar" to ("تكلف" to "تستحق في"))
+    "es" to ("cuesta" to "vence el"), "ar" to ("تكلف" to "تستحق في"), "de" to ("kostet" to "fällig am"))
 
 fun parseBillDraft(input: String, locale: Locale, today: LocalDate): BillDraft? {
     val (cost, due) = draftPhrases[locale.language] ?: draftPhrases.getValue("en")

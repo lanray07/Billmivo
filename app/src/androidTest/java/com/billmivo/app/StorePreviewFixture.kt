@@ -21,7 +21,8 @@ class StorePreviewFixture {
         val labels = mapOf(
             "en" to listOf("Household rent", "Electricity", "Water bill", "Home broadband", "Home insurance", "Gas", "Council tax"),
             "fr" to listOf("Loyer", "Électricité", "Facture d’eau", "Internet à domicile", "Assurance habitation", "Gaz", "Taxes locales"),
-            "es" to listOf("Alquiler", "Electricidad", "Factura del agua", "Internet en casa", "Seguro del hogar", "Gas", "Impuestos locales")
+            "es" to listOf("Alquiler", "Electricidad", "Factura del agua", "Internet en casa", "Seguro del hogar", "Gas", "Impuestos locales"),
+            "de" to listOf("Miete", "Stromrechnung", "Wasserrechnung", "Internet zu Hause", "Hausratversicherung", "Gas", "Kommunale Abgaben")
         )
         val keys = listOf("rent", "energy", "water", "fiber", "insurance", "gas", "tax")
         val names = keys.zip(labels.getValue(language)).toMap()

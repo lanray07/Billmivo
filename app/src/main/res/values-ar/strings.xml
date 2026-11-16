@@ -395,4 +395,5 @@
     <string name="one_off_no_match">استخدم الاسم الدقيق لفاتورة واحدة غير مدفوعة، أو افتح فاتورة من التقويم لاختيار تاريخ تذكيرها.</string>
     <string name="one_off_edit_note">إذا تغيّر تاريخ الاستحقاق، يُزال تذكيره لمرة واحدة.</string>
     <string name="one_off_voice_example">جرّب «ذكرني بدفع الكهرباء يوم الجمعة». استخدم اسم الفاتورة الدقيق ويومًا أو تاريخًا.</string>
+    <string name="language_de">Deutsch</string>
 </resources>

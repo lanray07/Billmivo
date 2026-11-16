@@ -240,6 +240,88 @@
         "sha256": "7aedde2a8c75fe2dd23f14e1d7ad2f2a5c454d9c3cfc0e4a841cdd15e0da86e1",
         "raw_sha256": "696254cd8e264b030bc9bbb614988987ecc937763c209a5de3c26f645fe55b47"
       }
+    ],
+    "de-DE": [
+      {
+        "file": "01-forecast.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "41524eb31c901dc2658e870c1051e5688147b794f2ca3743bd9568882bf83d00",
+        "raw_sha256": "93a43d1ac3380db2642e558224cac73a23df7dccc21709fbb2aed4e7bb24b55f"
+      },
+      {
+        "file": "02-week.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "a11dc9c0b2d16dfc220ac36300d2a3972046d4e924fda99cf0baf8a558094572",
+        "raw_sha256": "eae5d1a57471dba0c4124193533305b5a9c08a96a6ecf342ea73c708b9656c99"
+      },
+      {
+        "file": "03-reminders.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "4d61ad44b142c7444d7ab2d4f108614f7384a2edd266938e450889f70198f16f",
+        "raw_sha256": "d7d6e137047215a9d9e2835b2c5db69f92bcd09d6e7990c26c6e5507a837286a"
+      },
+      {
+        "file": "04-spending.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "349e2cb7ea6b83eceb06833c5fb422bf438a1be0319ca872a990b2f6b1fa71fd",
+        "raw_sha256": "5ccac6cfb5cfa984c43e8ce280f11dfc170cba343952e703447288c44255c16d"
+      },
+      {
+        "file": "05-changes.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "e6eab2ff10d286d364fbd53731e9f303939b380f639842e0891779cc7e61896a",
+        "raw_sha256": "d0525fff7cddc72b9cb234693a909d194163dbbe5b4a9016238b54b3af0aa36d"
+      },
+      {
+        "file": "06-voice.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "93889931f7960c6b640a5615e0ea99492f99091b75d3eeec23a4037994459f43",
+        "raw_sha256": "dddf685142816f8c55a452d4eff5682a67018ee4444a69d014d9e43c1eb2efb7"
+      },
+      {
+        "file": "07-sharing.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "bf230a3d8fba44d08f94aeb470779db63a846d7ab32bdca9af0390e2739d3df7",
+        "raw_sha256": "44c47d8e11451e47bf581dd82d810246b8018dfe00c5dd1de0b527a6a60bff8a"
+      },
+      {
+        "file": "08-calendar.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "fb9f5bdf91945305cee3b4beba677a07b9d35bb5c6ceecf91bde92000611536d",
+        "raw_sha256": "945ee1074faefc3bb9720a1cd72280cb84d590e5ed325f4f11103d3be6469dec"
+      }
     ]
+  },
+  "promotion": {
+    "file": "billmivo-1024x500.png",
+    "pixels": [
+      1024,
+      500
+    ],
+    "sha256": "e96c5e3d10f5137b292b3f4ec04ae628d84ec586c44d48dadc46de237f3efbbe"
   }
 }

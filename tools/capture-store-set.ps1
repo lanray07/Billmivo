@@ -1,8 +1,8 @@
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('en-GB','fr-FR','es-ES')]
+    [ValidateSet('en-GB','fr-FR','es-ES','de-DE')]
     [string] $Locale,
-    [ValidateSet('en','fr','es')]
+    [ValidateSet('en','fr','es','de')]
     [string] $CurrentLanguage = 'en',
     [string] $Serial,
     [switch] $ChangesOnly

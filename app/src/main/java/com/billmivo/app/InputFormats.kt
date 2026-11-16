@@ -14,7 +14,7 @@ import java.util.Locale
 fun defaultCurrency(locale: Locale): String =
     runCatching { Currency.getInstance(locale).currencyCode }.getOrNull()
         ?: when (locale.language) {
-            "fr", "es" -> "EUR"
+            "fr", "es", "de" -> "EUR"
             else -> "GBP"
         }
 
@@ -58,7 +58,8 @@ private val numberWords = mapOf(
     "en" to listOf("seven", "thirty", "ninety"),
     "fr" to listOf("sept", "trente", "quatre-vingt-dix"),
     "es" to listOf("siete", "treinta", "noventa"),
-    "ar" to listOf("سبعة", "ثلاثون", "تسعون")
+    "ar" to listOf("سبعة", "ثلاثون", "تسعون"),
+    "de" to listOf("sieben", "dreißig", "neunzig")
 )
 val voiceRanges = listOf(7, 30, 90)
 
