@@ -13,9 +13,10 @@
 - The offline and Amazon release APKs built successfully and report version code 10. The offline APK has no Internet permission.
 - All 23 JVM tests, 13 instrumentation tests on the Fire HD 10 and seven receipt-verifier tests passed. The forecast tests cover reminder date boundaries and checking the selected bill through its accessible action.
 - All 382 Android string keys, placeholders and plural forms matched across English, French, Spanish, Arabic and German.
+- On the Fire HD 10, selecting **Enable app lock** opened Fire OS's existing PIN challenge. Cancelling returned to Privacy and backup with app lock still off. With speech recognition unavailable on this tablet, the touch shortcut displayed the selected seven-day forecast.
 
 ## Outstanding release checks
 
-- Verify the real device-credential challenge on a device set up with a disposable test PIN, push-to-talk on supported hardware and detailed assistive navigation on Fire. Automated semantics and fallback tests cover only part of these journeys.
+- Verify successful PIN authentication and subsequent relocking, push-to-talk on supported hardware and detailed assistive navigation on Fire. The isolated Android emulator did not register with ADB in software mode on this host.
 - The app supports English, French, Spanish, Arabic and German. Eight listing screenshots exist for each of the four Amazon storefront locales prepared so far. Additional languages still need translation and in-context review. See [localisation preparation](../../store/localisation.md).
 - Public Amazon submission requires the final publisher details, published privacy notice, pricing, device eligibility and market selection. Public submission is a separate release step.
