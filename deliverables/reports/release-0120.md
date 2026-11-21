@@ -23,7 +23,7 @@ The local listing package adds Polish title, descriptions, feature bullets, sear
 | Builds | PASS | Debug, instrumentation, offline release and production-mode Amazon release variants assembled. Minimum API remains 28 and target API remains 35. Release APKs are unsigned. |
 | Receipt verifier | PASS | All seven local Node tests passed. |
 | 0.11.0 private purchase and restore | PASS | Amazon-installed code 12 passed a fresh £7.56 test checkout, automatic activation and separate Portuguese, Dutch and Swedish restore checks. The original device-language setting was restored. |
-| 0.12.0 private billing | NOT TESTED | This new APK has not been uploaded to LAT or installed from Amazon. |
+| 0.12.0 private billing | PASS | Uploaded the original code-13 APK to Test 1; Amazon installed it on the Fire. A fresh £7.56 test purchase activated Premium automatically. Separate Polish restore completed successfully. Device-language selection was restored and app lock remained off. |
 | New draft descriptions | PASS | Portuguese (Brazil), Dutch, Swedish and Polish descriptions were filled in App Setup and displayed Complete. |
 | Portuguese draft images | PASS | All eight actual Portuguese screenshots uploaded in scene order; all eight thumbnails loaded. Universal icons and promotion retained. |
 | Other new image locales | BLOCKED | The Console image picker does not offer Dutch, Polish or Swedish. Their real localized assets are retained locally. |
@@ -60,3 +60,11 @@ Detailed VoiceView review, the short-background app-lock check and other device/
 Use JDK 17, Gradle 8.11.1, Android SDK 35 and build-tools 35.0.0. Build the offline variants with `:app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease`; use the Amazon properties and existing production verifier URL documented in `store/README.md` for the Amazon release. The local build used the cached SDK's aapt2 override. Run `tools/check-locales.ps1`, `tools/test-fire.ps1`, the explicit Polish capture and `tools/validate-amazon-package.py --raw deliverables/store-assets/amazon-raw` for the corresponding checks.
 
 The master prompt is not complete. The next work is the remaining seven languages, vendor image-locale limitations, broader accessibility/device checks and current-version private billing, before completing and authorizing a public release.
+
+## Private LAT follow-up — 21 November 2026
+
+Amazon accepted **Billmivo 0.12.0 Polish** and showed **Test in-progress**. The exact code-13 APK uploaded has SHA-256 `7b00507cd0693859718b2f8adcbae81a2c199c88239675faeba43736584ed471`. The existing Test 1 and its single previously approved tester were retained. Polish was added to the copied binary-language flags; 12 Fire tablets, no Fire TV and no Automotive devices remained selected. The existing export certification was copied, with no cryptographic changes.
+
+The existing tester entitlement was reset at 12:42 PM. The Fire downloaded the update from Amazon Appstore; package inspection confirmed version 0.12.0/code 13 and installer `com.amazon.venezia`. The Polish paywall first showed no verified purchase and £7.56. After the approved test checkout, Premium activated automatically. A separate restore displayed **Sprawdzanie w Amazon...** and returned **Premium jest aktywne.** The device-language setting was restored and the privacy screen showed **Enable app lock**, confirming its original off setting.
+
+Screenshots are under `deliverables/android/build-logs`: `amazon-lat-0120-live.jpg`, `lat-0120-pl-no-entitlement.png`, `lat-0120-pl-purchase-active.png`, `lat-0120-pl-restore-checking.png`, `lat-0120-pl-restore-active.png` and `lat-0120-lock-off.png`. Purchase success validates the production-mode verifier path for this private Amazon build; it does not verify public availability or any 0.13.0 purchase flow.

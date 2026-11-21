@@ -57,6 +57,14 @@ class StoreScreenshotCapture {
                 org.junit.Assert.assertEquals(expected, translated.resources.getQuantityString(R.plurals.reminder_days, count, count))
             }
         }
+        if (localeTag == "tr-TR") {
+            listOf(0, 1, 2, 5, 22).forEach { count ->
+                org.junit.Assert.assertEquals("$count ödenmemiş fatura",
+                    translated.resources.getQuantityString(R.plurals.open_count, count, count))
+                org.junit.Assert.assertEquals("$count gün önce",
+                    translated.resources.getQuantityString(R.plurals.reminder_days, count, count))
+            }
+        }
         fun text(id: Int) = translated.getString(id)
         instrumentation.runOnMainSync {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(localeTag))
@@ -126,6 +134,28 @@ class StoreScreenshotCapture {
                 ui.onNodeWithContentDescription(text(R.string.voice)).performClick()
                 ui.onNodeWithText(text(R.string.voice_command_input))
                     .performTextInput("Przypomnij mi zapłacić Prąd w piątek")
+                open(R.string.voice_open_command)
+                ui.onNodeWithText(text(R.string.one_off_reminder)).assertIsDisplayed()
+                val friday = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY))
+                ui.onNodeWithText(translated.getString(R.string.chart_value, text(R.string.one_off_reminder_date),
+                    dateLabel(friday, Locale.forLanguageTag(localeTag)))).assertIsDisplayed()
+                open(R.string.cancel)
+                org.junit.Assert.assertEquals(before, runBlocking { repository.records.first() })
+            } else if (localeTag == "tr-TR") {
+                val repository = (context.applicationContext as BillmivoApplication).repository
+                val before = runBlocking { repository.records.first() }
+                if (!android.speech.SpeechRecognizer.isRecognitionAvailable(context)) {
+                    ui.onNodeWithText(text(R.string.voice_unavailable)).assertIsDisplayed()
+                }
+                ui.onNodeWithText(text(R.string.voice_command_input))
+                    .performTextInput("EV İNTERNETİ İÇİN ÖDEMEYİ İNCELE")
+                open(R.string.voice_open_command)
+                ui.onNodeWithText(text(R.string.record_payment)).assertIsDisplayed()
+                ui.onNodeWithText("Ev interneti").assertIsDisplayed()
+                open(R.string.cancel)
+                ui.onNodeWithContentDescription(text(R.string.voice)).performClick()
+                ui.onNodeWithText(text(R.string.voice_command_input))
+                    .performTextInput("Elektrik ödemesini cuma günü hatırlat")
                 open(R.string.voice_open_command)
                 ui.onNodeWithText(text(R.string.one_off_reminder)).assertIsDisplayed()
                 val friday = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY))

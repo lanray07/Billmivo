@@ -27,7 +27,8 @@ class StorePreviewFixture {
             "pt" to listOf("Aluguel", "Energia elétrica", "Conta de água", "Internet residencial", "Seguro residencial", "Gás", "Tributos locais"),
             "nl" to listOf("Huur", "Elektriciteit", "Waterrekening", "Internet thuis", "Woonverzekering", "Gas", "Gemeentebelasting"),
             "sv" to listOf("Hyra", "El", "Vattenräkning", "Bredband hemma", "Hemförsäkring", "Gas", "Lokala avgifter"),
-            "pl" to listOf("Czynsz", "Prąd", "Rachunek za wodę", "Internet domowy", "Ubezpieczenie mieszkania", "Gaz", "Opłaty lokalne")
+            "pl" to listOf("Czynsz", "Prąd", "Rachunek za wodę", "Internet domowy", "Ubezpieczenie mieszkania", "Gaz", "Opłaty lokalne"),
+            "tr" to listOf("Kira", "Elektrik", "Su faturası", "Ev interneti", "Konut sigortası", "Doğal gaz", "Belediye vergisi")
         )
         val keys = listOf("rent", "energy", "water", "fiber", "insurance", "gas", "tax")
         val names = keys.zip(labels.getValue(language)).toMap()
@@ -42,7 +43,7 @@ class StorePreviewFixture {
         app.reminders.reconcile()
 
         val today = LocalDate.now()
-        val currency = when (language) { "en" -> "GBP"; "pt" -> "BRL"; "sv" -> "SEK"; "pl" -> "PLN"; else -> "EUR" }
+        val currency = when (language) { "en" -> "GBP"; "pt" -> "BRL"; "sv" -> "SEK"; "pl" -> "PLN"; "tr" -> "TRY"; else -> "EUR" }
         val alex = Member("preview-alex", if (language == "es") "Álex" else "Alex")
         val jamie = Member("preview-jamie", when (language) { "fr" -> "Camille"; "es" -> "Dani"; "it" -> "Giulia"; else -> "Jamie" })
         repo.saveMember(alex)

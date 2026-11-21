@@ -30,7 +30,9 @@ private val shortcuts = mapOf(
     "sv" to listOf("visa förfallna räkningar", "visa delade hushållskostnader", "visa höjda räkningsbelopp",
         "visa räkningspåminnelser", "läs mina kommande betalningar"),
     "pl" to listOf("pokaż zaległe rachunki", "pokaż podział kosztów", "pokaż wzrosty rachunków",
-        "pokaż przypomnienia o rachunkach", "odczytaj moje nadchodzące płatności")
+        "pokaż przypomnienia o rachunkach", "odczytaj moje nadchodzące płatności"),
+    "tr" to listOf("gecikmiş faturaları göster", "hane gider paylaşımını göster", "fatura artışlarını göster",
+        "fatura hatırlatıcılarını göster", "yaklaşan ödemelerimi oku")
 )
 
 private val paymentRequests = mapOf(
@@ -43,7 +45,8 @@ private val paymentRequests = mapOf(
     "pt" to Regex("mar(?:que|car) (?:a conta )?(.+?) como pag[oa]"),
     "nl" to Regex("markeer (.+?) als betaald"),
     "sv" to Regex("markera (.+?) som betald"),
-    "pl" to Regex("oznacz (.+?) jako opłacon(?:y|ą|e)")
+    "pl" to Regex("oznacz (.+?) jako opłacon(?:y|ą|e)"),
+    "tr" to Regex("(.+?) için ödemeyi incele")
 )
 
 private val reminderRequests = mapOf(
@@ -56,7 +59,8 @@ private val reminderRequests = mapOf(
     "pt" to Regex("lembre(?:-me)? de pagar (.{1,100}?) (?:na |no |em |(?=hoje$|amanhã$))(.+)"),
     "nl" to Regex("herinner me om (.{1,100}?) te betalen (?:op |(?=vandaag$|morgen$))(.+)"),
     "sv" to Regex("påminn mig att betala (.{1,100}?) (?:på |(?=idag$|imorgon$))(.+)"),
-    "pl" to Regex("przypomnij mi zapłacić (.{1,100}?) (?:w |we |dnia |(?=dzisiaj$|dziś$|jutro$))(.+)")
+    "pl" to Regex("przypomnij mi zapłacić (.{1,100}?) (?:w |we |dnia |(?=dzisiaj$|dziś$|jutro$))(.+)"),
+    "tr" to Regex("(.{1,100}?) ödemesini (.+?)(?: günü)? hatırlat")
 )
 
 private val reminderDayWords = mapOf(
@@ -64,7 +68,7 @@ private val reminderDayWords = mapOf(
     "es" to listOf("hoy", "mañana"), "ar" to listOf("اليوم", "غدًا"), "de" to listOf("heute", "morgen"),
     "it" to listOf("oggi", "domani"), "pt" to listOf("hoje", "amanhã"),
     "nl" to listOf("vandaag", "morgen"), "sv" to listOf("idag", "imorgon"),
-    "pl" to listOf("dzisiaj", "jutro")
+    "pl" to listOf("dzisiaj", "jutro"), "tr" to listOf("bugün", "yarın")
 )
 
 private fun reminderDate(text: String, locale: Locale, today: LocalDate): LocalDate? {

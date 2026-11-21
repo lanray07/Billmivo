@@ -303,5 +303,39 @@
       "Podziel koszty gospodarstwa",
       "Sprawdzaj terminy płatności offline"
     ]
+  },
+  "tr-TR": {
+    "name": "Billmivo – Fatura ve Ödeme Takibi",
+    "short": "Hane faturalarını planlayın, kesinleşen tutarları tahminlerden ayırın ve harcama değişimlerini izleyin.",
+    "long": "Billmivo, Fire tabletinizde hane faturalarını ve ödemeleri planlamanıza yardımcı olur. Fatura tahmini yaklaşan ödemeleri gösterir, kesinleşen tutarları tahminlerden ayırır ve gecikmiş faturaları ayrıca listeler.\n\nYinelenen ve tek seferlik faturalar ekleyin, kısmi ödemeleri kaydedin, hatırlatıcılar ayarlayın ve giderleri hane üyeleri arasında paylaştırmayı planlayın. Son altı aydaki kayıtlı ödemeleri ve karşılaştırılabilir fatura tutarlarındaki değişimleri inceleyin.\n\nHizmet sağlayıcı bilgilerini ve belgeleri saklayın, raporları dışa aktarın ve şifreli yedekler oluşturun. Temel kayıtlar cihazda tutulur. Kısayolları yazarak veya dokunarak kullanabilirsiniz; sesli kullanım için uyumlu cihaz hizmetleri gerekir.\n\nÜcretsiz plan 10 etkin yinelenen fatura içerir. Amazon üzerinden tek seferlik Billmivo Premium satın alması; sınırsız yinelenen fatura, gelişmiş tahminler ve gider paylaşımını düzenleme olanağı sunar. Satın alma doğrulaması ağ bağlantısı gerektirir.",
+    "release_notes": "Türkçe arayüz, kısayollar ve yerel tarih ve tutar biçimleri eklendi. Ekran görüntüleri Fire HD 10 üzerinde çalışan uygulamayı gösterir.",
+    "support": "Destek: banksmi@mail.com. Uygulama sürümünü ve cihaz modelini belirtin. Parolanızı veya PIN kodunuzu göndermeyin.",
+    "features": [
+      "Kesinleşen ve tahmini tutarları ayrı gösteren fatura tahmini",
+      "Sessiz saatler ve özel bildirim önizlemeleriyle hatırlatıcılar",
+      "Hane üyeleri arasında gider paylaşımını planlama",
+      "Kaydedilen ödemelerin ve fatura tutarı değişimlerinin analizi",
+      "Yerel kayıtlar, raporlar ve şifreli yedekler"
+    ],
+    "keywords": [
+      "fatura takibi",
+      "ödeme tarihleri",
+      "fatura hatırlatıcı",
+      "gider paylaşımı",
+      "hane harcamaları",
+      "fatura tahmini",
+      "ev bütçesi",
+      "Fire tablet"
+    ],
+    "headlines": [
+      "Hanenizin yaklaşan ödemelerini görün",
+      "Bu haftanın faturalarını planlayın",
+      "Fatura hatırlatıcılarını seçin",
+      "Altı aylık ödemelerinizi izleyin",
+      "Fatura tutarı değişimlerini görün",
+      "Tahmin dönemini kolayca seçin",
+      "Hane giderlerini paylaşın",
+      "Fatura takvimini çevrimdışı görün"
+    ]
   }
 }

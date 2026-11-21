@@ -158,4 +158,42 @@ class VoiceCommandTest {
             .paymentForReview("water", today, Locale.UK))
         assertNull(records.copy(schedules = listOf(original.copy(estimated = true))).paymentForReview("water", today, Locale.UK))
     }
+    @Test fun supportsTurkishCommandsAndDottedCapitalI() {
+        val locale = Locale.forLanguageTag("tr-TR")
+        assertEquals("TRY", defaultCurrency(Locale.forLanguageTag("tr")))
+        listOf("yedi" to 7, "otuz" to 30, "doksan" to 90).forEach { (word, days) ->
+            assertEquals(VoiceCommand.Range(days), parseVoiceCommand("$word gün", locale, today))
+        }
+        listOf("GECİKMİŞ FATURALARI GÖSTER", "HANE GİDER PAYLAŞIMINI GÖSTER", "FATURA ARTIŞLARINI GÖSTER",
+            "FATURA HATIRLATICILARINI GÖSTER", "YAKLAŞAN ÖDEMELERİMİ OKU").forEachIndexed { index, phrase ->
+            assertEquals(VoiceCommand.Navigate.entries[index], parseVoiceCommand(phrase, locale, today))
+        }
+        assertEquals(VoiceCommand.ReviewPayment("internet"),
+            parseVoiceCommand("İNTERNET İÇİN ÖDEMEYİ İNCELE", locale, today))
+        assertEquals(VoiceCommand.ReviewPayment("ısıtma"),
+            parseVoiceCommand("ISITMA İÇİN ÖDEMEYİ İNCELE", locale, today))
+        val schedule = Schedule(1, "internet", "İnternet", "internet", "TRY", "29.95".toBigDecimal(),
+            false, today, Cadence.MONTHLY)
+        assertEquals(schedule, Records(listOf(schedule), emptyList(), emptyList())
+            .paymentForReview("internet", today, locale)?.schedule)
+        assertEquals(VoiceCommand.Draft(BillDraft("İnternet", "29.95".toBigDecimal(), "TRY", today)),
+            parseVoiceCommand("İnternet tutar 29,95 TRY son ödeme 2026-11-16", locale, today))
+    }
+
+    @Test fun resolvesTurkishWeekdaysAndRelativeDates() {
+        val locale = Locale.forLanguageTag("tr-TR")
+        listOf("pazartesi", "salı", "çarşamba", "perşembe", "cuma", "cumartesi", "pazar").forEachIndexed { offset, day ->
+            assertEquals(VoiceCommand.ReviewReminder("elektrik", today.plusDays(offset.toLong())),
+                parseVoiceCommand("Elektrik ödemesini $day günü hatırlat", locale, today))
+        }
+        assertEquals(VoiceCommand.ReviewReminder("su faturası", today),
+            parseVoiceCommand("Su faturası ödemesini bugün hatırlat", locale, today))
+        assertEquals(VoiceCommand.ReviewReminder("ısıtma", today.plusDays(1)),
+            parseVoiceCommand("ISITMA ÖDEMESİNİ YARIN HATIRLAT", locale, today))
+        assertEquals(VoiceCommand.ReviewReminder("elektrik", today.plusDays(4)),
+            parseVoiceCommand("Elektrik ödemesini 2026-11-20 hatırlat", locale, today))
+        assertNull(parseVoiceCommand("Elektrik ödemesini 2026-11-31 hatırlat", locale, today))
+        assertNull(parseVoiceCommand("Elektrik ödemesini 2026-11-15 hatırlat", locale, today))
+    }
+
 }

@@ -11,7 +11,7 @@ private val draftPhrases = mapOf("en" to ("costs" to "due"), "fr" to ("coûte" t
     "es" to ("cuesta" to "vence el"), "ar" to ("تكلف" to "تستحق في"), "de" to ("kostet" to "fällig am"),
     "it" to ("costa" to "scade il"), "pt" to ("custa" to "vence em"),
     "nl" to ("kost" to "vervalt op"), "sv" to ("kostar" to "förfaller"),
-    "pl" to ("kosztuje" to "termin"))
+    "pl" to ("kosztuje" to "termin"), "tr" to ("tutar" to "son ödeme"))
 
 fun parseBillDraft(input: String, locale: Locale, today: LocalDate): BillDraft? {
     val (cost, due) = draftPhrases[locale.language] ?: draftPhrases.getValue("en")

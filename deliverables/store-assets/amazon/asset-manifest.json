@@ -684,6 +684,80 @@
         "sha256": "ab219c28a161ba92960ace46feb92fb5b5c5b4278bc460cac5ad38f4661f5671",
         "raw_sha256": "9a4e486e2c9833caf50caab048fb1d18af66c4985d28f962cbb72d6a1aa345b0"
       }
+    ],
+    "tr-TR": [
+      {
+        "file": "01-forecast.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "86fe433a3742f71ac2d7bc7033cf69b2c90eee776800944fb600e1ba39114433",
+        "raw_sha256": "6692d4763bf5ece2e898d61f3ca4899f2bd3f04859daafcc5f63d0bf8b636dbc"
+      },
+      {
+        "file": "02-week.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "f40b0ec5818e8d5ee4d4dc78dc6dcd015a105ba5eb8dc5a9f185a93480342971",
+        "raw_sha256": "f2bd01cdf0ca8b66f58d41a379ff76d8d69718ecb529e35fac65cb8e4b0f0b41"
+      },
+      {
+        "file": "03-reminders.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "bcda730bb2928a4faf7088330301ad871451b6b5dde0b323eb73d3050af956b2",
+        "raw_sha256": "21b054cc31840543cb4b2a7db6c88c980eea0d5bb92a046e05edcc1fe01a6500"
+      },
+      {
+        "file": "04-spending.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "7012959ca61ab5859fde97b365baa446067ccd74b1422020ace07a7f9a62f03a",
+        "raw_sha256": "b3f97feee72d93cd60aeed42fcaa7b0d82bbe8fc55ad1905dab41b3803fbd2b3"
+      },
+      {
+        "file": "05-changes.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "93e06cc173c4b37ab749a240e4bf48796a73033d4b90fc91ac6a1bbf98ba110d",
+        "raw_sha256": "290d774fd8716d5adfdc75b5e6f475c38fdf712454b549c201eb4c7d9bd63efd"
+      },
+      {
+        "file": "06-voice.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "a998914ba75535ea0dd10c50ea1b717e00e0bb53073a20895ac3ce51ab760a6b",
+        "raw_sha256": "d7c308aa5cc456ae4fc5aa4806cd58fb90350c0a75de802b6b90fa263c59ec53"
+      },
+      {
+        "file": "07-sharing.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "9afe1bf10f7dab1fce908b0adb085009ba6a45153b3b257f8bf32d9d2322545b",
+        "raw_sha256": "675a59ec2c867ace089b5fe5b241f76986993be4be0bec4033aed1344f1bbc81"
+      },
+      {
+        "file": "08-calendar.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "e9ace8bd198a2c3dc6462d93966f99b474bb0507954a2c532fb6eb8bc8d24651",
+        "raw_sha256": "dad7d72ea260d456b24513af135da373a916a1411a45adfbe3ee0c12a57df8eb"
+      }
     ]
   },
   "promotion": {

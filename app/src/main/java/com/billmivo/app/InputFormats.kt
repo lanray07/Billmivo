@@ -18,6 +18,7 @@ fun defaultCurrency(locale: Locale): String =
             "pt" -> "BRL"
             "sv" -> "SEK"
             "pl" -> "PLN"
+            "tr" -> "TRY"
             else -> "GBP"
         }
 
@@ -67,7 +68,8 @@ private val numberWords = mapOf(
     "pt" to listOf("sete", "trinta", "noventa"),
     "nl" to listOf("zeven", "dertig", "negentig"),
     "sv" to listOf("sju", "trettio", "nittio"),
-    "pl" to listOf("siedem", "trzydzieści", "dziewięćdziesiąt")
+    "pl" to listOf("siedem", "trzydzieści", "dziewięćdziesiąt"),
+    "tr" to listOf("yedi", "otuz", "doksan")
 )
 val voiceRanges = listOf(7, 30, 90)
 

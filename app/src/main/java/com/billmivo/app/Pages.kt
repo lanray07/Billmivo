@@ -222,7 +222,7 @@ internal fun LanguageMenu() {
         "fr" to R.string.language_fr, "es" to R.string.language_es, "ar" to R.string.language_ar,
         "de" to R.string.language_de, "it" to R.string.language_it,
         "pt-BR" to R.string.language_pt, "nl" to R.string.language_nl, "sv" to R.string.language_sv,
-        "pl" to R.string.language_pl)
+        "pl" to R.string.language_pl, "tr" to R.string.language_tr)
     MenuField(stringResource(R.string.language), AppCompatDelegate.getApplicationLocales().toLanguageTags(),
         languages.keys.toList(), { stringResource(languages[it] ?: R.string.system) },
         { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(it)) })
