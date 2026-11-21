@@ -389,4 +389,5 @@
     <string name="one_off_voice_example">Prueba «recuérdame pagar electricidad el viernes». Usa el nombre exacto de la factura y un día o una fecha.</string>
     <string name="language_de">Deutsch</string>
     <string name="appearance_system">Tema del dispositivo</string>
+    <string name="language_it">Italiano</string>
 </resources>

@@ -389,4 +389,5 @@
         <item quantity="other">%d Tage vorher</item>
     </plurals>
     <string name="appearance_system">Gerätedesign</string>
+    <string name="language_it">Italiano</string>
 </resources>

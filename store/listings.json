@@ -136,5 +136,39 @@
       "Haushaltskosten fair aufteilen",
       "Zahlungskalender offline nutzen"
     ]
+  },
+  "it-IT": {
+    "source": "it",
+    "name": "Billmivo – Bollette e scadenze",
+    "short": "Controlla le bollette in scadenza, pianifica le spese di casa e imposta i promemoria che ti servono.",
+    "release_notes": "Aggiunge l’italiano, le scorciatoie vocali e scritte in italiano e i promemoria singoli nella previsione.",
+    "support": "Per assistenza scrivi a banksmi@mail.com indicando versione di Billmivo e modello del dispositivo. Evita di includere dati della casa e ricevute.",
+    "long": "Billmivo riunisce bollette, prossimi pagamenti e storico delle spese di casa sul tuo tablet Fire.\n\nPianifica affitto, elettricità, Internet, assicurazioni e altre bollette con una previsione a 7, 30 o 90 giorni oppure scegli le date. Gli importi confermati e stimati sono indicati separatamente. I saldi scaduti hanno una sezione dedicata e ogni valuta mantiene il proprio totale.\n\nImposta promemoria prima della scadenza, il giorno stesso o dopo un mancato pagamento. Scegli un orario silenzioso e nascondi i nomi delle bollette nelle anteprime delle notifiche. La consegna dipende dalle impostazioni del dispositivo.\n\nAssegna le responsabilità, dividi le bollette con i membri della casa e registra chi ha pagato. Controlla le variazioni degli importi e confronta i pagamenti nel tempo. I dati delle bollette sono salvati sul dispositivo e funzionano offline.",
+    "features": [
+      "Previsioni delle bollette a 7, 30 o 90 giorni e periodi personalizzati",
+      "Promemoria per bollette ricorrenti e singole scadenze",
+      "Ripartizione in parti uguali, per percentuale, importo o peso",
+      "Saldi scaduti, pagamenti parziali e spese registrate",
+      "Gestione delle bollette offline sul tablet Fire"
+    ],
+    "keywords": [
+      "bollette",
+      "scadenze bollette",
+      "promemoria pagamenti",
+      "spese di casa",
+      "dividere bollette",
+      "calendario pagamenti",
+      "bollette ricorrenti"
+    ],
+    "headlines": [
+      "Controlla quanto deve pagare la casa",
+      "Pianifica le scadenze della settimana",
+      "Scegli le bollette da ricordare",
+      "Segui sei mesi di pagamenti",
+      "Controlla le variazioni degli importi",
+      "Scegli il periodo come preferisci",
+      "Dividi le bollette di casa",
+      "Consulta le scadenze anche offline"
+    ]
   }
 }

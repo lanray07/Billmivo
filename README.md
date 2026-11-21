@@ -37,7 +37,7 @@ Jetpack Compose renders the responsive dashboard, bills, calendar, insights and 
 
 ## Languages and voice
 
-The app includes English, French, Spanish, Arabic and German. The UI follows the device language by default and offers a manual override. Arabic uses right-to-left layout. Currency and date formatting follow the active locale. The forecast shortcut understands 7, 30 and 90 as digits or supported local number words, with touch and typed controls as alternatives. Microphone recognition and speech output depend on the installed engine and locale.
+The app includes English, French, Spanish, Arabic, German and Italian. The UI follows the device language by default and offers a manual override. Arabic uses right-to-left layout. Currency and date formatting follow the active locale. The forecast shortcut understands 7, 30 and 90 as digits or supported local number words, with touch and typed controls as alternatives. Microphone recognition and speech output depend on the installed engine and locale.
 
 ## Release scope
 

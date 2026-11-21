@@ -1,8 +1,8 @@
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('en-GB','fr-FR','es-ES','de-DE')]
+    [ValidateSet('en-GB','fr-FR','es-ES','de-DE','it-IT')]
     [string] $Locale,
-    [ValidateSet('en','fr','es','de')]
+    [ValidateSet('en','fr','es','de','it')]
     [string] $CurrentLanguage = 'en',
     [string] $Serial,
     [switch] $ChangesOnly
@@ -28,7 +28,7 @@ function Strings([string] $Lang) {
 
 function Find-AppLabel([string] $Label, [switch] $Prefix, [int] $Attempts = 4) {
     for ($attempt = 0; $attempt -lt $Attempts; $attempt++) {
-        $dump = (& $adb @device shell uiautomator dump $view 2>&1) -join ' '
+        $dump = (& $adb @device shell uiautomator dump --compressed $view 2>&1) -join ' '
         if ($dump -notmatch 'dumped to') { continue }
         $raw = (& $adb @device shell cat $view 2>$null) -join ''
         if (!$raw) { continue }
@@ -70,9 +70,12 @@ function Scroll-ToLabel([string] $Label, [switch] $Prefix) {
 
 New-Item -ItemType Directory -Force $output | Out-Null
 try {
+    & $adb @device shell input keyevent KEYCODE_WAKEUP
+    & $adb @device shell wm dismiss-keyguard
     $result = & $adb @device shell am instrument -w -e class com.billmivo.app.StorePreviewFixture -e demo true -e previewLanguage $language "$package.test/androidx.test.runner.AndroidJUnitRunner"
     $result | Write-Output
     if (($result -join "`n") -notmatch 'OK \(1 test\)') { throw 'Preview fixture failed.' }
+    & $adb @device shell am force-stop "$package.test"
     & $adb @device shell am force-stop $package
     & $adb @device shell am start -W -n $activity
     $strings = Strings $language

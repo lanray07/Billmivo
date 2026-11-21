@@ -20,7 +20,9 @@ private val shortcuts = mapOf(
     "es" to listOf("mostrar facturas vencidas", "mostrar gastos compartidos", "mostrar aumentos de facturas", "mostrar recordatorios", "leer mis próximos pagos"),
     "ar" to listOf("عرض الفواتير المتأخرة", "عرض تقاسم تكاليف الأسرة", "عرض زيادات الفواتير", "عرض تذكيرات الفواتير", "اقرأ دفعاتي القادمة"),
     "de" to listOf("zeige überfällige rechnungen", "zeige die kostenaufteilung", "zeige änderungen bei rechnungsbeträgen",
-        "zeige rechnungserinnerungen", "lies meine nächsten zahlungen vor")
+        "zeige rechnungserinnerungen", "lies meine nächsten zahlungen vor"),
+    "it" to listOf("mostra le bollette scadute", "mostra le spese condivise", "mostra gli aumenti delle bollette",
+        "mostra i promemoria bollette", "leggi i miei prossimi pagamenti")
 )
 
 private val paymentRequests = mapOf(
@@ -28,7 +30,8 @@ private val paymentRequests = mapOf(
     "fr" to Regex("marquer (?:ma |mon |la |le )?(.+) comme pay[ée]e?"),
     "es" to Regex("marcar (?:mi |la |el )?(.+) como pagad[oa]"),
     "ar" to Regex("تسجيل دفع (.+)"),
-    "de" to Regex("markiere (?:die rechnung )?(.+?) als bezahlt")
+    "de" to Regex("markiere (?:die rechnung )?(.+?) als bezahlt"),
+    "it" to Regex("segna (?:la bolletta )?(.+?) come pagat[oa]")
 )
 
 private val reminderRequests = mapOf(
@@ -36,12 +39,14 @@ private val reminderRequests = mapOf(
     "fr" to Regex("rappelle-moi de payer (.{1,100}) (?:le|pour) (.+)"),
     "es" to Regex("recuérdame pagar (.{1,100}) (?:el|para) (.+)"),
     "ar" to Regex("ذكرني بدفع (.{1,100}) (?:يوم|في) (.+)"),
-    "de" to Regex("erinnere mich an die zahlung für (.{1,100}) (?:am |(?=heute$|morgen$))(.+)")
+    "de" to Regex("erinnere mich an die zahlung für (.{1,100}) (?:am |(?=heute$|morgen$))(.+)"),
+    "it" to Regex("ricordami di pagare (.{1,100}?) (?:il |(?=oggi$|domani$|lunedì$|martedì$|mercoledì$|giovedì$|venerdì$|sabato$|domenica$))(.+)")
 )
 
 private val reminderDayWords = mapOf(
     "en" to listOf("today", "tomorrow"), "fr" to listOf("aujourd’hui", "demain"),
-    "es" to listOf("hoy", "mañana"), "ar" to listOf("اليوم", "غدًا"), "de" to listOf("heute", "morgen")
+    "es" to listOf("hoy", "mañana"), "ar" to listOf("اليوم", "غدًا"), "de" to listOf("heute", "morgen"),
+    "it" to listOf("oggi", "domani")
 )
 
 private fun reminderDate(text: String, locale: Locale, today: LocalDate): LocalDate? {

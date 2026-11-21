@@ -10,6 +10,25 @@ import java.util.Locale
 class VoiceCommandTest {
     private val today = LocalDate.of(2026, 11, 16)
 
+    @Test fun supportsItalianCommandsAndLocalAmounts() {
+        val italian = Locale.ITALY
+        assertEquals("EUR", defaultCurrency(Locale.ITALIAN))
+        assertEquals("29.95".toBigDecimal(), parseAmount("29,95", "EUR", italian))
+        assertEquals(VoiceCommand.Range(30), parseVoiceCommand("trenta giorni", italian, today))
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("Leggi i miei prossimi pagamenti", italian, today))
+        assertEquals(VoiceCommand.Navigate.Household, parseVoiceCommand("Mostra le spese condivise", italian, today))
+        assertEquals(VoiceCommand.ReviewReminder("elettricità", today.plusDays(4)),
+            parseVoiceCommand("Ricordami di pagare elettricità venerdì", italian, today))
+        assertEquals(VoiceCommand.ReviewReminder("internet casa", today.plusDays(1)),
+            parseVoiceCommand("Ricordami di pagare Internet casa domani", italian, today))
+        assertEquals(VoiceCommand.ReviewReminder("acqua", today.plusDays(4)),
+            parseVoiceCommand("Ricordami di pagare acqua il 2026-11-20", italian, today))
+        assertEquals(VoiceCommand.ReviewPayment("affitto"), parseVoiceCommand("Segna affitto come pagato", italian, today))
+        assertEquals(VoiceCommand.Draft(BillDraft("Internet", "29.95".toBigDecimal(), "EUR", today)),
+            parseVoiceCommand("Internet costa 29,95 EUR scade il 2026-11-16", italian, today))
+        assertNull(parseVoiceCommand("Ricordami di pagare acqua il 2026-11-15", italian, today))
+    }
+
     @Test fun supportsGermanCommandsAndEuroFormatting() {
         val german = Locale.GERMANY
         assertEquals("EUR", defaultCurrency(Locale.GERMAN))

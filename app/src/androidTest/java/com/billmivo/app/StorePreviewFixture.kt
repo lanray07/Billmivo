@@ -22,7 +22,8 @@ class StorePreviewFixture {
             "en" to listOf("Household rent", "Electricity", "Water bill", "Home broadband", "Home insurance", "Gas", "Council tax"),
             "fr" to listOf("Loyer", "Électricité", "Facture d’eau", "Internet à domicile", "Assurance habitation", "Gaz", "Taxes locales"),
             "es" to listOf("Alquiler", "Electricidad", "Factura del agua", "Internet en casa", "Seguro del hogar", "Gas", "Impuestos locales"),
-            "de" to listOf("Miete", "Stromrechnung", "Wasserrechnung", "Internet zu Hause", "Hausratversicherung", "Gas", "Kommunale Abgaben")
+            "de" to listOf("Miete", "Stromrechnung", "Wasserrechnung", "Internet zu Hause", "Hausratversicherung", "Gas", "Kommunale Abgaben"),
+            "it" to listOf("Affitto", "Elettricità", "Bolletta acqua", "Internet casa", "Assicurazione casa", "Gas", "Tributi locali")
         )
         val keys = listOf("rent", "energy", "water", "fiber", "insurance", "gas", "tax")
         val names = keys.zip(labels.getValue(language)).toMap()
@@ -39,7 +40,7 @@ class StorePreviewFixture {
         val today = LocalDate.now()
         val currency = if (language == "en") "GBP" else "EUR"
         val alex = Member("preview-alex", if (language == "es") "Álex" else "Alex")
-        val jamie = Member("preview-jamie", when (language) { "fr" -> "Camille"; "es" -> "Dani"; else -> "Jamie" })
+        val jamie = Member("preview-jamie", when (language) { "fr" -> "Camille"; "es" -> "Dani"; "it" -> "Giulia"; else -> "Jamie" })
         repo.saveMember(alex)
         repo.saveMember(jamie)
         suspend fun bill(key: String, category: String, amount: String, date: LocalDate,
