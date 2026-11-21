@@ -69,7 +69,7 @@ Standard build and validation commands are documented in the root README and `st
 | --- | --- | --- |
 | Additional priority interface languages | NOT TESTED | Polish, Hindi, Japanese, Korean, Simplified Chinese, Traditional Chinese, Turkish and Indonesian still need implementation and device review. |
 | Additional regional wording and storefronts | NOT TESTED | Prepare the remaining requested regional variants and their actual localized app captures. |
-| App-lock background timeout | NOT TESTED | Cold-start locking was verified previously. The two-minute background check requires the owner to enter the existing PIN directly. The pending credential prompt was cancelled; no timeout pass is claimed. |
+| App-lock background timeout | PASS | Follow-up on the Amazon-installed 0.10.0 locked after 136.86 seconds in the background with the same process still running. The owner unlocked it, then authenticated to restore app lock to off; a fresh launch opened the dashboard. The lock implementation is unchanged in 0.11.0. The short-return check remains unverified. See [the hardware report](app-lock-timeout.md). |
 | Detailed assistive-technology review | NOT TESTED | Complete VoiceView navigation and focus review in the supported locales. |
 | Other devices and orientations | NOT TESTED | Broaden beyond the verified Fire HD 10 landscape configuration, including newer Fire OS versions. |
 | Current-version private billing | NOT TESTED | Upload 0.11.0 to the existing private track, install through Amazon, then test purchase and restore. |

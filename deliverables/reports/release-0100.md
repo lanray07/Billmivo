@@ -40,3 +40,7 @@ The Fire exposes no Android speech recognizer. Microphone input needs compatible
 Version 0.10.0 passed the existing private Amazon purchase and restore workflow on the Fire HD 10.
 
 The app language set now includes English, French, Spanish, Arabic, German and Italian. Further requested languages need translation, device review and their storefront asset sets. The public Amazon listing also needs the final publisher details, privacy notice URL, pricing, market and device choices, and submission authorisation.
+
+## App-lock follow-up
+
+Later on 21 November 2026, the installed 0.10.0 passed a background relock check after 136.86 seconds with the same process still running. The owner unlocked the app and authenticated to restore app lock to its original off setting. A fresh launch then opened the dashboard directly. The short-return check remains unverified. See the [hardware report](app-lock-timeout.md).
