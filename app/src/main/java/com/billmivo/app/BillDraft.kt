@@ -9,7 +9,8 @@ data class BillDraft(val name: String, val amount: BigDecimal, val currency: Str
 
 private val draftPhrases = mapOf("en" to ("costs" to "due"), "fr" to ("coûte" to "pour le"),
     "es" to ("cuesta" to "vence el"), "ar" to ("تكلف" to "تستحق في"), "de" to ("kostet" to "fällig am"),
-    "it" to ("costa" to "scade il"))
+    "it" to ("costa" to "scade il"), "pt" to ("custa" to "vence em"),
+    "nl" to ("kost" to "vervalt op"), "sv" to ("kostar" to "förfaller"))
 
 fun parseBillDraft(input: String, locale: Locale, today: LocalDate): BillDraft? {
     val (cost, due) = draftPhrases[locale.language] ?: draftPhrases.getValue("en")

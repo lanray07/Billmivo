@@ -390,4 +390,7 @@
     </plurals>
     <string name="appearance_system">Gerätedesign</string>
     <string name="language_it">Italiano</string>
+    <string name="language_pt">Português (Brasil)</string>
+    <string name="language_nl">Nederlands</string>
+    <string name="language_sv">Svenska</string>
 </resources>

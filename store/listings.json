@@ -170,5 +170,104 @@
       "Dividi le bollette di casa",
       "Consulta le scadenze anche offline"
     ]
+  },
+  "pt-BR": {
+    "source": "pt",
+    "name": "Billmivo – Contas da casa",
+    "short": "Veja os vencimentos, planeje as contas da casa e divida os custos com quem mora com você.",
+    "release_notes": "Adiciona português do Brasil, comandos de voz e texto e capturas localizadas do aplicativo.",
+    "support": "Para ajuda, escreva para banksmi@mail.com com a versão do Billmivo e o modelo do dispositivo. Evite enviar dados da casa e recibos.",
+    "long": "O Billmivo reúne contas da casa, próximos pagamentos e histórico de despesas no seu tablet Fire.\n\nPlaneje aluguel, energia, internet, seguros e outras contas com uma previsão de 7, 30 ou 90 dias ou escolha suas datas. Os valores confirmados e estimados são identificados separadamente. Saldos atrasados e moedas diferentes têm seus próprios totais.\n\nDefina lembretes para contas recorrentes e vencimentos individuais. Escolha horários de silêncio e mantenha os nomes das contas ocultos nas notificações. A entrega depende das configurações do dispositivo.\n\nAtribua responsabilidades, divida contas por partes iguais, porcentagem, valores ou pesos e registre quem pagou. Compare os pagamentos ao longo do tempo. Os dados das contas ficam no dispositivo e funcionam offline.",
+    "features": [
+      "Previsões de 7, 30 ou 90 dias e períodos personalizados",
+      "Lembretes para contas recorrentes e vencimentos individuais",
+      "Divisão de despesas por partes, porcentagens, valores ou pesos",
+      "Controle de atrasos, pagamentos parciais e despesas registradas",
+      "Contas da casa acessíveis offline no tablet Fire"
+    ],
+    "keywords": [
+      "contas da casa",
+      "lembrete de pagamento",
+      "vencimento de contas",
+      "despesas compartilhadas",
+      "calendário de pagamentos",
+      "controle de despesas"
+    ],
+    "headlines": [
+      "Veja quanto sua casa tem a pagar",
+      "Planeje as contas desta semana",
+      "Escolha as contas para lembrar",
+      "Acompanhe seis meses de pagamentos",
+      "Confira mudanças nos valores",
+      "Escolha o período do seu jeito",
+      "Divida as contas da casa",
+      "Consulte os vencimentos offline"
+    ]
+  },
+  "nl-NL": {
+    "source": "nl",
+    "name": "Billmivo – Rekeningen en kosten",
+    "short": "Bekijk vervaldatums, plan huishoudelijke kosten en deel rekeningen met je huisgenoten.",
+    "release_notes": "Voegt Nederlands, gesproken en getypte opdrachten en gelokaliseerde schermafbeeldingen toe.",
+    "support": "Mail voor hulp naar banksmi@mail.com met je Billmivo-versie en apparaatmodel. Stuur geen huishoudgegevens of betaalbewijzen mee.",
+    "long": "Billmivo brengt huishoudelijke rekeningen, komende betalingen en je uitgavengeschiedenis samen op je Fire-tablet.\n\nPlan huur, energie, internet, verzekeringen en andere rekeningen met een prognose van 7, 30 of 90 dagen of kies je eigen datums. Bevestigde en geschatte bedragen zijn apart herkenbaar. Achterstallige bedragen en verschillende valuta behouden eigen totalen.\n\nStel herinneringen in voor terugkerende rekeningen en losse vervaldatums. Kies stille uren en houd rekeningnamen verborgen in meldingen. De bezorging hangt af van je apparaatinstellingen.\n\nWijs verantwoordelijkheden toe, verdeel kosten in gelijke delen, percentages, bedragen of gewichten en registreer wie heeft betaald. Vergelijk betalingen in de tijd. Je rekeninggegevens blijven op je apparaat en werken offline.",
+    "features": [
+      "Prognoses voor 7, 30 of 90 dagen en aangepaste perioden",
+      "Herinneringen voor terugkerende en eenmalige rekeningen",
+      "Kosten verdelen in gelijke delen, percentages, bedragen of gewichten",
+      "Achterstallige bedragen, deelbetalingen en uitgaven bijhouden",
+      "Rekeningen offline beheren op je Fire-tablet"
+    ],
+    "keywords": [
+      "rekeningen bijhouden",
+      "vaste lasten",
+      "betalingsherinnering",
+      "huishoudelijke uitgaven",
+      "kosten delen",
+      "betaalkalender"
+    ],
+    "headlines": [
+      "Bekijk wat je huishouden moet betalen",
+      "Plan de rekeningen van deze week",
+      "Kies je rekeningherinneringen",
+      "Volg zes maanden aan betalingen",
+      "Bekijk veranderingen in bedragen",
+      "Kies zelf je prognoseperiode",
+      "Verdeel de huishoudelijke kosten",
+      "Bekijk je rekeningkalender offline"
+    ]
+  },
+  "sv-SE": {
+    "source": "sv",
+    "name": "Billmivo – Räkningar och utgifter",
+    "short": "Se förfallodatum, planera hushållets kostnader och dela räkningar med dem du bor med.",
+    "release_notes": "Lägger till svenska, talade och skrivna kommandon samt lokaliserade skärmbilder.",
+    "support": "Mejla banksmi@mail.com för hjälp och ange Billmivo-version och enhetsmodell. Undvik att skicka hushållsuppgifter eller kvitton.",
+    "long": "Billmivo samlar hushållets räkningar, kommande betalningar och utgiftshistorik på din Fire-surfplatta.\n\nPlanera hyra, el, bredband, försäkringar och andra räkningar med en prognos för 7, 30 eller 90 dagar eller välj egna datum. Bekräftade och uppskattade belopp visas separat. Förfallna belopp och olika valutor har egna summor.\n\nStäll in påminnelser för återkommande räkningar och enskilda tillfällen. Välj tysta timmar och dölj räkningsnamn i aviseringar. Leveransen beror på enhetens inställningar.\n\nTilldela ansvar, dela kostnader lika, i procent, med fasta belopp eller vikter och registrera vem som betalade. Jämför betalningar över tid. Räkningsuppgifterna sparas på enheten och fungerar offline.",
+    "features": [
+      "Prognoser för 7, 30 eller 90 dagar och egna perioder",
+      "Påminnelser för återkommande räkningar och enskilda tillfällen",
+      "Dela kostnader lika, i procent, med belopp eller vikter",
+      "Följ förfallna saldon, delbetalningar och registrerade utgifter",
+      "Hantera räkningar offline på din Fire-surfplatta"
+    ],
+    "keywords": [
+      "räkningar",
+      "betalningspåminnelse",
+      "hushållsutgifter",
+      "dela kostnader",
+      "förfallodatum",
+      "betalningskalender"
+    ],
+    "headlines": [
+      "Se vad hushållet ska betala",
+      "Planera veckans räkningar",
+      "Välj räkningar att bli påmind om",
+      "Följ sex månaders betalningar",
+      "Se ändrade räkningsbelopp",
+      "Välj prognosperiod på ditt sätt",
+      "Dela hushållets kostnader",
+      "Se räkningskalendern offline"
+    ]
   }
 }

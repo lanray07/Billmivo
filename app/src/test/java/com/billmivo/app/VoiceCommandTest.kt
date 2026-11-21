@@ -10,6 +10,42 @@ import java.util.Locale
 class VoiceCommandTest {
     private val today = LocalDate.of(2026, 11, 16)
 
+    @Test fun supportsBrazilianPortugueseCommands() {
+        val locale = Locale.forLanguageTag("pt-BR")
+        assertEquals("BRL", defaultCurrency(Locale.forLanguageTag("pt")))
+        assertEquals(VoiceCommand.Range(30), parseVoiceCommand("trinta dias", locale, today))
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("ler meus próximos pagamentos", locale, today))
+        assertEquals(VoiceCommand.ReviewReminder("energia", today.plusDays(4)),
+            parseVoiceCommand("lembre de pagar energia na sexta-feira", locale, today))
+        assertEquals(VoiceCommand.ReviewPayment("aluguel"), parseVoiceCommand("marque aluguel como pago", locale, today))
+        assertEquals(VoiceCommand.Draft(BillDraft("Internet", "29.95".toBigDecimal(), "BRL", today)),
+            parseVoiceCommand("Internet custa 29,95 BRL vence em 2026-11-16", locale, today))
+    }
+
+    @Test fun supportsDutchCommands() {
+        val locale = Locale.forLanguageTag("nl-NL")
+        assertEquals("EUR", defaultCurrency(Locale.forLanguageTag("nl")))
+        assertEquals(VoiceCommand.Range(90), parseVoiceCommand("negentig dagen", locale, today))
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("lees mijn komende betalingen", locale, today))
+        assertEquals(VoiceCommand.ReviewReminder("elektriciteit", today.plusDays(4)),
+            parseVoiceCommand("herinner me om elektriciteit te betalen op vrijdag", locale, today))
+        assertEquals(VoiceCommand.ReviewPayment("huur"), parseVoiceCommand("markeer huur als betaald", locale, today))
+        assertEquals(VoiceCommand.Draft(BillDraft("Internet", "29.95".toBigDecimal(), "EUR", today)),
+            parseVoiceCommand("Internet kost 29,95 EUR vervalt op 2026-11-16", locale, today))
+    }
+
+    @Test fun supportsSwedishCommands() {
+        val locale = Locale.forLanguageTag("sv-SE")
+        assertEquals("SEK", defaultCurrency(Locale.forLanguageTag("sv")))
+        assertEquals(VoiceCommand.Range(7), parseVoiceCommand("sju dagar", locale, today))
+        assertEquals(VoiceCommand.Navigate.Upcoming, parseVoiceCommand("läs mina kommande betalningar", locale, today))
+        assertEquals(VoiceCommand.ReviewReminder("el", today.plusDays(4)),
+            parseVoiceCommand("påminn mig att betala el på fredag", locale, today))
+        assertEquals(VoiceCommand.ReviewPayment("hyra"), parseVoiceCommand("markera hyra som betald", locale, today))
+        assertEquals(VoiceCommand.Draft(BillDraft("Internet", "29.95".toBigDecimal(), "SEK", today)),
+            parseVoiceCommand("Internet kostar 29,95 SEK förfaller 2026-11-16", locale, today))
+    }
+
     @Test fun supportsItalianCommandsAndLocalAmounts() {
         val italian = Locale.ITALY
         assertEquals("EUR", defaultCurrency(Locale.ITALIAN))

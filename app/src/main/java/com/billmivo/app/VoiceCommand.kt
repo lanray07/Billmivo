@@ -22,7 +22,13 @@ private val shortcuts = mapOf(
     "de" to listOf("zeige überfällige rechnungen", "zeige die kostenaufteilung", "zeige änderungen bei rechnungsbeträgen",
         "zeige rechnungserinnerungen", "lies meine nächsten zahlungen vor"),
     "it" to listOf("mostra le bollette scadute", "mostra le spese condivise", "mostra gli aumenti delle bollette",
-        "mostra i promemoria bollette", "leggi i miei prossimi pagamenti")
+        "mostra i promemoria bollette", "leggi i miei prossimi pagamenti"),
+    "pt" to listOf("mostrar contas atrasadas", "mostrar despesas compartilhadas", "mostrar aumentos nas contas",
+        "mostrar lembretes de contas", "ler meus próximos pagamentos"),
+    "nl" to listOf("toon achterstallige rekeningen", "toon gedeelde kosten", "toon rekeningverhogingen",
+        "toon rekeningherinneringen", "lees mijn komende betalingen"),
+    "sv" to listOf("visa förfallna räkningar", "visa delade hushållskostnader", "visa höjda räkningsbelopp",
+        "visa räkningspåminnelser", "läs mina kommande betalningar")
 )
 
 private val paymentRequests = mapOf(
@@ -31,7 +37,10 @@ private val paymentRequests = mapOf(
     "es" to Regex("marcar (?:mi |la |el )?(.+) como pagad[oa]"),
     "ar" to Regex("تسجيل دفع (.+)"),
     "de" to Regex("markiere (?:die rechnung )?(.+?) als bezahlt"),
-    "it" to Regex("segna (?:la bolletta )?(.+?) come pagat[oa]")
+    "it" to Regex("segna (?:la bolletta )?(.+?) come pagat[oa]"),
+    "pt" to Regex("mar(?:que|car) (?:a conta )?(.+?) como pag[oa]"),
+    "nl" to Regex("markeer (.+?) als betaald"),
+    "sv" to Regex("markera (.+?) som betald")
 )
 
 private val reminderRequests = mapOf(
@@ -40,13 +49,17 @@ private val reminderRequests = mapOf(
     "es" to Regex("recuérdame pagar (.{1,100}) (?:el|para) (.+)"),
     "ar" to Regex("ذكرني بدفع (.{1,100}) (?:يوم|في) (.+)"),
     "de" to Regex("erinnere mich an die zahlung für (.{1,100}) (?:am |(?=heute$|morgen$))(.+)"),
-    "it" to Regex("ricordami di pagare (.{1,100}?) (?:il |(?=oggi$|domani$|lunedì$|martedì$|mercoledì$|giovedì$|venerdì$|sabato$|domenica$))(.+)")
+    "it" to Regex("ricordami di pagare (.{1,100}?) (?:il |(?=oggi$|domani$|lunedì$|martedì$|mercoledì$|giovedì$|venerdì$|sabato$|domenica$))(.+)"),
+    "pt" to Regex("lembre(?:-me)? de pagar (.{1,100}?) (?:na |no |em |(?=hoje$|amanhã$))(.+)"),
+    "nl" to Regex("herinner me om (.{1,100}?) te betalen (?:op |(?=vandaag$|morgen$))(.+)"),
+    "sv" to Regex("påminn mig att betala (.{1,100}?) (?:på |(?=idag$|imorgon$))(.+)")
 )
 
 private val reminderDayWords = mapOf(
     "en" to listOf("today", "tomorrow"), "fr" to listOf("aujourd’hui", "demain"),
     "es" to listOf("hoy", "mañana"), "ar" to listOf("اليوم", "غدًا"), "de" to listOf("heute", "morgen"),
-    "it" to listOf("oggi", "domani")
+    "it" to listOf("oggi", "domani"), "pt" to listOf("hoje", "amanhã"),
+    "nl" to listOf("vandaag", "morgen"), "sv" to listOf("idag", "imorgon")
 )
 
 private fun reminderDate(text: String, locale: Locale, today: LocalDate): LocalDate? {

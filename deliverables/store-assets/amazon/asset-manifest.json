@@ -388,6 +388,228 @@
         "sha256": "6e2067fd1b0ea8b8f404d55b1f81f5ac8532dca78745b10d5b6607a77f7bc483",
         "raw_sha256": "79bd61e442d3fcdbc1c8aeaa1b0d80ff64408de2a6791381bd8a123641851e03"
       }
+    ],
+    "pt-BR": [
+      {
+        "file": "01-forecast.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "526f4531536b8124431a8386fd1db8b94c268d0d704be98e4afed174747f0f05",
+        "raw_sha256": "4338e8e783bb960e75eb0496cdd2ea313b8b37a518738dd5934d84a362a8f3dc"
+      },
+      {
+        "file": "02-week.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "ee0f41cc133d54dd0ada0c638343d44c9ec6172b38c301c2e7947707634625c1",
+        "raw_sha256": "e3349f74df058231507a39d22707c125a258a215b895da77a59012135723634b"
+      },
+      {
+        "file": "03-reminders.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "523fbf0207b952c79e02d52e9518a7bcb974353bf9e3d3617c9733db1b751567",
+        "raw_sha256": "a6014a049cb5448a56bf7edf784406d73c943e84b6b117aa089ff60ad14771b1"
+      },
+      {
+        "file": "04-spending.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "f881d158d4f103ee6d6894d59e1561266a2506784a89572a453480cde58df660",
+        "raw_sha256": "df7772aaf16edf1a123dcb22de09d993a3cebcd9c13df5026976d72c8c15389a"
+      },
+      {
+        "file": "05-changes.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "31cd8e79a63258c0ac40796282d7bebd4531a4aa13279404fb2d5b85aaf9b558",
+        "raw_sha256": "3a6938b3a7f14447e782c7d8ca4271c868697fe0e1b965b4afc429ae0f094c3a"
+      },
+      {
+        "file": "06-voice.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "67cc911cb0403eea4044ebc4c060a75b07ec544b4f5e5513abf96efe9b759cec",
+        "raw_sha256": "701e5174d0d30741fa5601d15aa79dca722d4f67b04e74b35c3a129712b04ad6"
+      },
+      {
+        "file": "07-sharing.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "c622edea407fbee5b6405c4040f0c3c1ca46d98a6d12d730e9e7d4735342e663",
+        "raw_sha256": "5d34cd54e982b3564bc9bcd8763b10471c4803a12c3d99eac3317f9a78015cb5"
+      },
+      {
+        "file": "08-calendar.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "27602c236e89974cb60941a18039116b632ac9dddef437f60c00f6ca7d0e48fd",
+        "raw_sha256": "debb5b03b0570f9f89dfaaf9c0a96a15b03a7518be47bbae775c11cd7d23a28a"
+      }
+    ],
+    "nl-NL": [
+      {
+        "file": "01-forecast.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "306dffe10dee0a8d2c27cf765067893f5d17e616a725e1e4c65358e1821f0716",
+        "raw_sha256": "17001e663a9624db049353d0235498b4366dab5b565ab51532c85d7c3e95aec9"
+      },
+      {
+        "file": "02-week.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "1f7dec259ede9107071ac01f400cdf8a9139ff7f6d74806a7cd7303bdc32a5ea",
+        "raw_sha256": "c42cd6da2bb7b6db094595154e7474e3470bff4c1ad8485921e628fc5bfb1c28"
+      },
+      {
+        "file": "03-reminders.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "59439420c2ea1d2ecf36b44406ad2afa548c5d0af2d0fa9e2a94338376144da0",
+        "raw_sha256": "ad9607396e315706a149ab7909fb39411254c3ff20dda877d11c7f7c6d906d19"
+      },
+      {
+        "file": "04-spending.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "958962116a85c21539d19a78abfe2bec473319929aa16b44471b7580ae905756",
+        "raw_sha256": "f78986f67ba5352cd914f8a004249439a453ad56c7551654b57eb05c6fc2111e"
+      },
+      {
+        "file": "05-changes.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "ace9522f610326ed324b58bbd0ed415327888524c728b37a06c87c92e17164f1",
+        "raw_sha256": "64c62c611c1cebf50fb5d939731e3fa13997df95a17baaae222225f840b1167c"
+      },
+      {
+        "file": "06-voice.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "e7e67061c9e3582411f8eb7d1c782519c5a88d0bfe3e8bd3960d71d874fbbe78",
+        "raw_sha256": "9024149830b7137d04a2ab8e3c6dfa8459e73a97a0775ab08768d8820c17738c"
+      },
+      {
+        "file": "07-sharing.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "8b2d50b766b2992a0d044e5fbe167fb81f2969d286e9812682f35994c91b721f",
+        "raw_sha256": "a15de97d5d1e7c324e895a49e524f11d4aa56b967e8eced83550cf5db201a780"
+      },
+      {
+        "file": "08-calendar.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "1ba9833ecd8d0d1e33e6e133c40f443e26f14d7fa1c7b31f5e04243716ab34d5",
+        "raw_sha256": "779e51869b69bb690a107c30398819870403314bff3b6081fd295a5a8ebf6f8b"
+      }
+    ],
+    "sv-SE": [
+      {
+        "file": "01-forecast.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "97f935a00660115236c0a42087780ac0c3b2e389a4cf06e88fcca17d9ce12c6d",
+        "raw_sha256": "e3c5093ae3bd9f0137cd671f92ce8ca6f9e7b2370ff13cde6cdc9cc9cda5f9d2"
+      },
+      {
+        "file": "02-week.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "fa0bded6619b43bbcd2a3f96059a93db6cb727805e836d0eae14bcad20be34d1",
+        "raw_sha256": "e265d0d4522265d924b53c9d93da7483881f77f88b37826a18a2b623ce5027fe"
+      },
+      {
+        "file": "03-reminders.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "580e93af8423df1ef6e55f63a2edf93aff1ed77f08255c78c2300340db5c286f",
+        "raw_sha256": "68a44bc2a4ce3e5eaeae9045ce7315638d3d14cf951ccb550fd62c80acdd1803"
+      },
+      {
+        "file": "04-spending.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "6a3c913532984a483d2f70a32a20cbcd57b60048ca5a33ecdd7e399764aecc83",
+        "raw_sha256": "1e87b9d1100b04e95b6da498775419b6557d2cc0c04fa2dd347fa42d661c5a65"
+      },
+      {
+        "file": "05-changes.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "0144b6938dd30c62f04593e13184be40fbaa5d6102365088e5642fda06f09c83",
+        "raw_sha256": "42aa37f7caa1c933d30f9faa83951cd93557dbb74806e2be62b7a1d4ff36bcdd"
+      },
+      {
+        "file": "06-voice.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "0222f5111b333f3401604a1d2a671c101546d9d4ffcdbc73806a906dd9e95bf9",
+        "raw_sha256": "5dff1e4ad79ca303022a98efeccf9e590f069a20d453b9685b19c104d417db09"
+      },
+      {
+        "file": "07-sharing.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "cc50b7dc49e14df05c53932782bff46a03ca6ea89d52e55efa37dfc0a98a2dd2",
+        "raw_sha256": "bd0d505267a778de1737d37670639a82001873a1e314a85859690b8d1ff898fe"
+      },
+      {
+        "file": "08-calendar.png",
+        "pixels": [
+          1920,
+          1200
+        ],
+        "sha256": "6091cfc6aa6d30fd921e76a5d14d6b2b6aa4032c7a32f801c500bd63674396ad",
+        "raw_sha256": "6fe108a83469e9bee5e9763c46bf7195e6fbd345daa9f060a6f7971c848f801d"
+      }
     ]
   },
   "promotion": {

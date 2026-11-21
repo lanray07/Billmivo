@@ -76,7 +76,7 @@ def promotional_image(output: Path):
 def main():
     parser = argparse.ArgumentParser(description="Render Billmivo's Fire tablet assets from real app captures.")
     parser.add_argument("--raw", type=Path)
-    parser.add_argument("--locale", choices=("en-GB", "fr-FR", "es-ES", "de-DE", "it-IT"))
+    parser.add_argument("--locale", choices=("en-GB", "fr-FR", "es-ES", "de-DE", "it-IT", "pt-BR", "nl-NL", "sv-SE"))
     parser.add_argument("--out", type=Path, default=ROOT / "deliverables/store-assets/amazon")
     options = parser.parse_args()
     if (options.raw is None) != (options.locale is None):

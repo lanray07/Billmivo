@@ -390,4 +390,7 @@
     <string name="language_de">Deutsch</string>
     <string name="language_it">Italiano</string>
     <string name="appearance_system">Tema del dispositivo</string>
+    <string name="language_pt">Português (Brasil)</string>
+    <string name="language_nl">Nederlands</string>
+    <string name="language_sv">Svenska</string>
 </resources>

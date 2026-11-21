@@ -25,8 +25,8 @@ android {
         applicationId = "com.billmivo.app"
         minSdk = 28
         targetSdk = 35
-        versionCode = 11
-        versionName = "0.10.0"
+        versionCode = 12
+        versionName = "0.11.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "AMAZON_VERIFIER", "\"$verifierEndpoint\"")
         buildConfigField("boolean", "AMAZON_SANDBOX", amazonSandbox.toString())

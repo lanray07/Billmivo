@@ -22,7 +22,7 @@ foreach ($apk in @($DebugApk, $TestApk)) {
 & $adb -s $Serial shell am force-stop com.billmivo.app.debug
 $log = Join-Path $LogDir 'fire-instrumentation.txt'
 # Store previews replace demo records and run separately from the regression suite.
-$run = & $adb -s $Serial shell am instrument -w -e notClass com.billmivo.app.StorePreviewFixture com.billmivo.app.debug.test/androidx.test.runner.AndroidJUnitRunner
+$run = & $adb -s $Serial shell am instrument -w -e notClass 'com.billmivo.app.StorePreviewFixture,com.billmivo.app.StoreScreenshotCapture' com.billmivo.app.debug.test/androidx.test.runner.AndroidJUnitRunner
 $instrumentExit = $LASTEXITCODE
 $run | Tee-Object $log
 $passed = $run -match '^OK \(([1-9][0-9]*) tests?\)\s*$'
