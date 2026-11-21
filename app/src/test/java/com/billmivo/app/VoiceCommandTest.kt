@@ -10,6 +10,40 @@ import java.util.Locale
 class VoiceCommandTest {
     private val today = LocalDate.of(2026, 11, 16)
 
+    @Test fun supportsPolishCommandsAndCommaDecimals() {
+        val locale = Locale.forLanguageTag("pl-PL")
+        assertEquals("PLN", defaultCurrency(Locale.forLanguageTag("pl")))
+        listOf("siedem dni", "trzydzieści dni", "dziewięćdziesiąt dni").zip(listOf(7, 30, 90)).forEach { (text, days) ->
+            assertEquals(VoiceCommand.Range(days), parseVoiceCommand(text, locale, today))
+        }
+        listOf("pokaż zaległe rachunki", "pokaż podział kosztów", "pokaż wzrosty rachunków",
+            "pokaż przypomnienia o rachunkach", "odczytaj moje nadchodzące płatności")
+            .zip(VoiceCommand.Navigate.entries).forEach { (text, route) ->
+                assertEquals(route, parseVoiceCommand(text, locale, today))
+            }
+        assertEquals(VoiceCommand.ReviewPayment("czynsz"), parseVoiceCommand("Oznacz Czynsz jako opłacony", locale, today))
+        assertEquals(VoiceCommand.ReviewPayment("rachunek za wodę"),
+            parseVoiceCommand("Oznacz Rachunek za wodę jako opłacony", locale, today))
+        assertEquals(VoiceCommand.Draft(BillDraft("Internet", "29.95".toBigDecimal(), "PLN", today)),
+            parseVoiceCommand("Internet kosztuje 29,95 PLN termin 2026-11-16", locale, today))
+    }
+
+    @Test fun resolvesPolishWeekdayCasesWithoutChangingTheBillName() {
+        val locale = Locale.forLanguageTag("pl-PL")
+        listOf("w poniedziałek", "we wtorek", "w środę", "w czwartek", "w piątek", "w sobotę", "w niedzielę")
+            .forEachIndexed { offset, day ->
+                assertEquals(VoiceCommand.ReviewReminder("prąd", today.plusDays(offset.toLong())),
+                    parseVoiceCommand("Przypomnij mi zapłacić Prąd $day", locale, today))
+            }
+        listOf("dziś", "dzisiaj").forEach { day ->
+            assertEquals(VoiceCommand.ReviewReminder("prąd", today),
+                parseVoiceCommand("Przypomnij mi zapłacić Prąd $day", locale, today))
+        }
+        assertEquals(VoiceCommand.ReviewReminder("prąd", today.plusDays(1)),
+            parseVoiceCommand("Przypomnij mi zapłacić Prąd jutro", locale, today))
+        assertNull(parseVoiceCommand("Przypomnij mi zapłacić Prąd dnia 2026-11-31", locale, today))
+    }
+
     @Test fun supportsBrazilianPortugueseCommands() {
         val locale = Locale.forLanguageTag("pt-BR")
         assertEquals("BRL", defaultCurrency(Locale.forLanguageTag("pt")))

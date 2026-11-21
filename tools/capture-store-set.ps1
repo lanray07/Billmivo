@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('en-GB','fr-FR','es-ES','de-DE','it-IT','pt-BR','nl-NL','sv-SE')]
+    [ValidateSet('en-GB','fr-FR','es-ES','de-DE','it-IT','pt-BR','nl-NL','sv-SE','pl-PL')]
     [string] $Locale,
     # Retained for callers of the earlier UI Automator capture command.
     [string] $CurrentLanguage = 'en',

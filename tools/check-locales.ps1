@@ -44,7 +44,11 @@ $localeConfig.'locale-config'.locale | ForEach-Object {
         $expected = Get-FormatArguments ($group.item | Where-Object quantity -eq 'other').InnerText
         $items = if ($translated.Count -eq 1) { $translated[0].SelectNodes('item') }
         $quantities = @($items | ForEach-Object quantity)
-        $required = if ($language -eq 'ar') { 'zero','one','two','few','many','other' } else { 'one','other' }
+        $required = switch ($parts[0]) {
+            'ar' { 'zero','one','two','few','many','other' }
+            'pl' { 'one','few','many','other' }
+            default { 'one','other' }
+        }
         if ($translated.Count -ne 1 -or @($required | Where-Object { $_ -notin $quantities }).Count -or
             @($items | Where-Object { (Get-FormatArguments $_.InnerText) -ne $expected }).Count) {
             throw "${language}: invalid plural $($group.name)"

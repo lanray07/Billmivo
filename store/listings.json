@@ -269,5 +269,39 @@
       "Dela hushållets kostnader",
       "Se räkningskalendern offline"
     ]
+  },
+  "pl-PL": {
+    "name": "Billmivo – Rachunki i płatności",
+    "short": "Planuj rachunki domowe, odróżniaj kwoty potwierdzone od szacowanych i sprawdzaj zmiany wydatków.",
+    "long": "Billmivo pomaga planować rachunki i płatności domowe na tablecie Fire. Prognoza pokazuje nadchodzące należności, oddziela kwoty potwierdzone od szacunkowych i przedstawia zaległe rachunki osobno.\n\nDodawaj rachunki cykliczne i jednorazowe, zapisuj płatności częściowe, ustawiaj przypomnienia i planuj podział kosztów między domowników. Porównuj zapisane płatności z ostatnich sześciu miesięcy oraz zmiany porównywalnych kwot rachunków.\n\nPrzechowuj dane dostawców i dokumenty, eksportuj raporty oraz twórz szyfrowane kopie zapasowe. Podstawowe dane są zapisywane na urządzeniu. Skróty można wpisywać lub wybierać dotykiem; głos wymaga zgodnych usług urządzenia.\n\nPlan bezpłatny obejmuje 10 aktywnych rachunków cyklicznych. Jednorazowy zakup Billmivo Premium przez Amazon udostępnia rachunki cykliczne bez limitu, zaawansowane prognozy i edycję podziału kosztów. Weryfikacja zakupu wymaga połączenia z siecią.",
+    "release_notes": "Polski interfejs, skróty, odmiana liczby rachunków i dni oraz lokalne formaty dat i kwot. Zrzuty ekranu przedstawiają aplikację na tablecie Fire HD 10.",
+    "support": "Pomoc: banksmi@mail.com. W zgłoszeniu podaj wersję aplikacji i model urządzenia. Nie wysyłaj haseł ani kodu PIN.",
+    "features": [
+      "Prognoza rachunków z oddzielnymi kwotami potwierdzonymi i szacunkowymi",
+      "Przypomnienia z godzinami ciszy i prywatnym podglądem",
+      "Planowanie podziału kosztów między domowników",
+      "Analizy zapisanych płatności i zmian kwot rachunków",
+      "Lokalne dane, raporty i szyfrowane kopie zapasowe"
+    ],
+    "keywords": [
+      "rachunki domowe",
+      "terminy płatności",
+      "przypomnienia o rachunkach",
+      "podział kosztów",
+      "wydatki gospodarstwa",
+      "prognoza rachunków",
+      "budżet domowy",
+      "tablet Fire"
+    ],
+    "headlines": [
+      "Sprawdź, ile gospodarstwo ma do zapłaty",
+      "Zaplanuj rachunki na ten tydzień",
+      "Wybierz przypomnienia o rachunkach",
+      "Śledź sześć miesięcy płatności",
+      "Sprawdzaj zmiany kwot rachunków",
+      "Wybierz okres prognozy po swojemu",
+      "Podziel koszty gospodarstwa",
+      "Sprawdzaj terminy płatności offline"
+    ]
   }
 }

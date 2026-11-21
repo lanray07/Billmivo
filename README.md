@@ -37,7 +37,7 @@ Jetpack Compose renders the responsive dashboard, bills, calendar, insights and 
 
 ## Languages and voice
 
-The app includes English, French, Spanish, Arabic, German, Italian, Brazilian Portuguese, Dutch and Swedish. The UI follows the device language by default and offers a manual override. Arabic uses right-to-left layout. Currency and date formatting follow the active locale. The forecast shortcut understands 7, 30 and 90 as digits or supported local number words, with touch and typed controls as alternatives. Microphone recognition and speech output depend on the installed engine and locale.
+The app includes English, French, Spanish, Arabic, German, Italian, Brazilian Portuguese, Dutch, Swedish and Polish. The UI follows the device language by default and offers a manual override. Arabic uses right-to-left layout. Currency and date formatting follow the active locale. The forecast shortcut understands 7, 30 and 90 as digits or supported local number words, with touch and typed controls as alternatives. Microphone recognition and speech output depend on the installed engine and locale.
 
 After installing the debug and test APKs, run `./tools/capture-store-set.ps1 -Locale pt-BR -Serial YOUR_FIRE_SERIAL` to capture the eight translated storefront scenes. The capture fixture checks that the debug household is empty or contains only its fictional preview records. Capture runs separately from the regression suite.
 
@@ -45,4 +45,4 @@ After installing the debug and test APKs, run `./tools/capture-store-set.ps1 -Lo
 
 See the [dashboard report](deliverables/reports/dashboard-delivery.md), [reminders and sharing report](deliverables/reports/reminders-sharing.md) and [Amazon release preparation](store/README.md) for build results, hardware coverage, and production setup.
 
-The [0.11.0 checkpoint](deliverables/reports/release-0110.md) records the latest language coverage, Fire tests, build artifacts and remaining release checks. The latest Amazon-installed purchase and restore verification is for 0.10.0.
+The [0.12.0 checkpoint](deliverables/reports/release-0120.md) records the latest language coverage, Fire tests, build artifacts and remaining release checks. The latest Amazon-installed purchase and restore verification is for 0.11.0.

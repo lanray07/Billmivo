@@ -221,7 +221,8 @@ internal fun LanguageMenu() {
     val languages = linkedMapOf("" to R.string.system, "en" to R.string.language_en,
         "fr" to R.string.language_fr, "es" to R.string.language_es, "ar" to R.string.language_ar,
         "de" to R.string.language_de, "it" to R.string.language_it,
-        "pt-BR" to R.string.language_pt, "nl" to R.string.language_nl, "sv" to R.string.language_sv)
+        "pt-BR" to R.string.language_pt, "nl" to R.string.language_nl, "sv" to R.string.language_sv,
+        "pl" to R.string.language_pl)
     MenuField(stringResource(R.string.language), AppCompatDelegate.getApplicationLocales().toLanguageTags(),
         languages.keys.toList(), { stringResource(languages[it] ?: R.string.system) },
         { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(it)) })

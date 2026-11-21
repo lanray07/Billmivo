@@ -22,7 +22,7 @@ Store metadata includes titles, descriptions, feature bullets, search phrases, s
 | Initial reminder checks | FAIL | The initial full run had two eight-second timeouts waiting for a notification to disappear after its action. Both reminder tests then passed in isolation, and the complete suite passed on rerun. The initial intermittent failure remains recorded in `fire-0110/fire-instrumentation.txt`; its cause has not been established. |
 | Receipt verifier | PASS | All seven local Node tests passed for validation, production and sandbox routing, malformed receipts, throttling and missing credentials. |
 | New localized captures | PASS | Three successful Fire capture runs produced 24 distinct screenshots. Reviewed translated UI, BRL/EUR/SEK formats, headlines, dialog rendering and visible household totals. The package validator passed all eight storefront sets, 64 compositions in total. |
-| Purchase and restore on 0.11.0 | NOT TESTED | The new build has not been uploaded to Amazon Live App Testing. The Amazon-installed 0.10.0 previously passed fresh purchase and separate restore on this tablet. |
+| Purchase and restore on 0.11.0 | PASS | Uploaded to the existing private track, installed from Amazon as version code 12, and passed a fresh test purchase in Portuguese plus separate restore checks in Portuguese, Dutch and Swedish. |
 
 Logs are under `deliverables/android/build-logs`. The successful Fire suites are `fire-0110-repeat/fire-instrumentation.txt` and `fire-0110-final/fire-instrumentation.txt`; the separate reminder rerun is `fire-0110/reminder-repeat.txt`.
 
@@ -72,9 +72,17 @@ Standard build and validation commands are documented in the root README and `st
 | App-lock background timeout | PASS | Follow-up on the Amazon-installed 0.10.0 locked after 136.86 seconds in the background with the same process still running. The owner unlocked it, then authenticated to restore app lock to off; a fresh launch opened the dashboard. The lock implementation is unchanged in 0.11.0. The short-return check remains unverified. See [the hardware report](app-lock-timeout.md). |
 | Detailed assistive-technology review | NOT TESTED | Complete VoiceView navigation and focus review in the supported locales. |
 | Other devices and orientations | NOT TESTED | Broaden beyond the verified Fire HD 10 landscape configuration, including newer Fire OS versions. |
-| Current-version private billing | NOT TESTED | Upload 0.11.0 to the existing private track, install through Amazon, then test purchase and restore. |
+| Current-version private billing | PASS | The Fire HD 10 installed 0.11.0 from Amazon and passed a fresh purchase and separate restore checks. See the follow-up below. |
 | Public release | BLOCKED | Final publisher details, public privacy URL, pricing, markets, eligible devices and authorization for public submission remain required. |
 
 The offline assistant remains a local rule-based organization and draft-review feature. It does not use a cloud language model. This release introduces no new assistant behavior or analytics service.
 
 The master prompt is not complete, and this checkpoint does not certify readiness for public submission.
+
+## Private Live App Testing follow-up
+
+On 21 November 2026, uploaded the unchanged 0.11.0 Amazon APK to **Test 1**, copied the existing export certification and retained the same single tester. Amazon validated version code 12 and marked the private test **Test in-progress**. The selectable language flags added Dutch and Portuguese. Swedish is available in the app but has no checkbox in the Console's binary-language list.
+
+The Fire installed the update directly from the Appstore. Package Manager reported `com.amazon.venezia` as installer and SDK sandbox mode was `none`. After resetting only the existing tester's prior entitlement, the Portuguese paywall showed no verified purchase. A fresh checkout at the displayed £7.56 test price activated Premium automatically. Separate restore actions in Portuguese, Dutch and Swedish each showed an Amazon check and returned to active Premium. The device-language setting was restored afterwards. Amazon documents that LAT purchases are not charged. [Amazon IAP testing overview](https://developer.amazon.com/docs/in-app-purchasing/iap-testing-overview.html)
+
+Evidence is under `deliverables/android/build-logs/lat-0110-*` and `amazon-lat-0110-live.jpg`. This private release does not publish the public listing.

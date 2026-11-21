@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.core.os.LocaleListCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,7 +22,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.time.LocalDate
+import java.time.DayOfWeek
+import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
@@ -40,6 +46,17 @@ class StoreScreenshotCapture {
             setLocale(Locale.forLanguageTag(localeTag))
         }
         val translated = context.createConfigurationContext(configuration)
+        if (localeTag == "pl-PL") {
+            mapOf(1 to "1 nieopłacony rachunek", 2 to "2 nieopłacone rachunki",
+                5 to "5 nieopłaconych rachunków", 12 to "12 nieopłaconych rachunków",
+                22 to "22 nieopłacone rachunki").forEach { (count, expected) ->
+                org.junit.Assert.assertEquals(expected, translated.resources.getQuantityString(R.plurals.open_count, count, count))
+            }
+            mapOf(1 to "1 dzień wcześniej", 2 to "2 dni wcześniej", 5 to "5 dni wcześniej",
+                12 to "12 dni wcześniej", 22 to "22 dni wcześniej").forEach { (count, expected) ->
+                org.junit.Assert.assertEquals(expected, translated.resources.getQuantityString(R.plurals.reminder_days, count, count))
+            }
+        }
         fun text(id: Int) = translated.getString(id)
         instrumentation.runOnMainSync {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(localeTag))
@@ -94,7 +111,29 @@ class StoreScreenshotCapture {
             capture("changes", R.string.bill_changes)
             ui.onNodeWithContentDescription(text(R.string.voice)).performClick()
             capture("voice", R.string.voice_command_title)
-            open(R.string.close)
+            if (localeTag == "pl-PL") {
+                val repository = (context.applicationContext as BillmivoApplication).repository
+                val before = runBlocking { repository.records.first() }
+                if (!android.speech.SpeechRecognizer.isRecognitionAvailable(context)) {
+                    ui.onNodeWithText(text(R.string.voice_unavailable)).assertIsDisplayed()
+                }
+                ui.onNodeWithText(text(R.string.voice_command_input))
+                    .performTextInput("Oznacz Rachunek za wodę jako opłacony")
+                open(R.string.voice_open_command)
+                ui.onNodeWithText(text(R.string.record_payment)).assertIsDisplayed()
+                ui.onNodeWithText("Rachunek za wodę").assertIsDisplayed()
+                open(R.string.cancel)
+                ui.onNodeWithContentDescription(text(R.string.voice)).performClick()
+                ui.onNodeWithText(text(R.string.voice_command_input))
+                    .performTextInput("Przypomnij mi zapłacić Prąd w piątek")
+                open(R.string.voice_open_command)
+                ui.onNodeWithText(text(R.string.one_off_reminder)).assertIsDisplayed()
+                val friday = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY))
+                ui.onNodeWithText(translated.getString(R.string.chart_value, text(R.string.one_off_reminder_date),
+                    dateLabel(friday, Locale.forLanguageTag(localeTag)))).assertIsDisplayed()
+                open(R.string.cancel)
+                org.junit.Assert.assertEquals(before, runBlocking { repository.records.first() })
+            } else open(R.string.close)
             open(R.string.calendar)
             capture("calendar", R.string.calendar)
         } finally {
