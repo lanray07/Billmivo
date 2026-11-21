@@ -26,6 +26,8 @@ Store metadata includes titles, descriptions, feature bullets, search phrases, s
 
 Logs are under `deliverables/android/build-logs`. The successful Fire suites are `fire-0110-repeat/fire-instrumentation.txt` and `fire-0110-final/fire-instrumentation.txt`; the separate reminder rerun is `fire-0110/reminder-repeat.txt`.
 
+The first GitHub run passed the offline and Amazon builds but exposed a locale-checker assumption after the final selector tag changed to `pt-BR`. The checker expected an exact resource directory. It now resolves Android region tags through matching BCP 47, regional or parent-language directories, and local validation passes for `pt-BR` using the shared `values-pt` resources. The earlier CI failure remains visible in the workflow history.
+
 ## Capture automation
 
 `StoreScreenshotCapture` seeds only the separate debug package with fictional records, then navigates the translated application through Compose semantics. Android captures the actual Fire display. The fixture requires an explicit `demo=true` argument and refuses a household containing non-preview records. The normal Fire regression command excludes both preview fixtures.

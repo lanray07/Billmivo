@@ -20,7 +20,18 @@ $base = Read-Strings (Join-Path $resources 'values/strings.xml')
 [xml] $localeConfig = Get-Content -LiteralPath (Join-Path $resources 'xml/locales.xml') -Raw -Encoding UTF8
 $localeConfig.'locale-config'.locale | ForEach-Object {
     $language = $_.GetAttribute('name','http://schemas.android.com/apk/res/android')
-    $directory = if ($language -eq 'en') { 'values' } else { "values-$language" }
+    $parts = $language -split '-'
+    # Android resolves a region-specific app locale through its parent language resources.
+    $directories = if ($language -eq 'en') { @('values') } else {
+        @("values-b+$($language.Replace('-', '+'))") +
+            @(if ($parts.Count -eq 2 -and $parts[1] -cmatch '^([A-Z]{2}|[0-9]{3})$') {
+                "values-$($parts[0])-r$($parts[1])"
+            }) + @("values-$($parts[0])") + @(if ($parts[0] -eq 'en') { 'values' })
+    }
+    $directory = $directories | Where-Object {
+        Test-Path -LiteralPath (Join-Path $resources "$_/strings.xml")
+    } | Select-Object -First 1
+    if (!$directory) { throw "${language}: no matching Android string resources" }
     $locale = Read-Strings (Join-Path $resources "$directory/strings.xml")
     $missing = @($base.Strings.Keys | Where-Object { !$locale.Strings.ContainsKey($_) })
     $extra = @($locale.Strings.Keys | Where-Object { !$base.Strings.ContainsKey($_) })
